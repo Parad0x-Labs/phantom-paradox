@@ -852,12 +852,14 @@ console.log(<span style="color: #a5d6ff;">'NET POSITIONS:'</span>, pos);<br>
                 `;
             } else {
                 componentsEl.innerHTML = `
-                    <div style="color: var(--accent-red); margin-bottom: 0.25rem;">✗ Netting engine: API offline</div>
-                    <div style="color: var(--accent-orange); margin-bottom: 0.5rem;">⚠ Start payout server for REAL payouts:</div>
-                    <div style="color: var(--text-secondary); font-family: monospace; font-size: 0.7rem; margin-bottom: 0.5rem;">cd offchain && node payout_server.js</div>
+                    <div style="color: var(--accent-orange); margin-bottom: 0.25rem;">⚠ Netting engine: Demo mode (API offline)</div>
+                    <div style="color: var(--accent-green); margin-bottom: 0.25rem;">✓ Compression calculator: Works offline</div>
+                    <div style="color: var(--accent-green); margin-bottom: 0.25rem;">✓ Netting calculator: Works offline</div>
+                    <div style="color: var(--accent-green); margin-bottom: 0.25rem;">✓ Anonymity calculator: Works offline</div>
+                    <div style="color: var(--accent-green); margin-bottom: 0.25rem;">✓ Cost calculator: Works offline</div>
                     <div style="font-size: 0.7rem; color: var(--text-secondary); padding-top: 0.5rem; border-top: 1px solid var(--border);">
-                        💡 To test full pipeline, ensure off-chain API is running at /api/intents/submit<br>
-                        <span style="color: var(--accent-orange);">Run payout_server.js locally for REAL BlackMirror payouts!</span>
+                        💡 Sections 1-5 work without API! Only Section 3 (live transactions) needs local server.<br>
+                        <span style="color: var(--accent-blue);">For live payouts: Run "node offchain/payout_server.js" locally</span>
                     </div>
                 `;
             }
@@ -873,7 +875,7 @@ console.log(<span style="color: #a5d6ff;">'NET POSITIONS:'</span>, pos);<br>
                 } else if (health.available) {
                     statusEl.innerHTML = `<span style="color: var(--accent-cyan);">✓ Netting API: Online</span>`;
                 } else {
-                    statusEl.innerHTML = `<span style="color: var(--accent-orange);">⚠ Payout Server: Offline - run "node offchain/payout_server.js"</span>`;
+                    statusEl.innerHTML = `<span style="color: var(--accent-blue);">ℹ Demo Mode: Sections 1-5 work offline. Section 3 needs local server.</span>`;
                 }
             }
             updatePipelineStatus(health.available);
