@@ -308,6 +308,27 @@
             <p class="hero-sub">Real tests. Real transactions. Provable on-chain results.</p>
         </section>
         
+        <!-- LAB WALLET - Fund this for tests -->
+        <div style="background: linear-gradient(135deg, #0a1520, #0f1a28); border: 2px solid var(--accent); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.25rem;">💰 LAB WALLET (Devnet) — Fund this for real TX tests</div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--accent); word-break: break-all;">
+                        <a href="https://explorer.solana.com/address/J4djW3cqScwKXzTDfYKZbcvhhNUw4VrqLLhSzYVFEqdS?cluster=devnet" target="_blank" style="color: var(--accent); text-decoration: none;">J4djW3cqScwKXzTDfYKZbcvhhNUw4VrqLLhSzYVFEqdS</a>
+                        <button onclick="navigator.clipboard.writeText('J4djW3cqScwKXzTDfYKZbcvhhNUw4VrqLLhSzYVFEqdS'); this.textContent='✓'" style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-dim); padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px; font-size: 0.75rem;">📋</button>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.75rem; color: var(--text-dim);">BALANCE</div>
+                    <div id="lab-wallet-balance" style="font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 700; color: var(--accent);">...</div>
+                    <div id="lab-wallet-status" style="font-size: 0.75rem; color: var(--accent);">Checking...</div>
+                </div>
+            </div>
+            <div id="refill-warning" style="display: none; margin-top: 1rem; padding: 0.75rem; background: rgba(255, 71, 87, 0.15); border: 1px solid var(--accent-red); border-radius: 8px; font-size: 0.85rem; color: var(--accent-red);">
+                ⚠️ <strong>LOW BALANCE!</strong> Fund this wallet to run real devnet transaction tests.
+            </div>
+        </div>
+
         <!-- Token Info Cards -->
         <div class="token-info">
             <div class="token-card mainnet">
@@ -1080,8 +1101,52 @@
             setTimeout(() => btn.textContent = '📋 Copy JSON', 1500);
         }
         
-        // Init - check $NULL supply on load
+        // Lab wallet address
+        const LAB_WALLET = 'J4djW3cqScwKXzTDfYKZbcvhhNUw4VrqLLhSzYVFEqdS';
+        
+        // Check lab wallet balance
+        async function checkLabWalletBalance() {
+            try {
+                const data = await rpcCall(DEVNET_RPC, 'getBalance', [LAB_WALLET]);
+                if (data.result) {
+                    const balance = data.result.value / 1e9;
+                    const balanceEl = document.getElementById('lab-wallet-balance');
+                    const statusEl = document.getElementById('lab-wallet-status');
+                    const warningEl = document.getElementById('refill-warning');
+                    
+                    balanceEl.textContent = balance.toFixed(4) + ' SOL';
+                    
+                    if (balance < 1) {
+                        balanceEl.style.color = 'var(--accent-red)';
+                        statusEl.textContent = '🔴 EMPTY - Need refill!';
+                        statusEl.style.color = 'var(--accent-red)';
+                        warningEl.style.display = 'block';
+                    } else if (balance < 5) {
+                        balanceEl.style.color = 'var(--accent-orange)';
+                        statusEl.textContent = '🟡 Low - Consider refill';
+                        statusEl.style.color = 'var(--accent-orange)';
+                        warningEl.style.display = 'block';
+                    } else if (balance < 20) {
+                        balanceEl.style.color = 'var(--accent)';
+                        statusEl.textContent = '🟢 OK';
+                        statusEl.style.color = 'var(--accent)';
+                        warningEl.style.display = 'none';
+                    } else {
+                        balanceEl.style.color = 'var(--accent)';
+                        statusEl.textContent = '🟢 FUNDED - Ready for tests!';
+                        statusEl.style.color = 'var(--accent)';
+                        warningEl.style.display = 'none';
+                    }
+                }
+            } catch (e) {
+                document.getElementById('lab-wallet-balance').textContent = 'Error';
+                document.getElementById('lab-wallet-status').textContent = '❌ RPC Error';
+            }
+        }
+        
+        // Init - check $NULL supply and lab wallet balance
         async function init() {
+            // Check $NULL supply
             try {
                 const data = await rpcCall(MAINNET_RPC, 'getAccountInfo', [NULL_TOKEN, { encoding: 'jsonParsed' }]);
                 if (data.result?.value?.data?.parsed?.info) {
@@ -1089,6 +1154,12 @@
                     document.getElementById('null-supply').textContent = supply.toLocaleString();
                 }
             } catch (e) {}
+            
+            // Check lab wallet balance
+            checkLabWalletBalance();
+            
+            // Auto-refresh balance every 30 seconds
+            setInterval(checkLabWalletBalance, 30000);
         }
         init();
     </script>
