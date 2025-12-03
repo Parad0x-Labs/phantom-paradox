@@ -1,75 +1,160 @@
 /**
  * PHANTOM PARADOX BROWSER AGENT
- * Popup UI Controller (Firefox)
+ * Popup Controller (Firefox)
+ * Version: 0.1.0
  */
 
-// Polyfill for chrome -> browser
-const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+// API compatibility layer
+const api = typeof browser !== 'undefined' ? browser : chrome;
 
-let currentState = {
+// ============== STATE ==============
+
+let state = {
     isActive: false,
     walletAddress: null,
-    stats: { bytesRelayed: 0, connections: 0, uptime: 0, earnings: 0 }
+    stats: {
+        bytesRelayed: 0,
+        connections: 0,
+        uptime: 0,
+        earnings: 0
+    },
+    config: {
+        maxBandwidth: 10,
+        dailyDataCap: 1000,
+        unlimitedData: false
+    }
 };
 
-let config = {
-    maxBandwidth: 10,
-    dailyDataCap: 1000,
-    unlimitedData: false
-};
-
-// ============== INITIALIZATION ==============
+// ============== INIT ==============
 
 document.addEventListener('DOMContentLoaded', async () => {
     await loadState();
-    await loadConfig();
-    startStatsRefresh();
+    setupEventListeners();
+    startAutoRefresh();
 });
 
 async function loadState() {
     try {
-        const response = await browserAPI.runtime.sendMessage({ type: 'GET_STATE' });
+        const response = await api.runtime.sendMessage({ type: 'GET_STATE' });
         if (response && response.state) {
-            currentState = response.state;
+            state = response.state;
             updateUI();
+            updateConfigUI();
         }
     } catch (err) {
         console.error('Failed to load state:', err);
     }
 }
 
-async function loadConfig() {
-    const stored = await browserAPI.storage.local.get(['agentConfig']);
-    if (stored.agentConfig) {
-        config = { ...config, ...stored.agentConfig };
-        
-        document.getElementById('bwSlider').value = config.maxBandwidth;
-        document.getElementById('bwVal').textContent = config.maxBandwidth + ' Mbps';
-        
-        document.getElementById('dataSlider').value = config.dailyDataCap;
-        document.getElementById('unlimitedData').checked = config.unlimitedData;
-        
-        if (config.unlimitedData) {
-            toggleUnlimited();
-        } else {
-            updateDataCap();
-        }
+// ============== EVENT LISTENERS ==============
+
+function setupEventListeners() {
+    const bwSlider = document.getElementById('bwSlider');
+    bwSlider.addEventListener('input', () => {
+        document.getElementById('bwVal').textContent = bwSlider.value + ' Mbps';
+    });
+    bwSlider.addEventListener('change', saveConfig);
+    
+    const dataSlider = document.getElementById('dataSlider');
+    dataSlider.addEventListener('input', updateDataCapDisplay);
+    dataSlider.addEventListener('change', saveConfig);
+    
+    const unlimited = document.getElementById('unlimitedData');
+    unlimited.addEventListener('change', () => {
+        toggleUnlimited();
+        saveConfig();
+    });
+}
+
+// ============== UI UPDATES ==============
+
+function updateUI() {
+    const statusCard = document.getElementById('statusCard');
+    const icon = document.getElementById('statusIcon');
+    const text = document.getElementById('statusText');
+    const sub = document.getElementById('statusSub');
+    const btn = document.getElementById('mainBtn');
+    const walletEl = document.getElementById('walletAddress');
+    const walletBtn = document.getElementById('walletBtn');
+    
+    if (state.isActive) {
+        statusCard.classList.add('online');
+        icon.textContent = '●';
+        text.textContent = 'ONLINE';
+        sub.textContent = 'Relaying traffic...';
+        btn.textContent = 'STOP';
+        btn.className = 'btn btn-danger';
+    } else {
+        statusCard.classList.remove('online');
+        icon.textContent = '○';
+        text.textContent = 'OFFLINE';
+        sub.textContent = state.walletAddress ? 'Ready to earn' : 'Connect wallet to start';
+        btn.textContent = 'START EARNING';
+        btn.className = 'btn btn-primary';
+    }
+    
+    if (state.walletAddress) {
+        const addr = state.walletAddress;
+        walletEl.textContent = addr.slice(0, 4) + '...' + addr.slice(-4);
+        walletEl.classList.remove('empty');
+        walletBtn.textContent = 'Change';
+    } else {
+        walletEl.textContent = 'Not connected';
+        walletEl.classList.add('empty');
+        walletBtn.textContent = 'Connect';
+    }
+    
+    updateStats();
+}
+
+function updateStats() {
+    const stats = state.stats;
+    
+    const mb = stats.bytesRelayed / (1024 * 1024);
+    if (mb < 1) {
+        document.getElementById('dataRelayed').textContent = Math.round(stats.bytesRelayed / 1024) + ' KB';
+    } else if (mb < 1000) {
+        document.getElementById('dataRelayed').textContent = mb.toFixed(1) + ' MB';
+    } else {
+        document.getElementById('dataRelayed').textContent = (mb / 1024).toFixed(2) + ' GB';
+    }
+    
+    const hours = Math.floor(stats.uptime / 3600);
+    const mins = Math.floor((stats.uptime % 3600) / 60);
+    const secs = stats.uptime % 60;
+    if (hours > 0) {
+        document.getElementById('uptime').textContent = `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    } else {
+        document.getElementById('uptime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    document.getElementById('connections').textContent = stats.connections.toLocaleString();
+    document.getElementById('earnings').textContent = '$' + stats.earnings.toFixed(4);
+    
+    const hourlyRate = stats.uptime > 60 ? (stats.earnings / stats.uptime * 3600) : 0;
+    document.getElementById('rate').textContent = '$' + hourlyRate.toFixed(2) + '/hr';
+}
+
+function updateConfigUI() {
+    const config = state.config;
+    
+    document.getElementById('bwSlider').value = config.maxBandwidth;
+    document.getElementById('bwVal').textContent = config.maxBandwidth + ' Mbps';
+    
+    document.getElementById('dataSlider').value = config.dailyDataCap;
+    document.getElementById('unlimitedData').checked = config.unlimitedData;
+    
+    if (config.unlimitedData) {
+        document.getElementById('dataSlider').disabled = true;
+        document.getElementById('dataVal').textContent = 'UNLIMITED';
+    } else {
+        document.getElementById('dataSlider').disabled = false;
+        updateDataCapDisplay();
     }
 }
 
-async function saveConfig() {
-    config.maxBandwidth = parseInt(document.getElementById('bwSlider').value);
-    config.dailyDataCap = parseInt(document.getElementById('dataSlider').value);
-    config.unlimitedData = document.getElementById('unlimitedData').checked;
-    
-    await browserAPI.storage.local.set({ agentConfig: config });
-}
-
-// ============== DATA CAP ==============
-
-function updateDataCap() {
-    const slider = document.getElementById('dataSlider');
-    const val = parseInt(slider.value);
+function updateDataCapDisplay() {
+    const val = parseInt(document.getElementById('dataSlider').value);
     let display;
     
     if (val < 1000) {
@@ -81,7 +166,6 @@ function updateDataCap() {
     }
     
     document.getElementById('dataVal').textContent = display;
-    saveConfig();
 }
 
 function toggleUnlimited() {
@@ -93,123 +177,101 @@ function toggleUnlimited() {
         document.getElementById('dataVal').textContent = 'UNLIMITED';
     } else {
         slider.disabled = false;
-        updateDataCap();
+        updateDataCapDisplay();
     }
-    
-    saveConfig();
-}
-
-// ============== UI UPDATES ==============
-
-function updateUI() {
-    const indicator = document.getElementById('statusIndicator');
-    const icon = document.getElementById('statusIcon');
-    const text = document.getElementById('statusText');
-    const sub = document.getElementById('statusSub');
-    const btn = document.getElementById('mainBtn');
-    const walletEl = document.getElementById('walletAddress');
-    
-    if (currentState.isActive) {
-        indicator.className = 'status-indicator online';
-        icon.textContent = '●';
-        text.textContent = 'ONLINE';
-        sub.textContent = 'Relaying traffic...';
-        btn.textContent = 'STOP';
-        btn.className = 'btn btn-danger';
-    } else {
-        indicator.className = 'status-indicator offline';
-        icon.textContent = '○';
-        text.textContent = 'OFFLINE';
-        sub.textContent = 'Configure and start earning';
-        btn.textContent = 'START EARNING';
-        btn.className = 'btn btn-primary';
-    }
-    
-    if (currentState.walletAddress) {
-        const addr = currentState.walletAddress;
-        walletEl.textContent = addr.slice(0, 6) + '...' + addr.slice(-6);
-        walletEl.className = 'wallet-address';
-    } else {
-        walletEl.textContent = 'No wallet connected';
-        walletEl.className = 'wallet-address empty';
-    }
-    
-    updateStats();
-}
-
-function updateStats() {
-    const stats = currentState.stats;
-    
-    const mb = (stats.bytesRelayed / (1024 * 1024)).toFixed(2);
-    document.getElementById('dataRelayed').textContent = mb + ' MB';
-    
-    const hours = Math.floor(stats.uptime / 3600);
-    const mins = Math.floor((stats.uptime % 3600) / 60);
-    document.getElementById('uptime').textContent = `${hours}:${mins.toString().padStart(2, '0')}`;
-    
-    document.getElementById('connections').textContent = stats.connections;
-    document.getElementById('earnings').textContent = '$' + stats.earnings.toFixed(4);
-    
-    const hourlyRate = stats.uptime > 0 ? (stats.earnings / stats.uptime * 3600) : 0;
-    document.getElementById('rate').textContent = '$' + hourlyRate.toFixed(2) + '/hr';
 }
 
 // ============== ACTIONS ==============
 
 async function toggleAgent() {
+    const btn = document.getElementById('mainBtn');
+    btn.disabled = true;
+    
     try {
-        if (currentState.isActive) {
-            await browserAPI.runtime.sendMessage({ type: 'STOP_AGENT' });
-            currentState.isActive = false;
+        if (state.isActive) {
+            await api.runtime.sendMessage({ type: 'STOP_AGENT' });
         } else {
-            if (!currentState.walletAddress) {
+            if (!state.walletAddress) {
                 alert('Connect your wallet first');
+                btn.disabled = false;
                 return;
             }
-            await browserAPI.runtime.sendMessage({ type: 'START_AGENT' });
-            currentState.isActive = true;
+            const response = await api.runtime.sendMessage({ type: 'START_AGENT' });
+            if (!response.success) {
+                alert(response.error || 'Failed to start agent');
+            }
         }
-        updateUI();
+        await loadState();
     } catch (err) {
         console.error('Toggle failed:', err);
+        alert('Failed to toggle agent');
     }
+    
+    btn.disabled = false;
 }
 
-async function connectWallet() {
-    const address = prompt('Enter your Solana wallet address:');
-    
-    if (address && address.length >= 32) {
+async function handleWallet() {
+    if (state.walletAddress) {
+        if (confirm('Disconnect wallet?')) {
+            await api.runtime.sendMessage({ type: 'DISCONNECT_WALLET' });
+            await loadState();
+        }
+    } else {
+        const address = prompt('Enter your Solana wallet address:');
+        
+        if (!address) return;
+        
+        if (address.length < 32 || address.length > 44) {
+            alert('Invalid wallet address. Solana addresses are 32-44 characters.');
+            return;
+        }
+        
         try {
-            await browserAPI.runtime.sendMessage({ type: 'SET_WALLET', address });
-            currentState.walletAddress = address;
-            updateUI();
+            const response = await api.runtime.sendMessage({ 
+                type: 'SET_WALLET', 
+                address: address.trim() 
+            });
+            
+            if (response.success) {
+                await loadState();
+            } else {
+                alert(response.error || 'Failed to set wallet');
+            }
         } catch (err) {
             console.error('Wallet set failed:', err);
+            alert('Failed to connect wallet');
         }
-    } else if (address) {
-        alert('Invalid wallet address');
     }
 }
 
-function openSettings() {
-    browserAPI.tabs.create({ url: 'https://phantomparadox.io/agent/settings' });
+async function saveConfig() {
+    const config = {
+        maxBandwidth: parseInt(document.getElementById('bwSlider').value),
+        dailyDataCap: parseInt(document.getElementById('dataSlider').value),
+        unlimitedData: document.getElementById('unlimitedData').checked
+    };
+    
+    try {
+        await api.runtime.sendMessage({ type: 'UPDATE_CONFIG', config });
+        state.config = config;
+    } catch (err) {
+        console.error('Failed to save config:', err);
+    }
 }
 
-// ============== REAL-TIME UPDATES ==============
+// ============== AUTO REFRESH ==============
 
-function startStatsRefresh() {
+function startAutoRefresh() {
     setInterval(async () => {
-        await loadState();
-    }, 5000);
+        if (state.isActive) {
+            await loadState();
+        }
+    }, 3000);
 }
 
-chrome.runtime.onMessage.addListener((message) => {
-    if (message.type === 'STATE_UPDATE') {
-        currentState = message.state;
+api.runtime.onMessage.addListener((message) => {
+    if (message.type === 'STATE_UPDATE' && message.state) {
+        state = message.state;
         updateUI();
-    } else if (message.type === 'STATS_UPDATE') {
-        currentState.stats = message.stats;
-        updateStats();
     }
 });
-

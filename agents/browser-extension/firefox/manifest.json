@@ -1,15 +1,18 @@
 {
   "manifest_version": 2,
   "name": "Phantom Paradox Agent",
+  "short_name": "PP Agent",
   "version": "0.1.0",
-  "description": "Earn crypto by sharing bandwidth. Relay agent for the Phantom Paradox network.",
+  "description": "Earn crypto by sharing bandwidth. Lightweight relay agent for the Phantom Paradox decentralized network.",
   
   "permissions": [
     "storage",
     "alarms",
+    "notifications",
     "https://api.devnet.solana.com/*",
     "https://api.mainnet-beta.solana.com/*",
-    "https://api.phantomparadox.io/*"
+    "https://api.phantomparadox.io/*",
+    "https://*.cloudflare.com/*"
   ],
   
   "background": {
@@ -19,13 +22,7 @@
   
   "browser_action": {
     "default_popup": "src/popup.html",
-    "default_title": "Phantom Paradox Agent",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "32": "icons/icon32.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
+    "default_title": "Phantom Paradox Agent"
   },
   
   "icons": {
@@ -42,6 +39,6 @@
     }
   },
   
-  "author": "Phantom Paradox Team"
+  "author": "Phantom Paradox Team",
+  "homepage_url": "https://phantomparadox.io"
 }
-
