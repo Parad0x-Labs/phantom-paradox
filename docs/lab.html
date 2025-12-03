@@ -398,7 +398,7 @@
                 <div class="token-header">
                     <span class="token-badge devnet">DEVNET</span>
                     <span class="token-name">PDOX</span>
-                    <span class="token-symbol">Test Token</span>
+                    <span class="token-symbol">Agent Escrow</span>
                 </div>
                 <div class="token-address">
                     <a href="https://explorer.solana.com/address/4ckvALSiB6Hii7iVY9Dt6LRM5i7xocBZ9yr3YGNtVRwF?cluster=devnet" target="_blank">4ckvALSiB6Hii7iVY9Dt6LRM5i7xocBZ9yr3YGNtVRwF ↗</a>
@@ -406,8 +406,11 @@
                 <div class="token-stats">
                     <div class="token-stat"><span class="token-stat-label">Supply:</span> <span class="token-stat-value">1B</span></div>
                     <div class="token-stat"><span class="token-stat-label">Decimals:</span> <span class="token-stat-value">9</span></div>
-                    <div class="token-stat"><span class="token-stat-label">Fee:</span> <span class="token-stat-value">3%</span></div>
-                    <div class="token-stat"><span class="token-stat-label">Purpose:</span> <span class="token-stat-value" style="color: var(--accent-orange);">TESTING ONLY</span></div>
+                    <div class="token-stat"><span class="token-stat-label">Fee:</span> <span class="token-stat-value">3% (armageddon)</span></div>
+                    <div class="token-stat"><span class="token-stat-label">Role:</span> <span class="token-stat-value" style="color: var(--accent-orange);">AGENT STAKE</span></div>
+                </div>
+                <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-dim);">
+                    ⚠️ Non-tradable. Used for agent reputation escrow + stress testing fee mechanics at 10x production rates.
                 </div>
             </div>
         </div>
@@ -480,11 +483,21 @@
             <!-- Test 3: PDOX Token (Devnet) -->
             <div class="test-card" id="card-pdox">
                 <div class="card-header">
-                    <div class="card-title"><span class="card-icon">🧪</span><span>PDOX Token (Devnet)</span></div>
+                    <div class="card-title"><span class="card-icon">🧪</span><span>PDOX — Agent Escrow</span></div>
                     <span class="card-status ready" id="status-pdox">READY</span>
                 </div>
                 <div class="card-body">
-                    <p class="card-desc">Devnet test token for stress testing. 3% fee like prod. <span style="color: var(--accent-orange);">No trading value obviously.</span></p>
+                    <div style="background: var(--bg-void); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; font-size: 0.85rem;">
+                        <div style="color: var(--accent-orange); font-weight: 600; margin-bottom: 0.5rem;">🔥 ARMAGEDDON MODE — 3% fee</div>
+                        <p style="color: var(--text-dim); margin-bottom: 0.75rem;">Why 10x the production fee? Stress testing. If the netting engine handles 3% fees smoothly, 0.30% is trivial.</p>
+                        <div style="font-weight: 600; margin-bottom: 0.5rem;">Real use cases (non-tradable):</div>
+                        <div style="display: grid; gap: 0.5rem; color: var(--text-dim);">
+                            <div>🛡️ <strong style="color: var(--text);">Agent Reputation Stake</strong> — Agents lock PDOX as collateral. Good service = keep it. Bad service = slashed.</div>
+                            <div>⚡ <strong style="color: var(--text);">Priority Queue</strong> — More PDOX staked = faster batch processing for your intents.</div>
+                            <div>🎁 <strong style="color: var(--text);">Service Rewards</strong> — Agents earn PDOX for uptime, volume, quality. The muscle gets paid.</div>
+                            <div>🔮 <strong style="color: var(--text);">Future TBD</strong> — Could convert to something when mainnet agents go live. Or not. We'll see.</div>
+                        </div>
+                    </div>
                     <button class="run-btn" id="btn-pdox" onclick="testPdoxToken()">▶ CHECK PDOX</button>
                     <div class="results" id="results-pdox"><div style="color: var(--text-muted);">Click to verify PDOX on devnet...</div></div>
                 </div>
@@ -745,13 +758,15 @@
         // flow diagram data
         const flowData = {
             intents: {
-                title: '📥 INTENTS — User Payment Requests',
+                title: '📥 INTENTS — User & Agent Requests',
                 steps: [
-                    { icon: '1️⃣', text: 'User submits intent: "Send X tokens to Y"' },
+                    { icon: '1️⃣', text: 'User or AI agent submits intent: "Send X to Y"' },
                     { icon: '2️⃣', text: 'Intent signed but NOT broadcast on-chain yet' },
-                    { icon: '3️⃣', text: 'Collected into batch pool (off-chain)' }
+                    { icon: '3️⃣', text: 'Agents with PDOX stake get priority queueing' },
+                    { icon: '4️⃣', text: 'Collected into batch pool (off-chain)' }
                 ],
-                proves: 'Token tests verify $NULL exists on mainnet, PDOX on devnet. These are the assets that flow through.',
+                proves: '$NULL test verifies mainnet token (production fees). PDOX test verifies agent escrow token (3% armageddon mode for stress testing).',
+                example: 'Agent stakes 1000 PDOX → gets priority processing → earns rewards for uptime',
                 proof: { type: 'token', link: 'https://solscan.io/token/8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump', label: '$NULL on Solscan' }
             },
             netting: {
@@ -760,9 +775,10 @@
                     { icon: '1️⃣', text: 'Collect all intents in batch window (~1-5 sec)' },
                     { icon: '2️⃣', text: 'Build graph: A→B, B→C, C→A (finds cycles)' },
                     { icon: '3️⃣', text: 'Cancel circular flows (A→B→C→A = net zero)' },
-                    { icon: '4️⃣', text: 'Output: only NET positions need settlement' }
+                    { icon: '4️⃣', text: 'Handle fee tokens (3% PDOX vs 0.3% $NULL)' },
+                    { icon: '5️⃣', text: 'Output: only NET positions need settlement' }
                 ],
-                proves: 'Batch test runs actual netting algorithm. 10K intents → ~50 settlements. Shows real μs/intent timing.',
+                proves: 'Batch test runs actual netting algorithm. PDOX 3% fee = "armageddon mode" — if it handles that, 0.3% is trivial.',
                 example: '10,000 trades between 1,000 wallets → after netting → only ~50 actual transfers needed',
                 proof: { type: 'test', label: 'Run Batch Test below to see real numbers' }
             },
