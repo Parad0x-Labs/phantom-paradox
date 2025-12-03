@@ -398,7 +398,7 @@
                 <div class="token-header">
                     <span class="token-badge devnet">DEVNET</span>
                     <span class="token-name">PDOX</span>
-                    <span class="token-symbol">Agent Escrow</span>
+                    <span class="token-symbol">Agent Rep</span>
                 </div>
                 <div class="token-address">
                     <a href="https://explorer.solana.com/address/4ckvALSiB6Hii7iVY9Dt6LRM5i7xocBZ9yr3YGNtVRwF?cluster=devnet" target="_blank">4ckvALSiB6Hii7iVY9Dt6LRM5i7xocBZ9yr3YGNtVRwF ↗</a>
@@ -406,11 +406,11 @@
                 <div class="token-stats">
                     <div class="token-stat"><span class="token-stat-label">Supply:</span> <span class="token-stat-value">1B</span></div>
                     <div class="token-stat"><span class="token-stat-label">Decimals:</span> <span class="token-stat-value">9</span></div>
-                    <div class="token-stat"><span class="token-stat-label">Fee:</span> <span class="token-stat-value">3% (armageddon)</span></div>
-                    <div class="token-stat"><span class="token-stat-label">Role:</span> <span class="token-stat-value" style="color: var(--accent-orange);">AGENT STAKE</span></div>
+                    <div class="token-stat"><span class="token-stat-label">Slash Rate:</span> <span class="token-stat-value" style="color: var(--accent-red);">3%</span></div>
+                    <div class="token-stat"><span class="token-stat-label">Trigger:</span> <span class="token-stat-value" style="color: var(--accent-orange);">&lt;80% perf</span></div>
                 </div>
                 <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-dim);">
-                    ⚠️ Non-tradable. Used for agent reputation escrow + stress testing fee mechanics at 10x production rates.
+                    🔥 ARMAGEDDON: Performance slasher. No LP, no trading. Your stake = your reputation.
                 </div>
             </div>
         </div>
@@ -488,14 +488,30 @@
                 </div>
                 <div class="card-body">
                     <div style="background: var(--bg-void); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; font-size: 0.85rem;">
-                        <div style="color: var(--accent-orange); font-weight: 600; margin-bottom: 0.5rem;">🔥 ARMAGEDDON MODE — 3% fee</div>
-                        <p style="color: var(--text-dim); margin-bottom: 0.75rem;">Why 10x the production fee? Stress testing. If the netting engine handles 3% fees smoothly, 0.30% is trivial.</p>
-                        <div style="font-weight: 600; margin-bottom: 0.5rem;">Real use cases (non-tradable):</div>
-                        <div style="display: grid; gap: 0.5rem; color: var(--text-dim);">
-                            <div>🛡️ <strong style="color: var(--text);">Agent Reputation Stake</strong> — Agents lock PDOX as collateral. Good service = keep it. Bad service = slashed.</div>
-                            <div>⚡ <strong style="color: var(--text);">Priority Queue</strong> — More PDOX staked = faster batch processing for your intents.</div>
-                            <div>🎁 <strong style="color: var(--text);">Service Rewards</strong> — Agents earn PDOX for uptime, volume, quality. The muscle gets paid.</div>
-                            <div>🔮 <strong style="color: var(--text);">Future TBD</strong> — Could convert to something when mainnet agents go live. Or not. We'll see.</div>
+                        <div style="color: var(--accent-orange); font-weight: 600; margin-bottom: 0.5rem;">🔥 ARMAGEDDON — Performance Slasher</div>
+                        <p style="color: var(--text-dim); margin-bottom: 0.75rem;">Not a trading fee. It's the <strong style="color: var(--accent-red);">penalty burn rate</strong> when agents underperform.</p>
+                        
+                        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; margin-bottom: 0.75rem;">
+                            <div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.5rem;">HOW ARMAGEDDON WORKS:</div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; font-size: 0.8rem;">
+                                <span style="background: var(--accent); color: #000; padding: 2px 8px; border-radius: 4px;">Score ≥80%</span>
+                                <span>→ normal ops</span>
+                                <span style="color: var(--text-muted);">|</span>
+                                <span style="background: var(--accent-red); color: #fff; padding: 2px 8px; border-radius: 4px;">Score &lt;80%</span>
+                                <span>→ 🔥 ARMAGEDDON</span>
+                            </div>
+                            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-dim);">
+                                PDOX burns at 3% per failed batch → priority drops → fewer tasks → recover or exit
+                            </div>
+                        </div>
+                        
+                        <div style="font-weight: 600; margin-bottom: 0.5rem;">PDOX utility (non-tradable, no LP):</div>
+                        <div style="display: grid; gap: 0.4rem; color: var(--text-dim); font-size: 0.8rem;">
+                            <div>🛡️ <strong style="color: var(--text);">Reputation Stake</strong> — Lock PDOX to join agent network. Skin in the game.</div>
+                            <div>⚡ <strong style="color: var(--text);">Priority Weight</strong> — More stake = more tasks routed to you.</div>
+                            <div>🔥 <strong style="color: var(--text);">Slash Collateral</strong> — Underperform? ARMAGEDDON burns your stake.</div>
+                            <div>🎁 <strong style="color: var(--text);">Performance Rewards</strong> — Stay >80%? Earn PDOX from fee pool.</div>
+                            <div>📊 <strong style="color: var(--text);">On-chain Rep</strong> — Your PDOX balance = your track record.</div>
                         </div>
                     </div>
                     <button class="run-btn" id="btn-pdox" onclick="testPdoxToken()">▶ CHECK PDOX</button>
@@ -761,25 +777,25 @@
                 title: '📥 INTENTS — User & Agent Requests',
                 steps: [
                     { icon: '1️⃣', text: 'User or AI agent submits intent: "Send X to Y"' },
-                    { icon: '2️⃣', text: 'Intent signed but NOT broadcast on-chain yet' },
-                    { icon: '3️⃣', text: 'Agents with PDOX stake get priority queueing' },
-                    { icon: '4️⃣', text: 'Collected into batch pool (off-chain)' }
+                    { icon: '2️⃣', text: 'System checks agent PDOX stake + performance score' },
+                    { icon: '3️⃣', text: 'High rep agents (≥80%) get priority routing' },
+                    { icon: '4️⃣', text: 'Intent queued for next batch (off-chain)' }
                 ],
-                proves: '$NULL test verifies mainnet token (production fees). PDOX test verifies agent escrow token (3% armageddon mode for stress testing).',
-                example: 'Agent stakes 1000 PDOX → gets priority processing → earns rewards for uptime',
+                proves: '$NULL = production value token. PDOX = agent reputation stake (non-tradable). PDOX balance = your on-chain track record.',
+                example: 'Agent with 10K PDOX + 95% score → processes 3x more intents than 80% agent',
                 proof: { type: 'token', link: 'https://solscan.io/token/8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump', label: '$NULL on Solscan' }
             },
             netting: {
                 title: '🔄 WRAITH — Netting Engine',
                 steps: [
-                    { icon: '1️⃣', text: 'Collect all intents in batch window (~1-5 sec)' },
-                    { icon: '2️⃣', text: 'Build graph: A→B, B→C, C→A (finds cycles)' },
-                    { icon: '3️⃣', text: 'Cancel circular flows (A→B→C→A = net zero)' },
-                    { icon: '4️⃣', text: 'Handle fee tokens (3% PDOX vs 0.3% $NULL)' },
-                    { icon: '5️⃣', text: 'Output: only NET positions need settlement' }
+                    { icon: '1️⃣', text: 'Collect intents from all agents in batch window' },
+                    { icon: '2️⃣', text: 'Track which agent processed each intent' },
+                    { icon: '3️⃣', text: 'Build graph, cancel cycles, compute nets' },
+                    { icon: '4️⃣', text: 'On failure: flag agent, update performance score' },
+                    { icon: '5️⃣', text: 'Score <80%? → 🔥 ARMAGEDDON: slash 3% PDOX' }
                 ],
-                proves: 'Batch test runs actual netting algorithm. PDOX 3% fee = "armageddon mode" — if it handles that, 0.3% is trivial.',
-                example: '10,000 trades between 1,000 wallets → after netting → only ~50 actual transfers needed',
+                proves: 'Batch test simulates netting. In prod, agent performance tracked per-batch. Underperformers get slashed automatically.',
+                example: 'Agent fails 3 batches → score drops to 75% → ARMAGEDDON burns 3% PDOX per batch until recovery',
                 proof: { type: 'test', label: 'Run Batch Test below to see real numbers' }
             },
             merkle: {
