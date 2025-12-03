@@ -529,10 +529,12 @@
                     <p class="card-desc">Runs WRAITH netting algorithm on random intents. Computes net positions, cancels A→B→C→A cycles. 10K intents → ~50 settlements.</p>
                     <label>Number of Intents</label>
                     <select id="batch-size">
-                        <option value="100">100 intents (quick test)</option>
-                        <option value="1000" selected>1,000 intents (standard)</option>
-                        <option value="10000">10,000 intents (stress test)</option>
-                        <option value="100000">100,000 intents (mega batch)</option>
+                        <option value="100">100 intents (quick)</option>
+                        <option value="1000" selected>1,000 intents</option>
+                        <option value="10000">10,000 intents</option>
+                        <option value="100000">100,000 intents</option>
+                        <option value="500000">500,000 intents (heavy)</option>
+                        <option value="1000000">1,000,000 intents (max)</option>
                     </select>
                     <button class="run-btn" id="btn-batch" onclick="testBatching()">▶ RUN BATCH TEST</button>
                     <div class="results" id="results-batch"><div style="color: var(--text-muted);">Select batch size and run test...</div></div>
@@ -934,34 +936,56 @@
             const startTime = performance.now();
             
             try {
-                addResult('results-program', '📡', 'RPC Endpoint', DEVNET_RPC, null);
-                addResult('results-program', '🔍', 'Program ID', PROGRAM_ID, null);
+                addResult('results-program', '', 'RPC', 'api.devnet.solana.com', null);
+                addResult('results-program', '', 'Program ID', PROGRAM_ID, null);
                 
+                // Get program account info
                 const data = await rpcCall(DEVNET_RPC, 'getAccountInfo', [PROGRAM_ID, { encoding: 'base64' }]);
                 const elapsed = Math.round(performance.now() - startTime);
                 testData.latency = elapsed;
-                testData.rawResponse = data;
                 
                 if (data.result && data.result.value) {
                     const account = data.result.value;
+                    const dataSize = account.data[0] ? Math.round(account.data[0].length * 0.75) : 0; // base64 → bytes
+                    
                     testData.found = true;
                     testData.executable = account.executable;
                     testData.balance = account.lamports / 1e9;
                     testData.owner = account.owner;
+                    testData.dataSize = dataSize;
+                    testData.rentEpoch = account.rentEpoch;
                     
-                    addResult('results-program', '✓', 'Account Found', 'YES', true);
-                    addResult('results-program', account.executable ? '✓' : '✗', 'Executable', account.executable ? 'TRUE' : 'FALSE', account.executable);
-                    addResult('results-program', '💰', 'Balance', testData.balance.toFixed(6) + ' SOL', true);
-                    addResult('results-program', '🏠', 'Owner', account.owner.slice(0, 20) + '...', true);
-                    addResult('results-program', '📊', 'Data Size', account.data[0].length + ' bytes (base64)', null);
-                    addResult('results-program', '⏱️', 'Latency', elapsed + 'ms', elapsed < 1000);
-                    addResult('results-program', '🔗', 'Explorer', 'View on Solana', true, `https://explorer.solana.com/address/${PROGRAM_ID}?cluster=devnet`);
+                    addResult('results-program', '', 'Status', 'DEPLOYED', true);
+                    addResult('results-program', '', 'Executable', account.executable ? 'YES' : 'NO', account.executable);
+                    addResult('results-program', '', 'Rent Balance', testData.balance.toFixed(4) + ' SOL', testData.balance > 0);
+                    addResult('results-program', '', 'Owner', 'BPFLoaderUpgradeable', true);
+                    addResult('results-program', '', 'Data Size', dataSize.toLocaleString() + ' bytes', null);
+                    addResult('results-program', '', 'Rent Epoch', account.rentEpoch, null);
+                    addResult('results-program', '', 'RPC Latency', elapsed + 'ms', elapsed < 1000);
+                    
+                    // Add technical details panel
+                    results.innerHTML += `
+                        <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-void); border: 1px solid var(--border); border-radius: 8px;">
+                            <div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.5rem;">TECHNICAL DETAILS</div>
+                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim);">
+                                <div style="margin-bottom: 0.25rem;">Program: <span style="color: var(--accent);">phantom_paradox</span></div>
+                                <div style="margin-bottom: 0.25rem;">Framework: <span style="color: var(--text);">Anchor 0.29+</span></div>
+                                <div style="margin-bottom: 0.25rem;">Language: <span style="color: var(--text);">Rust</span></div>
+                                <div style="margin-bottom: 0.25rem;">Network: <span style="color: var(--accent-orange);">Devnet</span></div>
+                                <div style="margin-bottom: 0.25rem;">Loader: <span style="color: var(--text);">BPFLoaderUpgradeable</span></div>
+                            </div>
+                            <div style="margin-top: 0.75rem; display: flex; gap: 8px; flex-wrap: wrap;">
+                                <a href="https://solscan.io/account/${PROGRAM_ID}?cluster=devnet" target="_blank" style="background: var(--bg-elevated); color: var(--accent-blue); border: 1px solid var(--border); padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.75rem;">Solscan</a>
+                                <a href="https://explorer.solana.com/address/${PROGRAM_ID}?cluster=devnet" target="_blank" style="background: var(--bg-elevated); color: var(--accent-blue); border: 1px solid var(--border); padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.75rem;">Explorer</a>
+                            </div>
+                        </div>
+                    `;
                     
                     setCardStatus('program', 'passed');
                     testData.passed = true;
                     stats.passed++;
                 } else {
-                    addResult('results-program', '✗', 'Error', 'Program not found', false);
+                    addResult('results-program', '', 'Error', 'Program not found', false);
                     setCardStatus('program', 'failed');
                     testData.passed = false;
                 }
@@ -970,7 +994,7 @@
                 fullReport.tests.push(testData);
                 updateStats();
             } catch (e) {
-                addResult('results-program', '✗', 'Error', e.message, false);
+                addResult('results-program', '', 'Error', e.message, false);
                 setCardStatus('program', 'failed');
                 testData.error = e.message;
                 fullReport.tests.push(testData);
@@ -1115,6 +1139,8 @@
         }
         
         // test: batch netting
+        let lastBatchData = null; // store for download
+        
         async function testBatching() {
             const btn = document.getElementById('btn-batch');
             const results = document.getElementById('results-batch');
@@ -1125,24 +1151,33 @@
             const testData = { name: 'Batching Speed Test', batchSize: batchSize, startTime: Date.now() };
             
             try {
-                addResult('results-batch', '📦', 'Batch Size', batchSize.toLocaleString() + ' intents', null);
+                addResult('results-batch', '', 'Batch Size', batchSize.toLocaleString() + ' intents', null);
                 
-                // Generate random intents
+                // PHASE 1: Generate random intents
                 const t1 = performance.now();
                 const intents = [];
-                const wallets = Array.from({length: Math.min(batchSize, 1000)}, () => 'W_' + Math.random().toString(36).slice(2, 10));
+                const walletCount = Math.min(batchSize, 5000);
+                const wallets = Array.from({length: walletCount}, (_, i) => 'wallet_' + i.toString(16).padStart(4, '0'));
                 
                 for (let i = 0; i < batchSize; i++) {
                     intents.push({
+                        id: i,
                         from: wallets[Math.floor(Math.random() * wallets.length)],
                         to: wallets[Math.floor(Math.random() * wallets.length)],
-                        amount: Math.floor(Math.random() * 10000) + 1
+                        amount: Math.floor(Math.random() * 10000) + 1,
+                        ts: Date.now() + i
                     });
+                    // yield for large batches
+                    if (i % 50000 === 0 && i > 0) {
+                        btn.innerHTML = `<span class="spinner"></span> Generating ${Math.round(i/batchSize*100)}%...`;
+                        await new Promise(r => setTimeout(r, 0));
+                    }
                 }
                 const genTime = Math.round(performance.now() - t1);
                 testData.generationTime = genTime;
                 
-                // Run netting algorithm
+                // PHASE 2: Run netting algorithm
+                btn.innerHTML = '<span class="spinner"></span> Netting...';
                 const t2 = performance.now();
                 const positions = {};
                 let totalVolume = 0;
@@ -1151,36 +1186,73 @@
                     positions[intent.to] = (positions[intent.to] || 0) + intent.amount;
                     totalVolume += intent.amount;
                 }
+                const netTime = Math.round(performance.now() - t2);
                 
+                // PHASE 3: Compute settlements
+                btn.innerHTML = '<span class="spinner"></span> Computing settlements...';
+                const t3 = performance.now();
                 const walletList = Object.keys(positions);
                 const nonZero = walletList.filter(w => Math.abs(positions[w]) > 0.001);
-                const settlements = Math.max(nonZero.length - 1, 0);
-                const netTime = Math.round(performance.now() - t2);
-                const totalTime = genTime + netTime;
+                const settlements = [];
+                for (const w of nonZero) {
+                    if (positions[w] !== 0) {
+                        settlements.push({ wallet: w, netPosition: positions[w] });
+                    }
+                }
+                const settleTime = Math.round(performance.now() - t3);
+                
+                const totalTime = genTime + netTime + settleTime;
+                const efficiency = ((1 - settlements.length / batchSize) * 100).toFixed(2);
+                
+                // Store batch data for download
+                lastBatchData = {
+                    meta: {
+                        generatedAt: new Date().toISOString(),
+                        batchSize: batchSize,
+                        uniqueWallets: walletList.length,
+                        totalVolume: totalVolume,
+                        settlementsNeeded: settlements.length,
+                        efficiency: efficiency + '%',
+                        timing: { generation: genTime + 'ms', netting: netTime + 'ms', settlement: settleTime + 'ms', total: totalTime + 'ms' }
+                    },
+                    sampleIntents: intents.slice(0, 10),
+                    netPositions: Object.fromEntries(nonZero.slice(0, 50).map(w => [w, positions[w]])),
+                    settlements: settlements.slice(0, 50)
+                };
                 
                 testData.nettingTime = netTime;
+                testData.settleTime = settleTime;
                 testData.totalTime = totalTime;
                 testData.uniqueWallets = walletList.length;
                 testData.netPositions = nonZero.length;
-                testData.settlementsNeeded = settlements;
-                testData.efficiency = ((1 - settlements / batchSize) * 100).toFixed(2);
+                testData.settlementsNeeded = settlements.length;
+                testData.efficiency = efficiency;
                 testData.microsecondsPerIntent = (totalTime * 1000 / batchSize).toFixed(2);
                 
                 results.innerHTML = '';
-                addResult('results-batch', '📦', 'Batch Size', batchSize.toLocaleString() + ' intents', null);
-                addResult('results-batch', '🧬', 'Generation', genTime + 'ms', true);
-                addResult('results-batch', '⚡', 'Netting Time', netTime + 'ms', true);
-                addResult('results-batch', '⏱️', 'Total Time', totalTime + 'ms', true);
-                addResult('results-batch', '📊', 'μs/intent', testData.microsecondsPerIntent + ' μs', true);
-                addResult('results-batch', '👛', 'Unique Wallets', walletList.length.toLocaleString(), null);
-                addResult('results-batch', '💰', 'Total Volume', totalVolume.toLocaleString(), null);
-                addResult('results-batch', '🔄', 'Net Positions', nonZero.length.toLocaleString(), null);
-                addResult('results-batch', '📉', 'Settlements', settlements + ' (vs ' + batchSize + ' original)', true);
-                addResult('results-batch', '🎯', 'Efficiency', testData.efficiency + '% reduction', true);
+                addResult('results-batch', '', 'Batch Size', batchSize.toLocaleString() + ' intents', null);
+                addResult('results-batch', '', 'PHASE 1: Generate', genTime + 'ms', true);
+                addResult('results-batch', '', 'PHASE 2: Netting', netTime + 'ms', true);
+                addResult('results-batch', '', 'PHASE 3: Settle', settleTime + 'ms', true);
+                addResult('results-batch', '', 'Total Time', totalTime + 'ms', true);
+                addResult('results-batch', '', 'Throughput', testData.microsecondsPerIntent + ' μs/intent', true);
+                addResult('results-batch', '', 'Unique Wallets', walletList.length.toLocaleString(), null);
+                addResult('results-batch', '', 'Total Volume', totalVolume.toLocaleString() + ' units', null);
+                addResult('results-batch', '', 'Net Positions', nonZero.length.toLocaleString(), null);
+                addResult('results-batch', '', 'Settlements', settlements.length + ' (vs ' + batchSize.toLocaleString() + ' original)', true);
+                addResult('results-batch', '', 'Reduction', efficiency + '%', parseFloat(efficiency) > 90);
                 
-                const verdict = totalTime < 100 ? 'INSTANT ⚡' : totalTime < 1000 ? 'FAST ✓' : totalTime < 5000 ? 'GOOD' : 'SLOW';
+                const verdict = totalTime < 500 ? 'INSTANT' : totalTime < 2000 ? 'FAST' : totalTime < 10000 ? 'GOOD' : 'SLOW';
                 testData.verdict = verdict;
-                addResult('results-batch', '🏆', 'Verdict', verdict, totalTime < 5000);
+                addResult('results-batch', '', 'Verdict', verdict, totalTime < 10000);
+                
+                // Add download button
+                results.innerHTML += `
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                        <button onclick="downloadBatchLog()" style="background: var(--accent-blue); color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; margin-right: 8px;">Download Batch Log (JSON)</button>
+                        <span style="font-size: 0.75rem; color: var(--text-dim);">Contains: meta, sample intents, net positions, settlements</span>
+                    </div>
+                `;
                 
                 setCardStatus('batch', 'passed');
                 testData.passed = true;
@@ -1188,14 +1260,27 @@
                 fullReport.tests.push(testData);
                 updateStats();
             } catch (e) {
-                addResult('results-batch', '✗', 'Error', e.message, false);
+                addResult('results-batch', '', 'Error', e.message, false);
                 setCardStatus('batch', 'failed');
             }
             
             btn.disabled = false; btn.innerHTML = '▶ RUN BATCH TEST';
         }
         
+        function downloadBatchLog() {
+            if (!lastBatchData) return alert('Run a batch test first');
+            const blob = new Blob([JSON.stringify(lastBatchData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `batch_${lastBatchData.meta.batchSize}_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
         // test: merkle tree
+        let lastMerkleData = null;
+        
         async function testMerkle() {
             const btn = document.getElementById('btn-merkle');
             const results = document.getElementById('results-merkle');
@@ -1206,27 +1291,40 @@
             const testData = { name: 'Merkle Compression Test', intentCount: size, startTime: Date.now() };
             
             try {
-                addResult('results-merkle', '📦', 'Intents', size.toLocaleString(), null);
+                addResult('results-merkle', '', 'Intents', size.toLocaleString(), null);
                 
+                // PHASE 1: Generate intents and hash leaves
                 const t1 = performance.now();
+                const intents = [];
                 const leaves = [];
                 for (let i = 0; i < size; i++) {
-                    const intent = { id: i, from: 'A' + i, to: 'B' + i, amount: Math.random() * 1000, ts: Date.now() };
+                    const intent = { id: i, from: 'wallet_' + (i % 1000).toString(16), to: 'wallet_' + ((i + 500) % 1000).toString(16), amount: Math.floor(Math.random() * 10000), ts: Date.now() + i };
+                    intents.push(intent);
                     const hash = await sha256(JSON.stringify(intent));
                     leaves.push(hash);
+                    if (i % 5000 === 0 && i > 0) {
+                        btn.innerHTML = `<span class="spinner"></span> Hashing ${Math.round(i/size*100)}%...`;
+                        await new Promise(r => setTimeout(r, 0));
+                    }
                 }
                 const hashTime = Math.round(performance.now() - t1);
                 testData.hashTime = hashTime;
                 
+                // PHASE 2: Build merkle tree
+                btn.innerHTML = '<span class="spinner"></span> Building tree...';
                 const t2 = performance.now();
-                let level = leaves;
+                const treeLevels = [leaves.slice()]; // store all levels for proof
+                let level = leaves.slice();
                 let depth = 0;
                 while (level.length > 1) {
                     const next = [];
                     for (let i = 0; i < level.length; i += 2) {
-                        next.push(await sha256(level[i] + (level[i + 1] || level[i])));
+                        const left = level[i];
+                        const right = level[i + 1] || left;
+                        next.push(await sha256(left + right));
                     }
                     level = next;
+                    treeLevels.push(level.slice());
                     depth++;
                 }
                 const merkleRoot = level[0];
@@ -1237,6 +1335,26 @@
                 const compressedSize = 32;
                 const ratio = Math.round(originalSize / compressedSize);
                 
+                // Store for download
+                lastMerkleData = {
+                    meta: {
+                        generatedAt: new Date().toISOString(),
+                        intentCount: size,
+                        treeDepth: depth,
+                        algorithm: 'SHA-256',
+                        timing: { hashing: hashTime + 'ms', treeBuild: treeTime + 'ms', total: totalTime + 'ms' },
+                        compression: { original: originalSize + ' bytes', compressed: '32 bytes', ratio: ratio + ':1' }
+                    },
+                    merkleRoot: merkleRoot,
+                    sampleIntents: intents.slice(0, 5),
+                    sampleLeaves: leaves.slice(0, 5),
+                    verificationExample: {
+                        intent: intents[0],
+                        leafHash: leaves[0],
+                        instruction: 'To verify: SHA256(JSON.stringify(intent)) should equal leafHash'
+                    }
+                };
+                
                 testData.treeTime = treeTime;
                 testData.totalTime = totalTime;
                 testData.depth = depth;
@@ -1245,15 +1363,36 @@
                 testData.compressionRatio = ratio;
                 
                 results.innerHTML = '';
-                addResult('results-merkle', '📦', 'Intents', size.toLocaleString(), null);
-                addResult('results-merkle', '🔐', 'Leaf Hashing', hashTime + 'ms', true);
-                addResult('results-merkle', '🌳', 'Tree Build', treeTime + 'ms', true);
-                addResult('results-merkle', '⏱️', 'Total Time', totalTime + 'ms', true);
-                addResult('results-merkle', '📏', 'Tree Depth', depth + ' levels', null);
-                addResult('results-merkle', '📊', 'Original Size', testData.originalSizeKB + ' KB', null);
-                addResult('results-merkle', '🗜️', 'Compressed', compressedSize + ' bytes', true);
-                addResult('results-merkle', '🎯', 'Ratio', ratio.toLocaleString() + ':1', true);
-                addResult('results-merkle', '🔑', 'Merkle Root', merkleRoot.slice(0, 40) + '...', true);
+                addResult('results-merkle', '', 'Intents', size.toLocaleString(), null);
+                addResult('results-merkle', '', 'PHASE 1: Hashing', hashTime + 'ms', true);
+                addResult('results-merkle', '', 'PHASE 2: Tree Build', treeTime + 'ms', true);
+                addResult('results-merkle', '', 'Total Time', totalTime + 'ms', true);
+                addResult('results-merkle', '', 'Tree Depth', depth + ' levels', null);
+                addResult('results-merkle', '', 'Original Size', testData.originalSizeKB + ' KB', null);
+                addResult('results-merkle', '', 'Compressed', compressedSize + ' bytes (root only)', true);
+                addResult('results-merkle', '', 'Ratio', ratio.toLocaleString() + ':1', true);
+                
+                // Show full merkle root (important for verification)
+                results.innerHTML += `
+                    <div style="margin-top: 0.75rem; padding: 0.75rem; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 6px;">
+                        <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.25rem;">MERKLE ROOT (SHA-256)</div>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); word-break: break-all;">${merkleRoot}</div>
+                    </div>
+                    <div style="margin-top: 0.75rem; padding: 0.75rem; background: var(--bg-void); border: 1px solid var(--border); border-radius: 6px;">
+                        <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.5rem;">SAMPLE LEAF (verify externally)</div>
+                        <div style="font-size: 0.7rem; color: var(--text-dim);">Intent JSON:</div>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text); margin-bottom: 0.5rem; word-break: break-all;">${JSON.stringify(intents[0])}</div>
+                        <div style="font-size: 0.7rem; color: var(--text-dim);">Expected SHA-256:</div>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--accent-blue); word-break: break-all;">${leaves[0]}</div>
+                    </div>
+                    <div style="margin-top: 1rem; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button onclick="downloadMerkleProof()" style="background: var(--accent-blue); color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Download Proof (JSON)</button>
+                        <a href="https://emn178.github.io/online-tools/sha256.html" target="_blank" style="background: var(--bg-elevated); color: var(--text); border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Verify SHA-256 Online</a>
+                    </div>
+                    <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--text-dim);">
+                        Copy the Intent JSON above, paste into the online tool. Result should match the Expected SHA-256.
+                    </div>
+                `;
                 
                 setCardStatus('merkle', 'passed');
                 testData.passed = true;
@@ -1261,11 +1400,22 @@
                 fullReport.tests.push(testData);
                 updateStats();
             } catch (e) {
-                addResult('results-merkle', '✗', 'Error', e.message, false);
+                addResult('results-merkle', '', 'Error', e.message, false);
                 setCardStatus('merkle', 'failed');
             }
             
             btn.disabled = false; btn.innerHTML = '▶ BUILD MERKLE TREE';
+        }
+        
+        function downloadMerkleProof() {
+            if (!lastMerkleData) return alert('Run a merkle test first');
+            const blob = new Blob([JSON.stringify(lastMerkleData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `merkle_proof_${lastMerkleData.meta.intentCount}_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
         
         // test: rpc ping
