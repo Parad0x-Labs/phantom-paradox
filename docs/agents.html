@@ -675,35 +675,55 @@
             <div class="tab-content" id="tab-status">
                 <h2>// BUILD STATUS</h2>
                 <div class="card-grid">
-                    <div class="card wip">
-                        <span class="status wip">WIP</span>
+                    <div class="card done">
+                        <span class="status done">DONE</span>
                         <div class="card-title">Agent Test Page</div>
                         <div class="card-desc">Real network tests, report card, earnings estimate</div>
                     </div>
-                    <div class="card todo">
-                        <span class="status todo">TODO</span>
-                        <div class="card-title">Core Agent Binary</div>
-                        <div class="card-desc">Rust agent for PC/Linux, handles jobs</div>
+                    <div class="card done">
+                        <span class="status done">DONE</span>
+                        <div class="card-title">Wallet Connect</div>
+                        <div class="card-desc">Phantom/Solflare integration</div>
+                    </div>
+                    <div class="card done">
+                        <span class="status done">DONE</span>
+                        <div class="card-title">Message Schema</div>
+                        <div class="card-desc">Dispute-ready message format</div>
+                    </div>
+                    <div class="card done">
+                        <span class="status done">DONE</span>
+                        <div class="card-title">PDOX Staking Contract</div>
+                        <div class="card-desc">Anchor program for stake/slash/reputation</div>
                     </div>
                     <div class="card todo">
                         <span class="status todo">TODO</span>
-                        <div class="card-title">Android Agent</div>
-                        <div class="card-desc">Mobile app, battery-aware, background service</div>
+                        <div class="card-title">Browser Extension</div>
+                        <div class="card-desc">Chrome/Firefox relay-only agent</div>
+                    </div>
+                    <div class="card todo">
+                        <span class="status todo">TODO</span>
+                        <div class="card-title">Desktop Agent</div>
+                        <div class="card-desc">Rust binary for Windows/Mac/Linux</div>
+                    </div>
+                    <div class="card todo">
+                        <span class="status todo">TODO</span>
+                        <div class="card-title">Android App</div>
+                        <div class="card-desc">Mobile agent, battery-aware</div>
+                    </div>
+                    <div class="card todo">
+                        <span class="status todo">TODO</span>
+                        <div class="card-title">Phantom Box (Pi)</div>
+                        <div class="card-desc">Plug-and-play Pi image</div>
                     </div>
                     <div class="card todo">
                         <span class="status todo">TODO</span>
                         <div class="card-title">Job Manager</div>
-                        <div class="card-desc">Assigns tasks, tracks completion, handles failover</div>
+                        <div class="card-desc">Backend job assignment engine</div>
                     </div>
                     <div class="card todo">
                         <span class="status todo">TODO</span>
                         <div class="card-title">Dispute System</div>
                         <div class="card-desc">Jury selection, voting, payouts</div>
-                    </div>
-                    <div class="card todo">
-                        <span class="status todo">TODO</span>
-                        <div class="card-title">XMTP Integration</div>
-                        <div class="card-desc">Secure messaging for disputes</div>
                     </div>
                 </div>
 
@@ -830,6 +850,71 @@ DISPUTE FLOW
                         <td>Any device, minimal resources</td>
                     </tr>
                 </table>
+
+                <h2>// DEPLOYMENT OPTIONS</h2>
+                <table>
+                    <tr><th>Platform</th><th>Install</th><th>Modes</th><th>Est. Earnings</th></tr>
+                    <tr>
+                        <td style="color: var(--accent-blue);">Browser Extension</td>
+                        <td>Chrome/Firefox/Brave/Edge</td>
+                        <td>Relay only</td>
+                        <td>$0.50-2/day</td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--accent-blue);">Desktop App</td>
+                        <td>Windows/Mac/Linux</td>
+                        <td>Full agent</td>
+                        <td>$2-10/day</td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--accent-blue);">Android App</td>
+                        <td>APK / Play Store</td>
+                        <td>Relay + Verify</td>
+                        <td>$0.50-3/day</td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--accent);">PHANTOM BOX (Pi)</td>
+                        <td>USB flash / Pre-built</td>
+                        <td>Full agent 24/7</td>
+                        <td>$5-20/day</td>
+                    </tr>
+                </table>
+
+                <h2>// PHANTOM BOX (Pi)</h2>
+                <pre>
+THE ULTIMATE PASSIVE INCOME DEVICE
+==================================
+
+Option A: DIY (flash your own)
+─────────────────────────────
+1. Get Raspberry Pi 4/5 (~$50-80)
+2. Download our image (phantombox.img)
+3. Flash to SD card (Balena Etcher)
+4. Connect ethernet + power
+5. Scan QR code to link wallet
+6. Done. Earning 24/7.
+
+Option B: Pre-built (future product)
+────────────────────────────────────
+- $99 Phantom Box (Pi 4 + case + SD)
+- Plug ethernet, plug power
+- Scan QR, start earning
+- ROI in ~10-20 days
+- 5W power = ~$4/year electricity
+
+Hardware Specs:
+- Raspberry Pi 4/5 (4GB RAM)
+- 32GB SD card (pre-loaded)
+- Ethernet connection (WiFi optional)
+- 5V/3A USB-C power
+
+Software Stack:
+- Custom Linux (Debian-based)
+- Auto-update agent binary
+- Watchdog (auto-restart)
+- Web dashboard (local:8080)
+- OLED display support (optional)
+                </pre>
             </div>
 
             <!-- TAB: Pricing -->
