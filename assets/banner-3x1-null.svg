@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 500">
+  <defs>
+    <filter id="glow-strong" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="15" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="glow-soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="glow-intense" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="25" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Neon green gradient -->
+    <linearGradient id="neonGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00ff66"/>
+      <stop offset="50%" style="stop-color:#00ffaa"/>
+      <stop offset="100%" style="stop-color:#00ddff"/>
+    </linearGradient>
+    
+    <!-- Purple gradient -->
+    <linearGradient id="neonPurple" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#b392f0"/>
+      <stop offset="50%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#6366f1"/>
+    </linearGradient>
+    
+    <!-- Orange/red gradient -->
+    <linearGradient id="neonOrange" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f47067"/>
+      <stop offset="50%" style="stop-color:#ff6b6b"/>
+      <stop offset="100%" style="stop-color:#ff8787"/>
+    </linearGradient>
+    
+    <!-- Background pattern for cityscape effect -->
+    <pattern id="cityGrid" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="none"/>
+      <line x1="0" y1="0" x2="100" y2="0" stroke="#001a10" stroke-width="0.5" opacity="0.3"/>
+      <line x1="0" y1="0" x2="0" y2="100" stroke="#001a10" stroke-width="0.5" opacity="0.3"/>
+    </pattern>
+    
+    <!-- Rain effect -->
+    <pattern id="rain" width="4" height="20" patternUnits="userSpaceOnUse">
+      <line x1="2" y1="0" x2="2" y2="20" stroke="#00ffaa" stroke-width="0.5" opacity="0.1"/>
+    </pattern>
+  </defs>
+  
+  <!-- Dark background -->
+  <rect width="1500" height="500" fill="#000000"/>
+  
+  <!-- City grid overlay -->
+  <rect width="1500" height="500" fill="url(#cityGrid)"/>
+  
+  <!-- Rain effect -->
+  <rect width="1500" height="500" fill="url(#rain)" opacity="0.3"/>
+  
+  <!-- Left side - Central crystal/core structure (like PGM) -->
+  <g transform="translate(300, 250)" opacity="0.8">
+    <!-- Outer glow -->
+    <circle cx="0" cy="0" r="100" fill="none" stroke="url(#neonPurple)" stroke-width="3" filter="url(#glow-intense)" opacity="0.4"/>
+    <!-- Main crystal structure -->
+    <polygon points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30" fill="none" stroke="url(#neonPurple)" stroke-width="4" filter="url(#glow-strong)"/>
+    <polygon points="0,-40 35,-20 35,20 0,40 -35,20 -35,-20" fill="none" stroke="url(#neonPurple)" stroke-width="2" filter="url(#glow-soft)"/>
+    <!-- Inner core -->
+    <circle cx="0" cy="0" r="15" fill="url(#neonPurple)" filter="url(#glow-intense)"/>
+  </g>
+  
+  <!-- Right side - Shield/security structure (like Provable Unlikability Shield) -->
+  <g transform="translate(1200, 250)" opacity="0.7">
+    <!-- Cylindrical shield -->
+    <ellipse cx="0" cy="0" rx="50" ry="80" fill="none" stroke="url(#neonGreen)" stroke-width="4" filter="url(#glow-strong)"/>
+    <ellipse cx="0" cy="0" rx="35" ry="60" fill="none" stroke="url(#neonGreen)" stroke-width="2" filter="url(#glow-soft)"/>
+    <!-- Bright core -->
+    <ellipse cx="0" cy="0" rx="20" ry="35" fill="url(#neonGreen)" filter="url(#glow-intense)" opacity="0.8"/>
+  </g>
+  
+  <!-- Center - Main title: $NULL -->
+  <g transform="translate(750, 180)">
+    <text x="0" y="0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="96" font-weight="700" fill="url(#neonGreen)" filter="url(#glow-intense)" letter-spacing="8">
+      $NULL
+    </text>
+  </g>
+  
+  <!-- Subtitle: by Paradox -->
+  <g transform="translate(750, 250)">
+    <text x="0" y="0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="32" font-weight="500" fill="#00ffaa" opacity="0.9" letter-spacing="4">
+      by Paradox
+    </text>
+  </g>
+  
+  <!-- Tagline: Max efficiency - Zero jitter -->
+  <g transform="translate(750, 320)">
+    <text x="0" y="0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="24" font-weight="400" fill="#00ddff" opacity="0.85" letter-spacing="2">
+      Max efficiency - Zero jitter
+    </text>
+  </g>
+  
+  <!-- Bottom - Status bars/data displays (like holographic panels) -->
+  <g transform="translate(750, 420)" opacity="0.6">
+    <!-- Efficiency bar -->
+    <rect x="-200" y="-8" width="400" height="4" fill="none" stroke="#00ffaa" stroke-width="2" filter="url(#glow-soft)"/>
+    <rect x="-200" y="-8" width="380" height="4" fill="url(#neonGreen)" filter="url(#glow-soft)" opacity="0.5"/>
+    <!-- Jitter indicator -->
+    <circle cx="180" cy="0" r="6" fill="url(#neonGreen)" filter="url(#glow-soft)"/>
+    <text x="200" y="5" font-family="'JetBrains Mono', monospace" font-size="12" fill="#00ffaa" opacity="0.7">ZERO</text>
+  </g>
+  
+  <!-- Scattered neon lights (city backdrop effect) -->
+  <g opacity="0.4">
+    <!-- Green lights -->
+    <circle cx="150" cy="100" r="3" fill="#00ffaa" filter="url(#glow-soft)"/>
+    <circle cx="1350" cy="150" r="2" fill="#00ffaa" filter="url(#glow-soft)"/>
+    <circle cx="200" cy="400" r="2.5" fill="#00ffaa" filter="url(#glow-soft)"/>
+    <!-- Purple lights -->
+    <circle cx="120" cy="350" r="3" fill="#b392f0" filter="url(#glow-soft)"/>
+    <circle cx="1380" cy="380" r="2" fill="#b392f0" filter="url(#glow-soft)"/>
+    <!-- Orange lights -->
+    <circle cx="100" cy="200" r="2" fill="#f47067" filter="url(#glow-soft)"/>
+    <circle cx="1400" cy="250" r="2.5" fill="#f47067" filter="url(#glow-soft)"/>
+  </g>
+  
+  <!-- Connection lines (data flow) -->
+  <g opacity="0.2" stroke="#00ffaa" stroke-width="1" fill="none">
+    <line x1="300" y1="250" x2="1200" y2="250" filter="url(#glow-soft)"/>
+    <line x1="750" y1="50" x2="300" y2="250" filter="url(#glow-soft)"/>
+    <line x1="750" y1="50" x2="1200" y2="250" filter="url(#glow-soft)"/>
+  </g>
+  
+  <!-- Bottom border accent -->
+  <rect x="0" y="490" width="1500" height="10" fill="url(#neonGreen)" opacity="0.15" filter="url(#glow-soft)"/>
+</svg>
+

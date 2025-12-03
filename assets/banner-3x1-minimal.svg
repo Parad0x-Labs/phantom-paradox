@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 500">
+  <defs>
+    <filter id="glow-minimal" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Clean gradient -->
+    <linearGradient id="cleanGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00ffaa"/>
+      <stop offset="100%" style="stop-color:#00ddff"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Pure black background -->
+  <rect width="1500" height="500" fill="#000000"/>
+  
+  <!-- Left accent - NULL symbol simplified -->
+  <g transform="translate(150, 250)" opacity="0.6">
+    <circle cx="0" cy="0" r="60" fill="none" stroke="#00ffaa" stroke-width="3" filter="url(#glow-minimal)"/>
+    <line x1="-35" y1="35" x2="35" y2="-35" stroke="#00ffaa" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Main content centered -->
+  <g transform="translate(750, 220)">
+    <!-- Title -->
+    <text x="0" y="0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="68" font-weight="700" fill="url(#cleanGrad)" filter="url(#glow-minimal)" letter-spacing="3">
+      PHANTOM PARADOX
+    </text>
+  </g>
+  
+  <!-- Tagline -->
+  <g transform="translate(750, 290)">
+    <text x="0" y="0" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="22" font-weight="400" fill="#00ffaa" opacity="0.9" letter-spacing="1">
+      ANONYMOUS PAYMENT GAMING
+    </text>
+  </g>
+  
+  <!-- Description -->
+  <g transform="translate(750, 340)" fill="#8b949e" font-family="'JetBrains Mono', monospace" font-size="14" text-anchor="middle">
+    <text x="0" y="0" opacity="0.75">Micro-payments at fraction of standard cost</text>
+    <text x="0" y="20" opacity="0.75">Incredible speed • Cryptographically secure • Mathematically proven</text>
+  </g>
+  
+  <!-- Right side - minimal pattern -->
+  <g transform="translate(1350, 250)" opacity="0.25">
+    <line x1="0" y1="-40" x2="0" y2="40" stroke="#00ffaa" stroke-width="2"/>
+    <line x1="-20" y1="-20" x2="20" y2="20" stroke="#00ddff" stroke-width="1.5"/>
+    <line x1="-20" y1="20" x2="20" y2="-20" stroke="#00ddff" stroke-width="1.5"/>
+  </g>
+  
+  <!-- Subtle bottom line -->
+  <line x1="200" y1="470" x2="1300" y2="470" stroke="url(#cleanGrad)" stroke-width="1" opacity="0.3"/>
+</svg>
+

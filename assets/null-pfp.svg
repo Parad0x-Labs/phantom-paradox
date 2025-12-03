@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <!-- Glow filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Stronger glow -->
+    <filter id="glow-strong" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="15" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Radial gradient for depth -->
+    <radialGradient id="voidGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#0a0a0f"/>
+      <stop offset="70%" style="stop-color:#050508"/>
+      <stop offset="100%" style="stop-color:#000000"/>
+    </radialGradient>
+    
+    <!-- Ring gradient -->
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00ff88"/>
+      <stop offset="50%" style="stop-color:#00d4ff"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="400" fill="#000"/>
+  <circle cx="200" cy="200" r="200" fill="url(#voidGrad)"/>
+  
+  <!-- Outer ring glow -->
+  <circle cx="200" cy="200" r="160" fill="none" stroke="url(#ringGrad)" stroke-width="2" opacity="0.3" filter="url(#glow-strong)"/>
+  
+  <!-- Main ring -->
+  <circle cx="200" cy="200" r="140" fill="none" stroke="url(#ringGrad)" stroke-width="4" filter="url(#glow)"/>
+  
+  <!-- Inner ring -->
+  <circle cx="200" cy="200" r="120" fill="none" stroke="#00ff88" stroke-width="1" opacity="0.5"/>
+  
+  <!-- NULL text -->
+  <text x="200" y="195" text-anchor="middle" font-family="monospace" font-size="72" font-weight="bold" fill="#00ff88" filter="url(#glow)">
+    NULL
+  </text>
+  
+  <!-- Void symbol below -->
+  <text x="200" y="250" text-anchor="middle" font-family="monospace" font-size="32" fill="#00d4ff" opacity="0.8" filter="url(#glow)">
+    ∅
+  </text>
+  
+  <!-- Corner accents -->
+  <path d="M 30 30 L 30 60 M 30 30 L 60 30" stroke="#00ff88" stroke-width="2" opacity="0.6"/>
+  <path d="M 370 30 L 370 60 M 370 30 L 340 30" stroke="#00ff88" stroke-width="2" opacity="0.6"/>
+  <path d="M 30 370 L 30 340 M 30 370 L 60 370" stroke="#00ff88" stroke-width="2" opacity="0.6"/>
+  <path d="M 370 370 L 370 340 M 370 370 L 340 370" stroke="#00ff88" stroke-width="2" opacity="0.6"/>
+  
+  <!-- Scan lines effect -->
+  <g opacity="0.03">
+    <line x1="0" y1="50" x2="400" y2="50" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="100" x2="400" y2="100" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="150" x2="400" y2="150" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="200" x2="400" y2="200" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="250" x2="400" y2="250" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="300" x2="400" y2="300" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="350" x2="400" y2="350" stroke="#fff" stroke-width="1"/>
+  </g>
+  
+  <!-- Version tag -->
+  <text x="200" y="385" text-anchor="middle" font-family="monospace" font-size="10" fill="#444">
+    PROTOCOL::NULLROUTE
+  </text>
+</svg>
