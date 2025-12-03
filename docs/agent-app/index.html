@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#030508">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <title>Phantom Paradox Agent</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <style>
+        :root {
+            --bg: #030508;
+            --card: #0a0f14;
+            --border: #1a2530;
+            --accent: #00ff88;
+            --accent-dim: rgba(0, 255, 136, 0.3);
+            --blue: #00d4ff;
+            --orange: #ff9500;
+            --red: #ff4757;
+            --text: #e8f0f8;
+            --dim: #6b7c8a;
+            --muted: #3a4a5a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 16px;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--card);
+            padding: 16px 20px;
+            padding-top: max(16px, env(safe-area-inset-top));
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .status-badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .status-badge.offline {
+            background: var(--border);
+            color: var(--dim);
+        }
+        
+        .status-badge.online {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        
+        /* Main Content */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+        
+        /* Status Ring */
+        .status-ring {
+            width: 160px;
+            height: 160px;
+            margin: 20px auto 30px;
+            position: relative;
+        }
+        
+        .status-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        
+        .status-ring .bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 8;
+        }
+        
+        .status-ring .progress {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        .status-ring.online .progress {
+            animation: pulse-ring 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0%, 100% { stroke-opacity: 1; }
+            50% { stroke-opacity: 0.5; }
+        }
+        
+        .status-ring .center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .status-ring .icon {
+            font-size: 40px;
+            margin-bottom: 4px;
+        }
+        
+        .status-ring .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dim);
+        }
+        
+        .status-ring.online .label {
+            color: var(--accent);
+        }
+        
+        /* Earnings */
+        .earnings-card {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 212, 255, 0.05));
+            border: 1px solid var(--accent);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .earnings-value {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        }
+        
+        .earnings-label {
+            font-size: 13px;
+            color: var(--dim);
+            margin-top: 4px;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: var(--dim);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+        
+        /* Config */
+        .config-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .config-title {
+            font-size: 13px;
+            color: var(--dim);
+        }
+        
+        .config-value {
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 600;
+            font-family: monospace;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .checkbox-row input {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--accent);
+        }
+        
+        .checkbox-row label {
+            font-size: 14px;
+            color: var(--dim);
+        }
+        
+        /* Wallet */
+        .wallet-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .wallet-label {
+            font-size: 11px;
+            color: var(--dim);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        
+        .wallet-address {
+            font-size: 14px;
+            font-family: monospace;
+            color: var(--blue);
+            word-break: break-all;
+        }
+        
+        .wallet-address.empty {
+            color: var(--orange);
+        }
+        
+        .wallet-btn {
+            margin-top: 12px;
+            width: 100%;
+            padding: 12px;
+            background: var(--border);
+            border: none;
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        /* Main Button */
+        .main-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+        
+        .main-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .main-btn.start {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        
+        .main-btn.stop {
+            background: var(--red);
+            color: white;
+        }
+        
+        .main-btn:disabled {
+            opacity: 0.5;
+        }
+        
+        /* Battery Warning */
+        .battery-warning {
+            background: rgba(255, 149, 0, 0.15);
+            border: 1px solid var(--orange);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--orange);
+        }
+        
+        .battery-warning.hidden {
+            display: none;
+        }
+        
+        /* Install Banner */
+        .install-banner {
+            background: var(--card);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .install-banner.hidden {
+            display: none;
+        }
+        
+        .install-banner h3 {
+            color: var(--accent);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .install-banner p {
+            color: var(--dim);
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+        
+        .install-btn {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 16px 20px;
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 11px;
+            color: var(--muted);
+        }
+        
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="logo">phantom_paradox</span>
+        <span class="status-badge offline" id="statusBadge">OFFLINE</span>
+    </div>
+    
+    <div class="content">
+        <!-- Install Banner -->
+        <div class="install-banner hidden" id="installBanner">
+            <h3>Install App</h3>
+            <p>Add to home screen for the full experience</p>
+            <button class="install-btn" onclick="installApp()">INSTALL</button>
+        </div>
+        
+        <!-- Status Ring -->
+        <div class="status-ring" id="statusRing">
+            <svg viewBox="0 0 160 160">
+                <circle class="bg" cx="80" cy="80" r="70"/>
+                <circle class="progress" id="progressRing" cx="80" cy="80" r="70"/>
+            </svg>
+            <div class="center">
+                <div class="icon" id="statusIcon">○</div>
+                <div class="label" id="statusLabel">OFFLINE</div>
+            </div>
+        </div>
+        
+        <!-- Earnings -->
+        <div class="earnings-card">
+            <div class="earnings-value" id="earnings">$0.0000</div>
+            <div class="earnings-label">Session Earnings</div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="dataRelayed">0 MB</div>
+                <div class="stat-label">Data Relayed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="uptime">0:00</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="battery">--%</div>
+                <div class="stat-label">Battery</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="rate">$0.00/hr</div>
+                <div class="stat-label">Est. Rate</div>
+            </div>
+        </div>
+        
+        <!-- Battery Warning -->
+        <div class="battery-warning hidden" id="batteryWarning">
+            <span>⚠️</span>
+            <span>Low battery - Agent will pause at 15%</span>
+        </div>
+        
+        <!-- Config -->
+        <div class="config-card">
+            <div class="config-header">
+                <span class="config-title">Bandwidth Limit</span>
+                <span class="config-value" id="bwVal">10 Mbps</span>
+            </div>
+            <input type="range" min="1" max="100" value="10" id="bwSlider" oninput="updateBw()">
+        </div>
+        
+        <div class="config-card">
+            <div class="config-header">
+                <span class="config-title">Daily Data Cap</span>
+                <span class="config-value" id="dataVal">1 GB</span>
+            </div>
+            <input type="range" min="100" max="100000" step="100" value="1000" id="dataSlider" oninput="updateDataCap()">
+            <div class="checkbox-row">
+                <input type="checkbox" id="unlimitedData" onchange="toggleUnlimited()">
+                <label for="unlimitedData">Unlimited</label>
+            </div>
+        </div>
+        
+        <!-- Wallet -->
+        <div class="wallet-card">
+            <div class="wallet-label">Wallet</div>
+            <div class="wallet-address empty" id="walletAddress">Not connected</div>
+            <button class="wallet-btn" id="walletBtn" onclick="handleWallet()">Connect Wallet</button>
+        </div>
+        
+        <!-- Main Button -->
+        <button class="main-btn start" id="mainBtn" onclick="toggleAgent()">
+            START EARNING
+        </button>
+    </div>
+    
+    <div class="footer">
+        <a href="https://phantomparadox.io">phantomparadox.io</a> · Muscle Agent v0.1.0
+    </div>
+    
+    <script>
+        // ============== STATE ==============
+        
+        let state = {
+            isActive: false,
+            walletAddress: null,
+            sessionStart: null,
+            stats: {
+                bytesRelayed: 0,
+                uptime: 0,
+                earnings: 0
+            },
+            config: {
+                maxBandwidth: 10,
+                dailyDataCap: 1000,
+                unlimitedData: false
+            },
+            battery: 100
+        };
+        
+        let heartbeatInterval = null;
+        let statsInterval = null;
+        let deferredPrompt = null;
+        
+        // ============== INIT ==============
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            initBattery();
+            checkInstallable();
+            
+            // Register service worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js');
+            }
+        });
+        
+        function loadState() {
+            const saved = localStorage.getItem('ppAgentState');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                state.walletAddress = parsed.walletAddress;
+                state.config = parsed.config || state.config;
+                state.stats.earnings = parsed.totalEarnings || 0;
+            }
+            updateUI();
+            updateConfigUI();
+        }
+        
+        function saveState() {
+            localStorage.setItem('ppAgentState', JSON.stringify({
+                walletAddress: state.walletAddress,
+                config: state.config,
+                totalEarnings: state.stats.earnings
+            }));
+        }
+        
+        // ============== BATTERY ==============
+        
+        async function initBattery() {
+            if ('getBattery' in navigator) {
+                const battery = await navigator.getBattery();
+                updateBatteryLevel(battery);
+                battery.addEventListener('levelchange', () => updateBatteryLevel(battery));
+            }
+        }
+        
+        function updateBatteryLevel(battery) {
+            state.battery = Math.round(battery.level * 100);
+            document.getElementById('battery').textContent = state.battery + '%';
+            
+            const warning = document.getElementById('batteryWarning');
+            if (state.battery < 20 && state.isActive) {
+                warning.classList.remove('hidden');
+            } else {
+                warning.classList.add('hidden');
+            }
+            
+            // Auto-stop at 15%
+            if (state.battery < 15 && state.isActive) {
+                stopAgent();
+            }
+        }
+        
+        // ============== INSTALL ==============
+        
+        function checkInstallable() {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                document.getElementById('installBanner').classList.remove('hidden');
+            });
+            
+            window.addEventListener('appinstalled', () => {
+                document.getElementById('installBanner').classList.add('hidden');
+                deferredPrompt = null;
+            });
+        }
+        
+        async function installApp() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const result = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            document.getElementById('installBanner').classList.add('hidden');
+        }
+        
+        // ============== AGENT ==============
+        
+        function toggleAgent() {
+            if (state.isActive) {
+                stopAgent();
+            } else {
+                startAgent();
+            }
+        }
+        
+        function startAgent() {
+            if (!state.walletAddress) {
+                alert('Connect your wallet first');
+                return;
+            }
+            
+            if (state.battery < 15) {
+                alert('Battery too low. Charge to at least 15%');
+                return;
+            }
+            
+            state.isActive = true;
+            state.sessionStart = Date.now();
+            state.stats = { bytesRelayed: 0, uptime: 0, earnings: 0 };
+            
+            // Start intervals
+            heartbeatInterval = setInterval(sendHeartbeat, 30000);
+            statsInterval = setInterval(updateStats, 1000);
+            
+            // Initial heartbeat
+            sendHeartbeat();
+            
+            updateUI();
+            saveState();
+            
+            // Keep screen on (if supported)
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen').catch(() => {});
+            }
+        }
+        
+        function stopAgent() {
+            state.isActive = false;
+            state.sessionStart = null;
+            
+            clearInterval(heartbeatInterval);
+            clearInterval(statsInterval);
+            
+            updateUI();
+            saveState();
+        }
+        
+        async function sendHeartbeat() {
+            if (!state.isActive) return;
+            
+            // Simulate relay activity
+            const bytes = Math.floor(Math.random() * 100000);
+            state.stats.bytesRelayed += bytes;
+            
+            // TODO: Send to real backend
+            console.log('Heartbeat:', {
+                agent: state.walletAddress,
+                bytes: state.stats.bytesRelayed,
+                uptime: state.stats.uptime
+            });
+        }
+        
+        function updateStats() {
+            if (!state.isActive || !state.sessionStart) return;
+            
+            state.stats.uptime = Math.floor((Date.now() - state.sessionStart) / 1000);
+            
+            // Calculate earnings
+            const mb = state.stats.bytesRelayed / (1024 * 1024);
+            const minutes = state.stats.uptime / 60;
+            state.stats.earnings = (mb * 0.001) + (minutes * 0.0001);
+            
+            updateStatsUI();
+        }
+        
+        // ============== UI ==============
+        
+        function updateUI() {
+            const ring = document.getElementById('statusRing');
+            const icon = document.getElementById('statusIcon');
+            const label = document.getElementById('statusLabel');
+            const badge = document.getElementById('statusBadge');
+            const btn = document.getElementById('mainBtn');
+            const progress = document.getElementById('progressRing');
+            
+            if (state.isActive) {
+                ring.classList.add('online');
+                icon.textContent = '●';
+                label.textContent = 'ONLINE';
+                badge.textContent = 'ONLINE';
+                badge.className = 'status-badge online';
+                btn.textContent = 'STOP';
+                btn.className = 'main-btn stop';
+                progress.style.strokeDashoffset = '0';
+            } else {
+                ring.classList.remove('online');
+                icon.textContent = '○';
+                label.textContent = 'OFFLINE';
+                badge.textContent = 'OFFLINE';
+                badge.className = 'status-badge offline';
+                btn.textContent = 'START EARNING';
+                btn.className = 'main-btn start';
+                progress.style.strokeDashoffset = '440';
+            }
+            
+            // Wallet
+            const walletEl = document.getElementById('walletAddress');
+            const walletBtn = document.getElementById('walletBtn');
+            
+            if (state.walletAddress) {
+                const addr = state.walletAddress;
+                walletEl.textContent = addr.slice(0, 6) + '...' + addr.slice(-6);
+                walletEl.className = 'wallet-address';
+                walletBtn.textContent = 'Disconnect';
+            } else {
+                walletEl.textContent = 'Not connected';
+                walletEl.className = 'wallet-address empty';
+                walletBtn.textContent = 'Connect Wallet';
+            }
+            
+            updateStatsUI();
+        }
+        
+        function updateStatsUI() {
+            const stats = state.stats;
+            
+            // Data
+            const mb = stats.bytesRelayed / (1024 * 1024);
+            document.getElementById('dataRelayed').textContent = 
+                mb < 1 ? Math.round(stats.bytesRelayed / 1024) + ' KB' :
+                mb < 1000 ? mb.toFixed(1) + ' MB' :
+                (mb / 1024).toFixed(2) + ' GB';
+            
+            // Uptime
+            const hrs = Math.floor(stats.uptime / 3600);
+            const mins = Math.floor((stats.uptime % 3600) / 60);
+            const secs = stats.uptime % 60;
+            document.getElementById('uptime').textContent = 
+                hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` :
+                `${mins}:${secs.toString().padStart(2, '0')}`;
+            
+            // Earnings
+            document.getElementById('earnings').textContent = '$' + stats.earnings.toFixed(4);
+            
+            // Rate
+            const rate = stats.uptime > 60 ? (stats.earnings / stats.uptime * 3600) : 0;
+            document.getElementById('rate').textContent = '$' + rate.toFixed(2) + '/hr';
+        }
+        
+        function updateConfigUI() {
+            document.getElementById('bwSlider').value = state.config.maxBandwidth;
+            document.getElementById('bwVal').textContent = state.config.maxBandwidth + ' Mbps';
+            
+            document.getElementById('dataSlider').value = state.config.dailyDataCap;
+            document.getElementById('unlimitedData').checked = state.config.unlimitedData;
+            
+            if (state.config.unlimitedData) {
+                document.getElementById('dataSlider').disabled = true;
+                document.getElementById('dataVal').textContent = 'UNLIMITED';
+            } else {
+                document.getElementById('dataSlider').disabled = false;
+                updateDataCap();
+            }
+        }
+        
+        // ============== CONFIG ==============
+        
+        function updateBw() {
+            const val = document.getElementById('bwSlider').value;
+            document.getElementById('bwVal').textContent = val + ' Mbps';
+            state.config.maxBandwidth = parseInt(val);
+            saveState();
+        }
+        
+        function updateDataCap() {
+            const val = parseInt(document.getElementById('dataSlider').value);
+            document.getElementById('dataVal').textContent = 
+                val < 1000 ? val + ' MB' :
+                val < 10000 ? (val / 1000).toFixed(1) + ' GB' :
+                Math.round(val / 1000) + ' GB';
+            state.config.dailyDataCap = val;
+            saveState();
+        }
+        
+        function toggleUnlimited() {
+            const checked = document.getElementById('unlimitedData').checked;
+            state.config.unlimitedData = checked;
+            document.getElementById('dataSlider').disabled = checked;
+            document.getElementById('dataVal').textContent = checked ? 'UNLIMITED' : 
+                (state.config.dailyDataCap / 1000).toFixed(1) + ' GB';
+            saveState();
+        }
+        
+        // ============== WALLET ==============
+        
+        function handleWallet() {
+            if (state.walletAddress) {
+                if (confirm('Disconnect wallet?')) {
+                    state.walletAddress = null;
+                    if (state.isActive) stopAgent();
+                    saveState();
+                    updateUI();
+                }
+            } else {
+                const addr = prompt('Enter your Solana wallet address:');
+                if (addr && addr.length >= 32 && addr.length <= 44) {
+                    state.walletAddress = addr.trim();
+                    saveState();
+                    updateUI();
+                } else if (addr) {
+                    alert('Invalid wallet address');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
