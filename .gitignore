@@ -20,6 +20,11 @@ test_anon_wallets.json
 test_keypair.json
 DEPLOYMENT_WALLET_INFO.txt
 
+# ========== INTERNAL DOCS (NOT FOR PUBLIC) ==========
+*.local.md
+INTERNAL_*.md
+INTERNAL_*.local.md
+
 # ========== LOCAL TEST RESULTS / SENSITIVE DATA ==========
 ANON_PAYMENT_TEST_RESULT.json
 anon_infrastructure.json
