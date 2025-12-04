@@ -513,7 +513,10 @@
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
         <header>
-            <a href="../index.html" class="logo">phantom_paradox</a>
+            <a href="../index.html" class="logo" style="display: flex; align-items: center; gap: 8px;">
+                <img src="../assets/null-logo-128.png" alt="NULL" style="width: 32px; height: 32px; border-radius: 6px;">
+                phantom_paradox
+            </a>
             <div class="header-right">
                 <span class="dev-badge">AGENTS DEV</span>
                 <div style="position: relative;">
@@ -939,9 +942,23 @@ DISPUTE FLOW
                     </a>
                 </div>
                 
-                <!-- Mobile PWA Install -->
+                <!-- Android Native APK -->
                 <div style="background: var(--bg-card); border: 1px solid var(--accent); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-                    <div style="color: var(--accent); font-weight: 600; margin-bottom: 0.5rem;">📱 Mobile Agent Install (Android/iOS)</div>
+                    <div style="color: var(--accent); font-weight: 600; margin-bottom: 0.5rem;">📱 Android Native App - DOWNLOAD NOW</div>
+                    <div style="margin: 12px 0;">
+                        <a href="phantom-agent-android-v0.1.0.apk" download style="background: linear-gradient(135deg, #00ff88, #00aa66); color: #000; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; font-size: 1rem;">
+                            📱 Download APK v0.1.0 (14.8 MB)
+                        </a>
+                    </div>
+                    <div style="color: var(--text-dim); font-size: 0.85rem;">
+                        Enable "Install from unknown sources" in Android Settings → Security<br>
+                        Native Kotlin app with Jetpack Compose • Battery-aware • Auto-pauses at 15%
+                    </div>
+                </div>
+                
+                <!-- Mobile PWA Install (Alternative) -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="color: var(--accent-blue); font-weight: 600; margin-bottom: 0.5rem;">📱 PWA Alternative (iOS/Android)</div>
                     <div style="color: var(--text-dim); font-size: 0.85rem;">
                         1. Open <a href="./agent-app/" style="color: var(--accent-blue);">agent-app/</a> in Chrome on your phone<br>
                         2. Tap menu → "Add to Home Screen" or "Install App"<br>
@@ -951,17 +968,19 @@ DISPUTE FLOW
                 </div>
                 
                 <!-- Browser Extension Install -->
-                <div style="background: var(--bg-card); border: 1px solid var(--accent-blue); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-                    <div style="color: var(--accent-blue); font-weight: 600; margin-bottom: 0.5rem;">🌐 Browser Extension Install</div>
+                <div style="background: var(--bg-card); border: 1px solid var(--accent); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="color: var(--accent); font-weight: 600; margin-bottom: 0.5rem;">🌐 Browser Extension - DOWNLOAD NOW</div>
+                    <div style="display: flex; gap: 10px; margin: 12px 0; flex-wrap: wrap;">
+                        <a href="phantom-agent-chrome-v0.1.0.zip" download style="background: linear-gradient(135deg, #00ff88, #00aa66); color: #000; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                            🔵 Chrome/Edge/Brave v0.1.0
+                        </a>
+                        <a href="phantom-agent-firefox-v0.1.0.xpi" download style="background: linear-gradient(135deg, #ff6600, #cc5500); color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                            🦊 Firefox v0.1.0
+                        </a>
+                    </div>
                     <div style="color: var(--text-dim); font-size: 0.85rem;">
-                        <strong>Chrome/Edge/Brave/Opera:</strong><br>
-                        1. Download <a href="https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/tree/main/agents/browser-extension/chromium" style="color: var(--accent-blue);" target="_blank">chromium/</a> folder<br>
-                        2. Go to <code>chrome://extensions</code> → Enable Developer Mode<br>
-                        3. Click "Load unpacked" → Select the chromium folder<br><br>
-                        <strong>Firefox:</strong><br>
-                        1. Download <a href="https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/tree/main/agents/browser-extension/firefox" style="color: var(--accent-blue);" target="_blank">firefox/</a> folder<br>
-                        2. Go to <code>about:debugging</code> → This Firefox<br>
-                        3. Click "Load Temporary Add-on" → Select manifest.json
+                        <strong>Chrome/Edge/Brave:</strong> Unzip → <code>chrome://extensions</code> → Enable Developer Mode → Load unpacked<br>
+                        <strong>Firefox:</strong> Click to install directly (or <code>about:debugging</code> → Load Temporary Add-on)
                     </div>
                 </div>
                 

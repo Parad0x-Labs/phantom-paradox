@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Permissions -->
+    <!--
+    ╔═══════════════════════════════════════════════════════════════════╗
+    ║                    PHANTOM AGENT PERMISSIONS                       ║
+    ║                                                                    ║
+    ║  We only request what's ESSENTIAL for earning PDOX.               ║
+    ║  NO access to: photos, contacts, location, camera, mic, files.    ║
+    ╚═══════════════════════════════════════════════════════════════════╝
+    -->
+
+    <!-- NETWORK: Required to connect to Phantom network and relay traffic -->
     <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- NETWORK STATE: Check if device is online before trying to connect -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    
+    <!-- WIFI STATE: Prefer WiFi over mobile data (saves your data plan) -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    
+    <!-- FOREGROUND SERVICE: Keep agent running when screen is off (earn 24/7) -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    
+    <!-- BOOT COMPLETED: Optional auto-start after phone restart -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    
+    <!-- WAKE LOCK: Prevent CPU sleep during active relay (maximizes earnings) -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- NOTIFICATIONS: Show earnings status in notification bar (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
