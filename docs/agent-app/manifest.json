@@ -1,6 +1,6 @@
 {
-  "name": "Phantom Paradox Agent",
-  "short_name": "PP Agent",
+  "name": "$NULL Agent",
+  "short_name": "$NULL",
   "description": "Earn crypto by sharing bandwidth and compute",
   "start_url": "./index.html",
   "display": "standalone",
