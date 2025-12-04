@@ -1,173 +1,106 @@
-# PHANTOM PARADOX BROWSER EXTENSION
+# Phantom Paradox Browser Extension
 
-Earn crypto by sharing bandwidth. Lightweight relay agent that runs in your browser.
+Lightweight relay agent that runs in your browser. Earn passive income while browsing.
 
 ## Supported Browsers
 
-| Browser | Engine | Folder | Status |
-|---------|--------|--------|--------|
-| **Chrome** | Chromium | `chromium/` | ✅ Ready |
-| **Edge** | Chromium | `chromium/` | ✅ Ready |
-| **Brave** | Chromium | `chromium/` | ✅ Ready |
-| **Opera** | Chromium | `chromium/` | ✅ Ready |
-| **Firefox** | Gecko | `firefox/` | ✅ Ready |
-| **Safari** | WebKit | `safari/` | 🔲 Planned |
+| Browser | Version | Folder |
+|---------|---------|--------|
+| Chrome | 88+ | `chromium/` |
+| Edge | 88+ | `chromium/` |
+| Brave | 1.20+ | `chromium/` |
+| Opera | 74+ | `chromium/` |
+| Firefox | 109+ | `firefox/` |
 
-## Quick Install (Developer Mode)
+## Installation
 
-### Step 1: Generate Icons
+### Chrome / Edge / Brave / Opera (Chromium)
 
-Before loading the extension, you need icons:
-
-1. Open `chromium/icons/generate-icons.html` in your browser
-2. Click each "Download" link to save the PNG files
-3. Save them to the `icons/` folder
-
-Or use any 16x16, 32x32, 48x48, 128x128 PNG images.
-
-### Step 2: Load Extension
-
-#### Chrome / Edge / Brave / Opera
-
-1. Open extensions page:
+1. Download this repo or just the `chromium/` folder
+2. Open your browser and go to:
    - Chrome: `chrome://extensions`
    - Edge: `edge://extensions`
    - Brave: `brave://extensions`
    - Opera: `opera://extensions`
+3. Enable **Developer mode** (toggle in top right)
+4. Click **Load unpacked**
+5. Select the `chromium/` folder
+6. Pin the extension to your toolbar
 
-2. Enable **Developer mode** (toggle in top-right)
+### Firefox
 
-3. Click **Load unpacked**
+1. Download this repo or just the `firefox/` folder
+2. Open Firefox and go to `about:debugging`
+3. Click **This Firefox** in the sidebar
+4. Click **Load Temporary Add-on...**
+5. Navigate to `firefox/` folder and select `manifest.json`
 
-4. Select the `chromium/` folder
+Note: Firefox temporary add-ons are removed when browser closes. For permanent install, the extension needs to be signed by Mozilla.
 
-5. Done! Click the extension icon in toolbar.
+## Usage
 
-#### Firefox
+1. Click the extension icon in your toolbar
+2. Toggle **Enable Agent** to start earning
+3. Configure your limits:
+   - CPU usage (10-100%)
+   - Bandwidth (1-100 Mbps)
+   - Daily data cap (100MB - Unlimited)
+4. Connect your Solana wallet to receive payments
 
-1. Open `about:debugging#/runtime/this-firefox`
+## What It Does
 
-2. Click **Load Temporary Add-on**
+The extension acts as a relay node:
+- Routes encrypted traffic through your connection
+- Verifies small data packets
+- Earns PDOX/NULL tokens for work done
 
-3. Select `firefox/manifest.json`
+Your connection is used only when:
+- You have the extension enabled
+- Your limits allow it
+- There's demand for your region/IP
 
-4. Done! Click the extension icon in toolbar.
+## Privacy & Security
 
-## Features
+- **No browsing data collected** - We only use idle bandwidth
+- **Encrypted traffic** - All relayed data is encrypted
+- **Rate limited** - Cannot exceed your configured limits
+- **Sandboxed** - Runs in browser sandbox, no system access
 
-### Relay Mode
-Share your bandwidth for VPN/proxy traffic. Your IP helps others access content.
-
-### Configurable Limits
-- **Bandwidth**: 1-100 Mbps cap
-- **Daily Data**: 100 MB to 100 GB, or Unlimited
-
-### Earnings Tracking
-- Real-time earnings display
-- Data relayed counter
-- Uptime tracker
-- Estimated hourly rate
-
-### Privacy First
-- No browsing history collected
-- No personal information stored
-- Wallet address = your identity
-- All traffic encrypted
-
-## File Structure
-
-```
-browser-extension/
-├── README.md
-│
-├── chromium/                 # Chrome, Edge, Brave, Opera
-│   ├── manifest.json         # Manifest V3
-│   ├── src/
-│   │   ├── background.js     # Service worker
-│   │   ├── popup.html        # UI
-│   │   └── popup.js          # UI controller
-│   └── icons/
-│       ├── generate-icons.html
-│       ├── icon16.png
-│       ├── icon32.png
-│       ├── icon48.png
-│       └── icon128.png
-│
-├── firefox/                  # Firefox
-│   ├── manifest.json         # Manifest V2
-│   ├── src/
-│   │   ├── background.js     # Background script
-│   │   ├── popup.html        # UI
-│   │   └── popup.js          # UI controller
-│   └── icons/
-│       └── (same as chromium)
-│
-└── safari/                   # Coming soon
-    └── README.md
-```
-
-## How It Works
-
-1. **Connect Wallet** - Enter your Solana wallet address
-2. **Configure Limits** - Set max bandwidth and daily data cap
-3. **Start Earning** - Click "START EARNING" to begin relaying
-4. **Monitor Stats** - Watch your earnings grow in real-time
-
-## Earnings Estimate
-
-Based on network activity:
+## Estimated Earnings
 
 | Usage | Daily Earnings |
-|-------|---------------|
-| Light (1-2 hrs/day) | $0.10 - $0.50 |
-| Medium (8 hrs/day) | $0.50 - $2.00 |
-| Heavy (24/7) | $2.00 - $5.00 |
+|-------|----------------|
+| Light (2-4 hrs) | $0.50-1.00 |
+| Medium (8 hrs) | $1.00-2.00 |
+| Heavy (24/7) | $2.00-5.00 |
 
-*Actual earnings depend on network demand and your connection quality.*
+Earnings vary based on:
+- Your IP quality (residential > datacenter)
+- Your region (high-demand regions pay more)
+- Current network demand
 
-## Building for Store Submission
+## Files
 
-```bash
-# Chrome Web Store / Edge Add-ons
-cd chromium
-zip -r ../phantom-agent-chromium.zip . -x "*.html" -x "*.svg"
+```
+chromium/
+├── manifest.json      # Extension manifest (MV3)
+├── src/
+│   ├── background.js  # Service worker
+│   ├── popup.html     # Popup UI
+│   └── popup.js       # Popup logic
+└── icons/
+    └── icon16.svg     # Extension icon
 
-# Firefox Add-ons
-cd firefox  
-zip -r ../phantom-agent-firefox.zip . -x "*.html" -x "*.svg"
+firefox/
+├── manifest.json      # Extension manifest (MV2)
+├── src/
+│   ├── background.js  # Background script
+│   ├── popup.html     # Popup UI
+│   └── popup.js       # Popup logic
+└── icons/
+    └── (same as chromium)
 ```
 
-## Troubleshooting
+---
 
-### Extension not loading
-- Make sure you're in Developer mode
-- Check that all icon files exist
-- Look for errors in browser console
-
-### Not earning
-- Ensure wallet address is connected
-- Check that agent status shows "ONLINE"
-- Verify internet connection
-
-### Badge not showing
-- Some browsers hide badges by default
-- Check extension settings
-
-## Security
-
-- **Open source** - All code is auditable
-- **No tracking** - We don't collect browsing data
-- **Encrypted traffic** - All relay traffic is encrypted
-- **Local storage only** - Your data stays on your device
-
-## Changelog
-
-### v0.1.0 (Initial Release)
-- Basic relay functionality
-- Earnings tracking
-- Bandwidth/data cap controls
-- Multi-browser support
-
-## License
-
-MIT License - Phantom Paradox 2025
+LabsX402 // Phantom Paradox // 2025

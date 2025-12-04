@@ -1,45 +1,66 @@
-# PHANTOM BOX - Raspberry Pi Agent
+# Phantom Paradox - Phantom Box (Raspberry Pi Agent)
 
-The ultimate plug-and-play passive income device.
+Turn your Raspberry Pi into a 24/7 passive income device. Plug in, earn crypto.
 
-## Quick Start (DIY)
+## Quick Start (One Command)
 
-1. Download the image: `phantombox-v0.1.0.img.gz`
-2. Flash to SD card using [Balena Etcher](https://balena.io/etcher)
-3. Insert SD card into Raspberry Pi 4/5
-4. Connect ethernet cable
-5. Connect power (USB-C 5V/3A)
-6. Wait 2 minutes for first boot
-7. Scan QR code on screen (or visit `http://phantombox.local:8080`)
-8. Enter your Solana wallet address
-9. Done! Earning 24/7.
+SSH into your Pi running Raspberry Pi OS Lite, then:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/main/agents/phantom-box/scripts/setup.sh | bash
+```
+
+This will:
+- Install all dependencies
+- Build and install the Phantom Agent
+- Configure systemd for auto-start
+- Set up a local web dashboard on port 8080
+- Start earning automatically
 
 ## Hardware Requirements
 
-- Raspberry Pi 4 (4GB+ RAM) or Pi 5
-- 32GB+ microSD card (Class 10 or better)
-- Ethernet cable (WiFi optional but less reliable)
-- 5V/3A USB-C power supply
-- Optional: Case with passive cooling
-- Optional: OLED display (SSD1306)
+| Component | Minimum | Recommended |
+|-----------|---------|-------------|
+| Pi Model | Pi 4 (2GB) | Pi 4/5 (4GB+) |
+| SD Card | 16GB | 32GB A2 class |
+| Network | WiFi | Ethernet (stable) |
+| Power | 5V/2.5A | 5V/3A USB-C |
 
-## Software Stack
+## Manual Setup
 
-- Base OS: Raspberry Pi OS Lite (64-bit)
-- Agent: `phantom-agent` (Rust binary)
-- Dashboard: Local web UI on port 8080
-- Auto-update: Checks hourly for updates
-- Watchdog: Auto-restarts on crash
+### 1. Flash Raspberry Pi OS
 
-## First Boot
+1. Download [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
+2. Choose **Raspberry Pi OS Lite (64-bit)**
+3. Click the gear icon to configure:
+   - Enable SSH
+   - Set username/password
+   - Configure WiFi (optional)
+4. Flash to SD card
 
-The image is pre-configured to:
+### 2. First Boot
 
-1. Expand filesystem to use full SD card
-2. Set hostname to `phantombox`
-3. Enable SSH (user: `pi`, pass: `phantom`)
-4. Start agent service
-5. Display QR code for wallet setup
+```bash
+# SSH into your Pi
+ssh pi@raspberrypi.local
+# or use the IP address from your router
+
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Run setup script
+curl -sSL https://raw.githubusercontent.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/main/agents/phantom-box/scripts/setup.sh | bash
+```
+
+### 3. Access Dashboard
+
+Open in browser: `http://<PI_IP>:8080`
+
+The dashboard shows:
+- Agent status (online/offline)
+- Current earnings
+- Bandwidth usage
+- CPU/RAM metrics
 
 ## Configuration
 
@@ -47,20 +68,32 @@ Edit `/etc/phantom-agent/config.toml`:
 
 ```toml
 [agent]
-wallet_address = "YOUR_SOLANA_ADDRESS"
-auto_start = true
+id = "phantom-box-001"
+manager_url = "https://api.phantomparadox.io"
 
 [limits]
-max_cpu_percent = 75
-max_bandwidth_mbps = 50
-max_daily_data_gb = 10
+max_cpu_percent = 50
+max_bandwidth_mbps = 100
+max_daily_data_gb = 50
 
-[modes]
-compute = true
-relay = true
-verify = true
-jury = true
+[wallet]
+address = "YOUR_SOLANA_WALLET_ADDRESS"
 ```
+
+Then restart:
+```bash
+sudo systemctl restart phantom-agent
+```
+
+## Earnings Estimate
+
+| Internet Speed | Monthly Earnings |
+|----------------|------------------|
+| 10 Mbps | $30-60 |
+| 50 Mbps | $100-200 |
+| 100+ Mbps | $200-400 |
+
+Power cost: ~$4/year (5W × 24/7)
 
 ## Commands
 
@@ -69,70 +102,65 @@ jury = true
 sudo systemctl status phantom-agent
 
 # View logs
-journalctl -u phantom-agent -f
+sudo journalctl -u phantom-agent -f
 
 # Restart agent
 sudo systemctl restart phantom-agent
 
-# Update agent
-sudo phantom-update
+# Stop agent
+sudo systemctl stop phantom-agent
 
-# Show earnings
-phantom-agent status
+# Update agent
+curl -sSL https://raw.githubusercontent.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/main/agents/phantom-box/scripts/setup.sh | bash
 ```
 
-## Dashboard
+## LED Status (if using official case)
 
-Access at `http://phantombox.local:8080` or `http://<IP>:8080`
-
-Features:
-- Real-time earnings
-- Network stats
-- CPU/RAM usage
-- Temperature
-- Wallet settings
-- Log viewer
-
-## Power Consumption
-
-- Idle: ~3W
-- Active: ~5-7W
-- Yearly cost: ~$5 electricity
-
-## Earnings Estimate
-
-Based on default settings (75% CPU, 50 Mbps):
-- Low demand: $3-5/day
-- Medium demand: $5-10/day
-- High demand: $10-20/day
-
-**ROI: 5-20 days** (based on ~$60 Pi 4 cost)
+| LED | Meaning |
+|-----|---------|
+| Solid green | Online, earning |
+| Blinking green | Processing job |
+| Yellow | Connecting |
+| Red | Error (check logs) |
 
 ## Troubleshooting
 
-### No network
-- Check ethernet cable
-- Try `sudo dhclient eth0`
+**Agent won't start:**
+```bash
+sudo journalctl -u phantom-agent -n 50
+```
 
-### Agent not starting
-- Check logs: `journalctl -u phantom-agent`
-- Verify config: `cat /etc/phantom-agent/config.toml`
+**No network:**
+```bash
+ping google.com
+# If fails, check /etc/network/interfaces or nmcli
+```
 
-### High temperature
-- Ensure proper ventilation
-- Add heatsink or fan
-- Reduce CPU limit in config
+**Low earnings:**
+- Check bandwidth limits in config
+- Ensure stable Ethernet connection
+- Verify port 8080 and 443 outbound are open
 
-### Low earnings
-- Check network speed: `speedtest-cli`
-- Verify wallet address
-- Check dashboard for errors
+## Files
 
-## Building the Image
+```
+/usr/local/bin/phantom-agent    # Agent binary
+/etc/phantom-agent/config.toml  # Configuration
+/var/lib/phantom-agent/         # Data directory
+/var/log/phantom-agent/         # Logs
+```
 
-See `scripts/build-image.sh` for image creation.
+---
 
-## License
+## Pre-Built Option (Coming Soon)
 
-MIT License - Phantom Paradox 2025
+**Phantom Box Kit - $99**
+- Raspberry Pi 4 (4GB)
+- 32GB pre-flashed SD card
+- Official case with heatsink
+- Power supply included
+- Plug & earn in 5 minutes
 
+---
+
+LabsX402 // Phantom Paradox // 2025

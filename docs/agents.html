@@ -919,32 +919,79 @@ DISPUTE FLOW
                         <div style="color: var(--text-dim); font-size: 0.8rem;">Android/iOS PWA</div>
                         <div style="color: var(--accent); font-size: 0.7rem; margin-top: 0.5rem;">[READY]</div>
                     </a>
-                    <div style="display: block; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; opacity: 0.6;">
+                    <a href="https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/tree/main/agents/browser-extension" target="_blank" style="display: block; background: var(--bg-elevated); border: 2px solid var(--accent); border-radius: 12px; padding: 1.5rem; text-decoration: none; text-align: center;">
                         <div style="font-size: 2rem; margin-bottom: 0.5rem;">🌐</div>
-                        <div style="color: var(--accent-blue); font-weight: 600; margin-bottom: 0.25rem;">BROWSER EXT</div>
-                        <div style="color: var(--text-dim); font-size: 0.8rem;">Chrome/Firefox/Brave</div>
-                        <div style="color: var(--text-muted); font-size: 0.7rem; margin-top: 0.5rem;">[COMING SOON]</div>
-                    </div>
-                    <div style="display: block; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; opacity: 0.6;">
+                        <div style="color: var(--accent); font-weight: 600; margin-bottom: 0.25rem;">BROWSER EXT</div>
+                        <div style="color: var(--text-dim); font-size: 0.8rem;">Chrome/Edge/Brave/Firefox</div>
+                        <div style="color: var(--accent); font-size: 0.7rem; margin-top: 0.5rem;">[READY]</div>
+                    </a>
+                    <a href="https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/tree/main/agents/desktop" target="_blank" style="display: block; background: var(--bg-elevated); border: 2px solid var(--accent); border-radius: 12px; padding: 1.5rem; text-decoration: none; text-align: center;">
                         <div style="font-size: 2rem; margin-bottom: 0.5rem;">💻</div>
-                        <div style="color: var(--accent-blue); font-weight: 600; margin-bottom: 0.25rem;">DESKTOP</div>
-                        <div style="color: var(--text-dim); font-size: 0.8rem;">Win/Mac/Linux</div>
-                        <div style="color: var(--text-muted); font-size: 0.7rem; margin-top: 0.5rem;">[COMING SOON]</div>
-                    </div>
-                    <div style="display: block; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; opacity: 0.6;">
+                        <div style="color: var(--accent); font-weight: 600; margin-bottom: 0.25rem;">DESKTOP</div>
+                        <div style="color: var(--text-dim); font-size: 0.8rem;">Win/Mac/Linux (Rust)</div>
+                        <div style="color: var(--accent); font-size: 0.7rem; margin-top: 0.5rem;">[READY]</div>
+                    </a>
+                    <a href="https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/tree/main/agents/phantom-box" target="_blank" style="display: block; background: var(--bg-elevated); border: 2px solid var(--accent); border-radius: 12px; padding: 1.5rem; text-decoration: none; text-align: center;">
                         <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔲</div>
                         <div style="color: var(--accent); font-weight: 600; margin-bottom: 0.25rem;">PHANTOM BOX</div>
-                        <div style="color: var(--text-dim); font-size: 0.8rem;">Raspberry Pi Image</div>
-                        <div style="color: var(--text-muted); font-size: 0.7rem; margin-top: 0.5rem;">[COMING SOON]</div>
-                    </div>
+                        <div style="color: var(--text-dim); font-size: 0.8rem;">Raspberry Pi Scripts</div>
+                        <div style="color: var(--accent); font-size: 0.7rem; margin-top: 0.5rem;">[READY]</div>
+                    </a>
                 </div>
-                <div style="background: var(--bg-card); border: 1px solid var(--accent); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                    <div style="color: var(--accent); font-weight: 600; margin-bottom: 0.5rem;">Mobile Agent Install (Android)</div>
+                
+                <!-- Mobile PWA Install -->
+                <div style="background: var(--bg-card); border: 1px solid var(--accent); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="color: var(--accent); font-weight: 600; margin-bottom: 0.5rem;">📱 Mobile Agent Install (Android/iOS)</div>
                     <div style="color: var(--text-dim); font-size: 0.85rem;">
                         1. Open <a href="./agent-app/" style="color: var(--accent-blue);">agent-app/</a> in Chrome on your phone<br>
-                        2. Tap menu (⋮) → "Add to Home Screen" or "Install App"<br>
+                        2. Tap menu → "Add to Home Screen" or "Install App"<br>
                         3. Open from home screen - runs as standalone app<br>
                         4. Connect wallet and start earning
+                    </div>
+                </div>
+                
+                <!-- Browser Extension Install -->
+                <div style="background: var(--bg-card); border: 1px solid var(--accent-blue); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="color: var(--accent-blue); font-weight: 600; margin-bottom: 0.5rem;">🌐 Browser Extension Install</div>
+                    <div style="color: var(--text-dim); font-size: 0.85rem;">
+                        <strong>Chrome/Edge/Brave/Opera:</strong><br>
+                        1. Download <a href="https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/tree/main/agents/browser-extension/chromium" style="color: var(--accent-blue);" target="_blank">chromium/</a> folder<br>
+                        2. Go to <code>chrome://extensions</code> → Enable Developer Mode<br>
+                        3. Click "Load unpacked" → Select the chromium folder<br><br>
+                        <strong>Firefox:</strong><br>
+                        1. Download <a href="https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/tree/main/agents/browser-extension/firefox" style="color: var(--accent-blue);" target="_blank">firefox/</a> folder<br>
+                        2. Go to <code>about:debugging</code> → This Firefox<br>
+                        3. Click "Load Temporary Add-on" → Select manifest.json
+                    </div>
+                </div>
+                
+                <!-- Desktop Install -->
+                <div style="background: var(--bg-card); border: 1px solid var(--accent-purple); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="color: var(--accent-purple); font-weight: 600; margin-bottom: 0.5rem;">💻 Desktop Agent Install (Linux/Mac/Win)</div>
+                    <div style="color: var(--text-dim); font-size: 0.85rem;">
+                        <strong>Requirements:</strong> Rust toolchain (<a href="https://rustup.rs" style="color: var(--accent-blue);" target="_blank">rustup.rs</a>)<br><br>
+                        <code style="background: var(--bg-void); padding: 0.5rem; display: block; border-radius: 4px; margin: 0.5rem 0;">
+git clone https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet.git<br>
+cd PhantomGrid-Wraith-Testnet/agents/desktop<br>
+cargo build --release<br>
+./target/release/phantom-agent start
+                        </code>
+                        <strong>Ubuntu/Debian deps:</strong> <code>sudo apt install build-essential pkg-config libssl-dev</code>
+                    </div>
+                </div>
+                
+                <!-- Phantom Box Install -->
+                <div style="background: var(--bg-card); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <div style="color: var(--accent-orange); font-weight: 600; margin-bottom: 0.5rem;">🔲 Phantom Box Install (Raspberry Pi)</div>
+                    <div style="color: var(--text-dim); font-size: 0.85rem;">
+                        <strong>Requirements:</strong> Raspberry Pi 4/5, SD card, Ethernet<br><br>
+                        <strong>Option A - Fresh Pi OS:</strong><br>
+                        <code style="background: var(--bg-void); padding: 0.5rem; display: block; border-radius: 4px; margin: 0.5rem 0;">
+# Flash Raspberry Pi OS Lite to SD card<br>
+# SSH in, then run:<br>
+curl -sSL https://raw.githubusercontent.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/main/agents/phantom-box/scripts/setup.sh | bash
+                        </code>
+                        <strong>Option B - Build custom image:</strong> See <a href="https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/tree/main/agents/phantom-box" style="color: var(--accent-blue);" target="_blank">phantom-box/README.md</a>
                     </div>
                 </div>
 

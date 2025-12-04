@@ -1,93 +1,89 @@
-# PHANTOM PARADOX AGENTS
+# Phantom Paradox Agents
 
-Earn crypto by sharing compute, bandwidth, and verification services.
+Earn passive income by contributing bandwidth, compute, and verification to the Phantom Paradox network.
 
-## Deployment Options
+## Quick Start
 
-| Platform | Install | Modes | Est. Earnings |
-|----------|---------|-------|---------------|
-| **Browser Extension** | Chrome/Firefox/Brave/Edge | Relay only | $0.50-2/day |
-| **Desktop App** | Windows/Mac/Linux | Full agent | $2-10/day |
-| **Android App** | APK / Play Store | Relay + Verify | $0.50-3/day |
-| **Phantom Box (Pi)** | USB flash / Pre-built | Full agent 24/7 | $5-20/day |
+| Platform | Command |
+|----------|---------|
+| **Mobile** | Open [agent-app](https://phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet/docs/agent-app/) on phone → Install |
+| **Browser** | Load `chromium/` or `firefox/` folder in browser |
+| **Desktop** | `cargo build --release && ./target/release/phantom-agent start` |
+| **Raspberry Pi** | `curl -sSL https://raw.githubusercontent.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/main/agents/phantom-box/scripts/setup.sh \| bash` |
 
-## Quick Links
+## Agent Types
 
-- [Browser Extension](./browser-extension/) - Lightweight, runs in browser
-- [Desktop Agent](./desktop/) - Full-featured Rust binary
-- [Android App](./android/) - Mobile agent
-- [Phantom Box](./phantom-box/) - Raspberry Pi plug-and-play
+```
+agents/
+├── browser-extension/     # Chrome, Edge, Brave, Firefox, Opera
+│   ├── chromium/          # Manifest V3 (Chrome, Edge, Brave, Opera)
+│   └── firefox/           # Manifest V2 (Firefox)
+├── desktop/               # Rust binary (Win/Mac/Linux)
+├── android/               # Kotlin/Compose (source only)
+└── phantom-box/           # Raspberry Pi setup scripts
+```
 
-## How It Works
+## Estimated Earnings
 
-1. **Install** - Choose your platform
-2. **Connect Wallet** - Link your Solana wallet
-3. **Stake PDOX** - Lock reputation stake
-4. **Earn** - Get paid for services
+| Agent Type | Usage | Daily Earnings |
+|------------|-------|----------------|
+| Browser Extension | 8 hrs | $1-2 |
+| Desktop Agent | 24/7 | $5-10 |
+| Mobile PWA | 4 hrs | $0.50-1 |
+| Phantom Box (Pi) | 24/7 | $5-20 |
 
-## Agent Modes
-
-### Relay (All platforms)
-Share bandwidth for VPN/proxy traffic. Lowest resource usage.
-
-### Compute (Desktop/Pi)
-CPU/GPU tasks like ML inference, batch processing.
-
-### Verify (All platforms)  
-Merkle proof validation, transaction verification.
-
-### Jury (All platforms)
-Vote on disputes, earn from correct verdicts.
+Earnings depend on:
+- Your bandwidth speed
+- Your IP quality (residential > datacenter)
+- Your region (some regions pay more)
+- Network demand
 
 ## Requirements
 
 ### Browser Extension
-- Chrome 88+ / Firefox 78+ / Brave / Edge
-- 1 Mbps+ connection
+- Chrome 88+ / Edge 88+ / Brave 1.20+ / Opera 74+ / Firefox 109+
 
-### Desktop
-- Windows 10+ / macOS 11+ / Linux
-- 4GB+ RAM
-- 10 Mbps+ connection
+### Desktop Agent
+- Rust 1.70+ ([rustup.rs](https://rustup.rs))
+- OpenSSL (Linux: `sudo apt install libssl-dev`)
 
-### Android
-- Android 8.0+
-- WiFi connection (mobile data optional)
+### Mobile PWA
+- Android with Chrome / iOS with Safari
+- No app store needed
 
-### Phantom Box (Pi)
-- Raspberry Pi 4/5 (4GB+ RAM)
-- 32GB+ SD card
-- Ethernet connection
-- 5V/3A power supply
+### Phantom Box
+- Raspberry Pi 4/5
+- SD card 16GB+
+- Ethernet recommended
 
-## Earnings
+## Documentation
 
-Earnings depend on:
-- Your hardware capability
-- Network speed
-- Current demand
-- Time online
+- [Browser Extension Setup](./browser-extension/README.md)
+- [Desktop Agent Setup](./desktop/README.md)
+- [Phantom Box Setup](./phantom-box/README.md)
 
-Base rates (can increase 2-10x with demand):
-- Relay: $0.01/min + $0.0001/MB
-- Compute: $0.005/min (CPU), $0.10/min (GPU)
-- Verify: $0.001/task
-- Jury: Share of dispute fines
+## Architecture
 
-## Security
-
-- All traffic encrypted
-- No personal data collected
-- Wallet = your identity (no accounts)
-- Open source
-
-## Support
-
-- GitHub Issues
-- Discord: [join server]
-- Docs: https://phantomparadox.io/docs
+```
+┌──────────────────┐     ┌──────────────────┐
+│   Your Device    │     │   Job Manager    │
+│                  │────▶│                  │
+│  Browser/Desktop │     │  Assigns jobs,   │
+│  Mobile/Pi       │◀────│  tracks work,    │
+│                  │     │  handles payment │
+└──────────────────┘     └──────────────────┘
+         │                        │
+         │                        │
+         ▼                        ▼
+┌──────────────────┐     ┌──────────────────┐
+│   Do Real Work   │     │   Get Paid       │
+│                  │     │                  │
+│  - Relay traffic │     │  - PDOX tokens   │
+│  - Verify data   │     │  - NULL tokens   │
+│  - Compute tasks │     │  - USDC/SOL      │
+└──────────────────┘     └──────────────────┘
+```
 
 ---
 
-MIT License - Phantom Paradox 2025
-
+LabsX402 // Phantom Paradox // 2025
