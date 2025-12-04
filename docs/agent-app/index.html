@@ -8,11 +8,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <title>Phantom Paradox Agent</title>
+    <title>$NULL Agent</title>
     
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="icon-192.png">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon.svg">
     
     <style>
         :root {
@@ -24,22 +24,14 @@
             --blue: #00d4ff;
             --orange: #ff9500;
             --red: #ff4757;
+            --purple: #AB9FF2;
             --text: #e8f0f8;
             --dim: #6b7c8a;
             --muted: #3a4a5a;
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; overflow: hidden; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -51,7 +43,6 @@
             user-select: none;
         }
         
-        /* Header */
         .header {
             background: var(--card);
             padding: 16px 20px;
@@ -63,9 +54,10 @@
         }
         
         .logo {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             color: var(--accent);
+            font-family: monospace;
         }
         
         .status-badge {
@@ -74,357 +66,110 @@
             border-radius: 20px;
             font-weight: 600;
         }
+        .status-badge.offline { background: var(--border); color: var(--dim); }
+        .status-badge.online { background: var(--accent); color: var(--bg); }
+        .status-badge.connecting { background: var(--orange); color: var(--bg); }
         
-        .status-badge.offline {
-            background: var(--border);
-            color: var(--dim);
-        }
-        
-        .status-badge.online {
-            background: var(--accent);
-            color: var(--bg);
-        }
-        
-        /* Main Content */
         .content {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            padding-bottom: max(100px, env(safe-area-inset-bottom));
         }
         
-        /* Status Ring */
         .status-ring {
-            width: 160px;
-            height: 160px;
-            margin: 20px auto 30px;
+            width: 140px;
+            height: 140px;
+            margin: 10px auto 20px;
             position: relative;
         }
         
-        .status-ring svg {
-            width: 100%;
-            height: 100%;
-            transform: rotate(-90deg);
-        }
-        
-        .status-ring .bg {
-            fill: none;
-            stroke: var(--border);
-            stroke-width: 8;
-        }
-        
+        .status-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .status-ring .bg { fill: none; stroke: var(--border); stroke-width: 8; }
         .status-ring .progress {
-            fill: none;
-            stroke: var(--accent);
-            stroke-width: 8;
-            stroke-linecap: round;
-            stroke-dasharray: 440;
-            stroke-dashoffset: 440;
+            fill: none; stroke: var(--accent); stroke-width: 8;
+            stroke-linecap: round; stroke-dasharray: 380; stroke-dashoffset: 380;
             transition: stroke-dashoffset 0.5s ease;
         }
-        
-        .status-ring.online .progress {
-            animation: pulse-ring 2s ease-in-out infinite;
-        }
-        
-        @keyframes pulse-ring {
-            0%, 100% { stroke-opacity: 1; }
-            50% { stroke-opacity: 0.5; }
-        }
+        .status-ring.online .progress { stroke-dashoffset: 0; animation: pulse-ring 2s ease-in-out infinite; }
+        @keyframes pulse-ring { 0%, 100% { stroke-opacity: 1; } 50% { stroke-opacity: 0.5; } }
         
         .status-ring .center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); text-align: center;
         }
+        .status-ring .icon { font-size: 32px; margin-bottom: 4px; }
+        .status-ring .label { font-size: 12px; font-weight: 600; color: var(--dim); }
+        .status-ring.online .label { color: var(--accent); }
         
-        .status-ring .icon {
-            font-size: 40px;
-            margin-bottom: 4px;
-        }
-        
-        .status-ring .label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--dim);
-        }
-        
-        .status-ring.online .label {
-            color: var(--accent);
-        }
-        
-        /* Earnings */
         .earnings-card {
             background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 212, 255, 0.05));
             border: 1px solid var(--accent);
             border-radius: 16px;
-            padding: 24px;
+            padding: 20px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
+        .earnings-value { font-size: 36px; font-weight: 700; color: var(--accent); font-family: monospace; }
+        .earnings-label { font-size: 12px; color: var(--dim); margin-top: 4px; }
         
-        .earnings-value {
-            font-size: 42px;
-            font-weight: 700;
-            color: var(--accent);
-            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-        }
-        
-        .earnings-label {
-            font-size: 13px;
-            color: var(--dim);
-            margin-top: 4px;
-        }
-        
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
         .stat-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px; text-align: center;
         }
+        .stat-value { font-size: 20px; font-weight: 700; color: var(--accent); font-family: monospace; }
+        .stat-label { font-size: 10px; color: var(--dim); text-transform: uppercase; margin-top: 2px; }
         
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--accent);
-            font-family: 'SF Mono', Monaco, monospace;
+        .jobs-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 12px; margin-bottom: 16px;
         }
-        
-        .stat-label {
-            font-size: 11px;
-            color: var(--dim);
-            text-transform: uppercase;
-            margin-top: 4px;
+        .jobs-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .jobs-title { font-size: 12px; color: var(--dim); text-transform: uppercase; }
+        .jobs-count { font-size: 12px; color: var(--accent); font-family: monospace; }
+        .job-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid var(--border);
+            font-size: 12px;
         }
+        .job-item:last-child { border: none; }
+        .job-type { color: var(--blue); }
+        .job-amount { color: var(--accent); font-family: monospace; }
         
-        /* Config */
-        .config-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-        
-        .config-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-        
-        .config-title {
-            font-size: 13px;
-            color: var(--dim);
-        }
-        
-        .config-value {
-            font-size: 13px;
-            color: var(--accent);
-            font-weight: 600;
-            font-family: monospace;
-        }
-        
-        input[type="range"] {
-            width: 100%;
-            height: 8px;
-            background: var(--border);
-            border-radius: 4px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-        
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
-            background: var(--accent);
-            border-radius: 50%;
-            cursor: pointer;
-        }
-        
-        .checkbox-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border);
-        }
-        
-        .checkbox-row input {
-            width: 22px;
-            height: 22px;
-            accent-color: var(--accent);
-        }
-        
-        .checkbox-row label {
-            font-size: 14px;
-            color: var(--dim);
-        }
-        
-        /* Wallet */
         .wallet-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 14px; margin-bottom: 16px;
         }
-        
-        .wallet-label {
-            font-size: 11px;
-            color: var(--dim);
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-        
-        .wallet-address {
-            font-size: 14px;
-            font-family: monospace;
-            color: var(--blue);
-            word-break: break-all;
-        }
-        
-        .wallet-address.empty {
-            color: var(--orange);
-        }
+        .wallet-label { font-size: 10px; color: var(--dim); text-transform: uppercase; margin-bottom: 4px; }
+        .wallet-address { font-size: 13px; font-family: monospace; color: var(--blue); word-break: break-all; }
+        .wallet-address.empty { color: var(--orange); }
         
         .wallet-btn {
-            margin-top: 12px;
-            width: 100%;
-            padding: 14px;
+            margin-top: 10px; width: 100%; padding: 14px;
             background: linear-gradient(135deg, #AB9FF2, #8B7FD2);
-            border: none;
-            border-radius: 10px;
-            color: #000;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border: none; border-radius: 10px; color: #000;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
+        .wallet-btn:active { transform: scale(0.98); }
+        .wallet-btn.connected { background: var(--border); color: var(--text); }
         
-        .wallet-btn:active {
-            transform: scale(0.98);
-        }
-        
-        .wallet-btn.connected {
-            background: var(--border);
-            color: var(--text);
-        }
-        
-        /* Main Button */
         .main-btn {
-            width: 100%;
-            padding: 18px;
-            border: none;
-            border-radius: 14px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: transform 0.1s, opacity 0.2s;
+            position: fixed; bottom: 20px; left: 20px; right: 20px;
+            padding: 18px; border: none; border-radius: 14px;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px;
+            z-index: 100;
         }
+        .main-btn:active { transform: scale(0.98); }
+        .main-btn.start { background: var(--accent); color: var(--bg); }
+        .main-btn.stop { background: var(--red); color: white; }
+        .main-btn:disabled { opacity: 0.5; }
         
-        .main-btn:active {
-            transform: scale(0.98);
-        }
-        
-        .main-btn.start {
-            background: var(--accent);
-            color: var(--bg);
-        }
-        
-        .main-btn.stop {
-            background: var(--red);
-            color: white;
-        }
-        
-        .main-btn:disabled {
-            opacity: 0.5;
-        }
-        
-        /* Battery Warning */
-        .battery-warning {
-            background: rgba(255, 149, 0, 0.15);
-            border: 1px solid var(--orange);
-            border-radius: 10px;
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            color: var(--orange);
-        }
-        
-        .battery-warning.hidden {
-            display: none;
-        }
-        
-        /* Install Banner */
-        .install-banner {
-            background: var(--card);
-            border: 1px solid var(--accent);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .install-banner.hidden {
-            display: none;
-        }
-        
-        .install-banner h3 {
-            color: var(--accent);
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
-        
-        .install-banner p {
-            color: var(--dim);
-            font-size: 13px;
-            margin-bottom: 12px;
-        }
-        
-        .install-btn {
-            background: var(--accent);
-            color: var(--bg);
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        
-        /* Footer */
         .footer {
-            padding: 16px 20px;
-            padding-bottom: max(16px, env(safe-area-inset-bottom));
-            border-top: 1px solid var(--border);
-            text-align: center;
-            font-size: 11px;
-            color: var(--muted);
-        }
-        
-        .footer a {
-            color: var(--accent);
-            text-decoration: none;
+            padding: 10px; text-align: center;
+            font-size: 10px; color: var(--muted);
         }
     </style>
 </head>
@@ -435,18 +180,10 @@
     </div>
     
     <div class="content">
-        <!-- Install Banner -->
-        <div class="install-banner hidden" id="installBanner">
-            <h3>Install App</h3>
-            <p>Add to home screen for the full experience</p>
-            <button class="install-btn" onclick="installApp()">INSTALL</button>
-        </div>
-        
-        <!-- Status Ring -->
         <div class="status-ring" id="statusRing">
-            <svg viewBox="0 0 160 160">
-                <circle class="bg" cx="80" cy="80" r="70"/>
-                <circle class="progress" id="progressRing" cx="80" cy="80" r="70"/>
+            <svg viewBox="0 0 140 140">
+                <circle class="bg" cx="70" cy="70" r="60"/>
+                <circle class="progress" id="progressRing" cx="70" cy="70" r="60"/>
             </svg>
             <div class="center">
                 <div class="icon" id="statusIcon">○</div>
@@ -454,188 +191,110 @@
             </div>
         </div>
         
-        <!-- Earnings -->
         <div class="earnings-card">
             <div class="earnings-value" id="earnings">$0.0000</div>
             <div class="earnings-label">Session Earnings</div>
         </div>
         
-        <!-- Stats -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-value" id="dataRelayed">0 MB</div>
-                <div class="stat-label">Data Relayed</div>
+                <div class="stat-value" id="jobsCompleted">0</div>
+                <div class="stat-label">Jobs Done</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="uptime">0:00</div>
                 <div class="stat-label">Uptime</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value" id="battery">--%</div>
-                <div class="stat-label">Battery</div>
+                <div class="stat-value" id="dataRelayed">0 KB</div>
+                <div class="stat-label">Data</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="rate">$0.00/hr</div>
-                <div class="stat-label">Est. Rate</div>
+                <div class="stat-label">Rate</div>
             </div>
         </div>
         
-        <!-- Battery Warning -->
-        <div class="battery-warning hidden" id="batteryWarning">
-            <span>⚠️</span>
-            <span>Low battery - Agent will pause at 15%</span>
-        </div>
-        
-        <!-- Config -->
-        <div class="config-card">
-            <div class="config-header">
-                <span class="config-title">Bandwidth Limit</span>
-                <span class="config-value" id="bwVal">10 Mbps</span>
+        <div class="jobs-card">
+            <div class="jobs-header">
+                <span class="jobs-title">Recent Jobs</span>
+                <span class="jobs-count" id="pendingJobs">0 pending</span>
             </div>
-            <input type="range" min="1" max="100" value="10" id="bwSlider" oninput="updateBw()">
-        </div>
-        
-        <div class="config-card">
-            <div class="config-header">
-                <span class="config-title">Daily Data Cap</span>
-                <span class="config-value" id="dataVal">1 GB</span>
-            </div>
-            <input type="range" min="100" max="100000" step="100" value="1000" id="dataSlider" oninput="updateDataCap()">
-            <div class="checkbox-row">
-                <input type="checkbox" id="unlimitedData" onchange="toggleUnlimited()">
-                <label for="unlimitedData">Unlimited</label>
+            <div id="jobsList">
+                <div style="color: var(--dim); font-size: 12px; text-align: center; padding: 20px;">
+                    Connect wallet & start to receive jobs
+                </div>
             </div>
         </div>
         
-        <!-- Wallet -->
         <div class="wallet-card">
             <div class="wallet-label">Wallet</div>
             <div class="wallet-address empty" id="walletAddress">Not connected</div>
             <button class="wallet-btn" id="walletBtn" onclick="handleWallet()">
-                <img src="https://phantom.app/img/phantom-icon-purple.svg" alt="" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 8px;">
                 Connect Phantom
             </button>
         </div>
-        
-        <!-- Main Button -->
-        <button class="main-btn start" id="mainBtn" onclick="toggleAgent()">
-            START EARNING
-        </button>
     </div>
     
-    <div class="footer">
-        Muscle Agent v0.1.0
-    </div>
+    <button class="main-btn start" id="mainBtn" onclick="toggleAgent()">
+        START EARNING
+    </button>
+    
+    <div class="footer">v0.1.0</div>
     
     <script>
         // ============== STATE ==============
-        
         let state = {
             isActive: false,
             walletAddress: null,
             sessionStart: null,
-            stats: {
-                bytesRelayed: 0,
-                uptime: 0,
-                earnings: 0
-            },
-            config: {
-                maxBandwidth: 10,
-                dailyDataCap: 1000,
-                unlimitedData: false
-            },
-            battery: 100
+            stats: { bytesRelayed: 0, uptime: 0, earnings: 0, jobsCompleted: 0 },
+            jobs: [],
+            pendingJobs: 0
         };
         
-        let heartbeatInterval = null;
-        let statsInterval = null;
-        let deferredPrompt = null;
+        let intervals = { heartbeat: null, stats: null, jobs: null };
+        
+        // ============== JOB TYPES ==============
+        const JOB_TYPES = [
+            { type: 'RELAY', name: 'Traffic Relay', minPay: 0.001, maxPay: 0.005, icon: '📡' },
+            { type: 'VERIFY', name: 'TX Verification', minPay: 0.002, maxPay: 0.008, icon: '✓' },
+            { type: 'COMPUTE', name: 'Compute Task', minPay: 0.005, maxPay: 0.02, icon: '⚡' },
+            { type: 'STORAGE', name: 'Data Cache', minPay: 0.001, maxPay: 0.003, icon: '💾' },
+            { type: 'PROXY', name: 'Proxy Request', minPay: 0.003, maxPay: 0.01, icon: '🔀' },
+            { type: 'SCRAPE', name: 'Data Scrape', minPay: 0.01, maxPay: 0.05, icon: '🔍' },
+            { type: 'RLHF', name: 'AI Training', minPay: 0.02, maxPay: 0.1, icon: '🧠' },
+            { type: 'CAPTCHA', name: 'Captcha Solve', minPay: 0.005, maxPay: 0.015, icon: '🔐' },
+            { type: 'BANDWIDTH', name: 'Bandwidth Test', minPay: 0.002, maxPay: 0.006, icon: '📶' },
+            { type: 'LATENCY', name: 'Latency Check', minPay: 0.001, maxPay: 0.004, icon: '⏱️' }
+        ];
         
         // ============== INIT ==============
-        
         document.addEventListener('DOMContentLoaded', () => {
             loadState();
-            initBattery();
-            checkInstallable();
-            
-            // Register service worker
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js');
+                navigator.serviceWorker.register('sw.js').catch(() => {});
             }
         });
         
         function loadState() {
-            const saved = localStorage.getItem('ppAgentState');
+            const saved = localStorage.getItem('nullAgentState');
             if (saved) {
                 const parsed = JSON.parse(saved);
                 state.walletAddress = parsed.walletAddress;
-                state.config = parsed.config || state.config;
                 state.stats.earnings = parsed.totalEarnings || 0;
             }
             updateUI();
-            updateConfigUI();
         }
         
         function saveState() {
-            localStorage.setItem('ppAgentState', JSON.stringify({
+            localStorage.setItem('nullAgentState', JSON.stringify({
                 walletAddress: state.walletAddress,
-                config: state.config,
                 totalEarnings: state.stats.earnings
             }));
         }
         
-        // ============== BATTERY ==============
-        
-        async function initBattery() {
-            if ('getBattery' in navigator) {
-                const battery = await navigator.getBattery();
-                updateBatteryLevel(battery);
-                battery.addEventListener('levelchange', () => updateBatteryLevel(battery));
-            }
-        }
-        
-        function updateBatteryLevel(battery) {
-            state.battery = Math.round(battery.level * 100);
-            document.getElementById('battery').textContent = state.battery + '%';
-            
-            const warning = document.getElementById('batteryWarning');
-            if (state.battery < 20 && state.isActive) {
-                warning.classList.remove('hidden');
-            } else {
-                warning.classList.add('hidden');
-            }
-            
-            // Auto-stop at 15%
-            if (state.battery < 15 && state.isActive) {
-                stopAgent();
-            }
-        }
-        
-        // ============== INSTALL ==============
-        
-        function checkInstallable() {
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                document.getElementById('installBanner').classList.remove('hidden');
-            });
-            
-            window.addEventListener('appinstalled', () => {
-                document.getElementById('installBanner').classList.add('hidden');
-                deferredPrompt = null;
-            });
-        }
-        
-        async function installApp() {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const result = await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            document.getElementById('installBanner').classList.add('hidden');
-        }
-        
         // ============== AGENT ==============
-        
         function toggleAgent() {
             if (state.isActive) {
                 stopAgent();
@@ -646,83 +305,84 @@
         
         function startAgent() {
             if (!state.walletAddress) {
-                alert('Connect your wallet first');
-                return;
-            }
-            
-            if (state.battery < 15) {
-                alert('Battery too low. Charge to at least 15%');
+                handleWallet();
                 return;
             }
             
             state.isActive = true;
             state.sessionStart = Date.now();
-            state.stats = { bytesRelayed: 0, uptime: 0, earnings: 0 };
+            state.stats = { bytesRelayed: 0, uptime: 0, earnings: 0, jobsCompleted: 0 };
+            state.jobs = [];
+            state.pendingJobs = Math.floor(Math.random() * 5) + 3;
             
-            // Start intervals
-            heartbeatInterval = setInterval(sendHeartbeat, 30000);
-            statsInterval = setInterval(updateStats, 1000);
+            // Start job simulation
+            intervals.jobs = setInterval(simulateJob, 2000 + Math.random() * 3000);
+            intervals.stats = setInterval(updateStats, 1000);
             
-            // Initial heartbeat
-            sendHeartbeat();
+            // First job immediately
+            setTimeout(simulateJob, 500);
             
             updateUI();
             saveState();
-            
-            // Keep screen on (if supported)
-            if ('wakeLock' in navigator) {
-                navigator.wakeLock.request('screen').catch(() => {});
-            }
         }
         
         function stopAgent() {
             state.isActive = false;
             state.sessionStart = null;
             
-            clearInterval(heartbeatInterval);
-            clearInterval(statsInterval);
+            clearInterval(intervals.jobs);
+            clearInterval(intervals.stats);
             
             updateUI();
             saveState();
         }
         
-        async function sendHeartbeat() {
+        function simulateJob() {
             if (!state.isActive) return;
             
-            // Simulate relay activity
-            const bytes = Math.floor(Math.random() * 100000);
-            state.stats.bytesRelayed += bytes;
+            // Pick random job type
+            const jobType = JOB_TYPES[Math.floor(Math.random() * JOB_TYPES.length)];
+            const payment = jobType.minPay + Math.random() * (jobType.maxPay - jobType.minPay);
+            const dataSize = Math.floor(Math.random() * 500 + 50); // KB
             
-            // TODO: Send to real backend
-            console.log('Heartbeat:', {
-                agent: state.walletAddress,
-                bytes: state.stats.bytesRelayed,
-                uptime: state.stats.uptime
+            // Add to stats
+            state.stats.earnings += payment;
+            state.stats.bytesRelayed += dataSize * 1024;
+            state.stats.jobsCompleted++;
+            
+            // Update pending
+            state.pendingJobs = Math.max(0, state.pendingJobs + (Math.random() > 0.6 ? 1 : -1));
+            if (state.pendingJobs < 2) state.pendingJobs = Math.floor(Math.random() * 3) + 2;
+            
+            // Add to recent jobs
+            state.jobs.unshift({
+                type: jobType.type,
+                name: jobType.name,
+                icon: jobType.icon,
+                payment: payment,
+                time: Date.now()
             });
+            
+            // Keep only last 5 jobs
+            if (state.jobs.length > 5) state.jobs.pop();
+            
+            updateJobsUI();
+            updateStatsUI();
         }
         
         function updateStats() {
             if (!state.isActive || !state.sessionStart) return;
-            
             state.stats.uptime = Math.floor((Date.now() - state.sessionStart) / 1000);
-            
-            // Calculate earnings
-            const mb = state.stats.bytesRelayed / (1024 * 1024);
-            const minutes = state.stats.uptime / 60;
-            state.stats.earnings = (mb * 0.001) + (minutes * 0.0001);
-            
             updateStatsUI();
         }
         
         // ============== UI ==============
-        
         function updateUI() {
             const ring = document.getElementById('statusRing');
             const icon = document.getElementById('statusIcon');
             const label = document.getElementById('statusLabel');
             const badge = document.getElementById('statusBadge');
             const btn = document.getElementById('mainBtn');
-            const progress = document.getElementById('progressRing');
             
             if (state.isActive) {
                 ring.classList.add('online');
@@ -732,16 +392,14 @@
                 badge.className = 'status-badge online';
                 btn.textContent = 'STOP';
                 btn.className = 'main-btn stop';
-                progress.style.strokeDashoffset = '0';
             } else {
                 ring.classList.remove('online');
                 icon.textContent = '○';
                 label.textContent = 'OFFLINE';
                 badge.textContent = 'OFFLINE';
                 badge.className = 'status-badge offline';
-                btn.textContent = 'START EARNING';
+                btn.textContent = state.walletAddress ? 'START EARNING' : 'CONNECT & START';
                 btn.className = 'main-btn start';
-                progress.style.strokeDashoffset = '440';
             }
             
             // Wallet
@@ -750,130 +408,67 @@
             
             if (state.walletAddress) {
                 const addr = state.walletAddress;
-                walletEl.textContent = addr.slice(0, 6) + '...' + addr.slice(-6);
+                walletEl.textContent = addr.slice(0, 6) + '...' + addr.slice(-4);
                 walletEl.className = 'wallet-address';
                 walletBtn.innerHTML = 'Disconnect';
                 walletBtn.className = 'wallet-btn connected';
             } else {
                 walletEl.textContent = 'Not connected';
                 walletEl.className = 'wallet-address empty';
-                walletBtn.innerHTML = '<img src="https://phantom.app/img/phantom-icon-purple.svg" alt="" style="width: 20px; height: 20px; margin-right: 8px;">Connect Phantom';
+                walletBtn.innerHTML = 'Connect Phantom';
                 walletBtn.className = 'wallet-btn';
             }
             
             updateStatsUI();
+            updateJobsUI();
         }
         
         function updateStatsUI() {
-            const stats = state.stats;
+            const s = state.stats;
+            
+            document.getElementById('earnings').textContent = '$' + s.earnings.toFixed(4);
+            document.getElementById('jobsCompleted').textContent = s.jobsCompleted;
             
             // Data
-            const mb = stats.bytesRelayed / (1024 * 1024);
+            const kb = s.bytesRelayed / 1024;
             document.getElementById('dataRelayed').textContent = 
-                mb < 1 ? Math.round(stats.bytesRelayed / 1024) + ' KB' :
-                mb < 1000 ? mb.toFixed(1) + ' MB' :
-                (mb / 1024).toFixed(2) + ' GB';
+                kb < 1000 ? Math.round(kb) + ' KB' :
+                (kb / 1024).toFixed(1) + ' MB';
             
             // Uptime
-            const hrs = Math.floor(stats.uptime / 3600);
-            const mins = Math.floor((stats.uptime % 3600) / 60);
-            const secs = stats.uptime % 60;
+            const hrs = Math.floor(s.uptime / 3600);
+            const mins = Math.floor((s.uptime % 3600) / 60);
+            const secs = s.uptime % 60;
             document.getElementById('uptime').textContent = 
                 hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` :
                 `${mins}:${secs.toString().padStart(2, '0')}`;
             
-            // Earnings
-            document.getElementById('earnings').textContent = '$' + stats.earnings.toFixed(4);
-            
             // Rate
-            const rate = stats.uptime > 60 ? (stats.earnings / stats.uptime * 3600) : 0;
+            const rate = s.uptime > 60 ? (s.earnings / s.uptime * 3600) : 0;
             document.getElementById('rate').textContent = '$' + rate.toFixed(2) + '/hr';
         }
         
-        function updateConfigUI() {
-            document.getElementById('bwSlider').value = state.config.maxBandwidth;
-            document.getElementById('bwVal').textContent = state.config.maxBandwidth + ' Mbps';
+        function updateJobsUI() {
+            document.getElementById('pendingJobs').textContent = state.pendingJobs + ' pending';
             
-            document.getElementById('dataSlider').value = state.config.dailyDataCap;
-            document.getElementById('unlimitedData').checked = state.config.unlimitedData;
+            const list = document.getElementById('jobsList');
             
-            if (state.config.unlimitedData) {
-                document.getElementById('dataSlider').disabled = true;
-                document.getElementById('dataVal').textContent = 'UNLIMITED';
-            } else {
-                document.getElementById('dataSlider').disabled = false;
-                updateDataCap();
+            if (state.jobs.length === 0) {
+                list.innerHTML = `<div style="color: var(--dim); font-size: 12px; text-align: center; padding: 20px;">
+                    ${state.walletAddress ? 'Press START to receive jobs' : 'Connect wallet to receive jobs'}
+                </div>`;
+                return;
             }
-        }
-        
-        // ============== CONFIG ==============
-        
-        function updateBw() {
-            const val = document.getElementById('bwSlider').value;
-            document.getElementById('bwVal').textContent = val + ' Mbps';
-            state.config.maxBandwidth = parseInt(val);
-            saveState();
-        }
-        
-        function updateDataCap() {
-            const val = parseInt(document.getElementById('dataSlider').value);
-            document.getElementById('dataVal').textContent = 
-                val < 1000 ? val + ' MB' :
-                val < 10000 ? (val / 1000).toFixed(1) + ' GB' :
-                Math.round(val / 1000) + ' GB';
-            state.config.dailyDataCap = val;
-            saveState();
-        }
-        
-        function toggleUnlimited() {
-            const checked = document.getElementById('unlimitedData').checked;
-            state.config.unlimitedData = checked;
-            document.getElementById('dataSlider').disabled = checked;
-            document.getElementById('dataVal').textContent = checked ? 'UNLIMITED' : 
-                (state.config.dailyDataCap / 1000).toFixed(1) + ' GB';
-            saveState();
+            
+            list.innerHTML = state.jobs.map(job => `
+                <div class="job-item">
+                    <span class="job-type">${job.icon} ${job.name}</span>
+                    <span class="job-amount">+$${job.payment.toFixed(4)}</span>
+                </div>
+            `).join('');
         }
         
         // ============== WALLET ==============
-        
-        // Phantom wallet connection for mobile
-        const PHANTOM_CONNECT_URL = 'https://phantom.app/ul/v1/connect';
-        const APP_URL = window.location.origin + window.location.pathname;
-        const CLUSTER = 'devnet'; // or 'mainnet-beta'
-        
-        // Check for Phantom response on page load
-        function checkPhantomCallback() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const phantomKey = urlParams.get('phantom_encryption_public_key');
-            const data = urlParams.get('data');
-            const nonce = urlParams.get('nonce');
-            
-            // Check for direct public key in hash (simpler method)
-            if (window.location.hash) {
-                const hashParams = new URLSearchParams(window.location.hash.slice(1));
-                const pubKey = hashParams.get('publicKey') || hashParams.get('phantom_public_key');
-                if (pubKey) {
-                    state.walletAddress = pubKey;
-                    saveState();
-                    updateUI();
-                    // Clean URL
-                    history.replaceState(null, '', window.location.pathname);
-                    return;
-                }
-            }
-            
-            // Check localStorage for session
-            const session = localStorage.getItem('phantomSession');
-            if (session) {
-                try {
-                    const s = JSON.parse(session);
-                    if (s.publicKey) {
-                        state.walletAddress = s.publicKey;
-                    }
-                } catch (e) {}
-            }
-        }
-        
         function handleWallet() {
             if (state.walletAddress) {
                 if (confirm('Disconnect wallet?')) {
@@ -884,97 +479,50 @@
                     updateUI();
                 }
             } else {
-                connectPhantom();
+                showWalletModal();
             }
         }
         
-        function connectPhantom() {
-            // Check if running in browser with Phantom extension
-            if (window.solana && window.solana.isPhantom) {
-                connectPhantomExtension();
-                return;
-            }
-            
-            // Check if Phantom app is available (mobile)
-            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            
-            if (isMobile) {
-                connectPhantomMobile();
-            } else {
-                // Desktop without extension - show install prompt
-                if (confirm('Phantom wallet not detected.\n\nInstall Phantom extension?')) {
-                    window.open('https://phantom.app/', '_blank');
-                }
-            }
-        }
-        
-        async function connectPhantomExtension() {
-            try {
-                const resp = await window.solana.connect();
-                state.walletAddress = resp.publicKey.toString();
-                localStorage.setItem('phantomSession', JSON.stringify({
-                    publicKey: state.walletAddress,
-                    connected: Date.now()
-                }));
-                saveState();
-                updateUI();
-            } catch (err) {
-                console.error('Phantom connect error:', err);
-                alert('Failed to connect: ' + err.message);
-            }
-        }
-        
-        function connectPhantomMobile() {
-            // Build Phantom deep link
-            const dappName = encodeURIComponent('Phantom Paradox Agent');
-            const redirectUrl = encodeURIComponent(APP_URL + '#connected=true');
-            
-            // Try universal link first (works on iOS)
-            const phantomUrl = `https://phantom.app/ul/v1/connect?app_url=${encodeURIComponent(APP_URL)}&dapp_encryption_public_key=&cluster=${CLUSTER}&redirect_link=${redirectUrl}`;
-            
-            // Also try deep link for Android
-            const deepLink = `phantom://v1/connect?app_url=${encodeURIComponent(APP_URL)}&dapp_encryption_public_key=&cluster=${CLUSTER}&redirect_link=${redirectUrl}`;
-            
-            // Show modal with options
-            showWalletModal(phantomUrl, deepLink);
-        }
-        
-        function showWalletModal(universalLink, deepLink) {
-            // Create modal
+        function showWalletModal() {
             const modal = document.createElement('div');
             modal.id = 'walletModal';
             modal.style.cssText = `
                 position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(0,0,0,0.9); z-index: 1000;
+                background: rgba(0,0,0,0.95); z-index: 1000;
                 display: flex; flex-direction: column; align-items: center; justify-content: center;
                 padding: 20px;
             `;
             
+            // Deep link for Phantom
+            const appUrl = encodeURIComponent(window.location.href);
+            const deepLink = `https://phantom.app/ul/browse/${appUrl}?ref=${appUrl}`;
+            
             modal.innerHTML = `
                 <div style="background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; max-width: 320px; text-align: center;">
-                    <img src="https://phantom.app/img/phantom-icon-purple.svg" alt="Phantom" style="width: 60px; height: 60px; margin-bottom: 16px;">
-                    <h3 style="color: var(--accent); margin-bottom: 8px;">Connect Phantom</h3>
-                    <p style="color: var(--dim); font-size: 14px; margin-bottom: 20px;">Open Phantom wallet to connect</p>
+                    <div style="font-size: 48px; margin-bottom: 16px;">👻</div>
+                    <h3 style="color: var(--accent); margin-bottom: 8px; font-size: 18px;">Connect Wallet</h3>
+                    <p style="color: var(--dim); font-size: 13px; margin-bottom: 20px;">Link your Phantom wallet to start earning</p>
                     
-                    <a href="${deepLink}" style="display: block; background: #AB9FF2; color: #000; padding: 14px; border-radius: 10px; text-decoration: none; font-weight: 600; margin-bottom: 10px;">
-                        Open Phantom App
+                    <a href="${deepLink}" target="_blank" style="display: block; background: linear-gradient(135deg, #AB9FF2, #8B7FD2); color: #000; padding: 14px; border-radius: 10px; text-decoration: none; font-weight: 600; margin-bottom: 12px;">
+                        Open in Phantom Browser
                     </a>
                     
-                    <div style="color: var(--muted); font-size: 12px; margin: 16px 0;">or enter manually:</div>
+                    <div style="color: var(--muted); font-size: 11px; margin: 16px 0;">— or paste address —</div>
                     
-                    <input type="text" id="manualWallet" placeholder="Solana address..." style="width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: monospace; font-size: 12px; margin-bottom: 10px;">
+                    <input type="text" id="manualWallet" placeholder="Your Solana address..." style="width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: monospace; font-size: 11px; margin-bottom: 10px;">
                     
                     <button onclick="submitManualWallet()" style="width: 100%; padding: 12px; background: var(--accent); color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
                         Connect
                     </button>
                     
-                    <button onclick="closeWalletModal()" style="margin-top: 16px; background: none; border: none; color: var(--dim); cursor: pointer; font-size: 14px;">
+                    <button onclick="closeWalletModal()" style="margin-top: 16px; background: none; border: none; color: var(--dim); cursor: pointer; font-size: 13px;">
                         Cancel
                     </button>
                 </div>
             `;
             
             document.body.appendChild(modal);
+            document.getElementById('manualWallet').focus();
         }
         
         function closeWalletModal() {
@@ -986,24 +534,34 @@
             const input = document.getElementById('manualWallet');
             const addr = input.value.trim();
             
+            // Validate Solana address (base58, 32-44 chars)
             if (addr.length >= 32 && addr.length <= 44 && /^[1-9A-HJ-NP-Za-km-z]+$/.test(addr)) {
                 state.walletAddress = addr;
                 localStorage.setItem('phantomSession', JSON.stringify({
                     publicKey: addr,
-                    connected: Date.now(),
-                    manual: true
+                    connected: Date.now()
                 }));
                 saveState();
                 updateUI();
                 closeWalletModal();
             } else {
-                alert('Invalid Solana address');
+                alert('Invalid Solana address. Must be 32-44 characters, base58 encoded.');
             }
         }
         
-        // Check for callback on load
-        checkPhantomCallback();
+        // Check for existing session
+        (function() {
+            const session = localStorage.getItem('phantomSession');
+            if (session) {
+                try {
+                    const s = JSON.parse(session);
+                    if (s.publicKey) {
+                        state.walletAddress = s.publicKey;
+                        updateUI();
+                    }
+                } catch (e) {}
+            }
+        })();
     </script>
 </body>
 </html>
-
