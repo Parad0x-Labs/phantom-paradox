@@ -11,13 +11,23 @@ android {
         applicationId = "com.phantomparadox.agent"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "0.1.2"
+        versionCode = 3
+        versionName = "0.1.3"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("../phantom-agent.keystore")
+            storePassword = "phantom123"
+            keyAlias = "phantom"
+            keyPassword = "phantom123"
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     
