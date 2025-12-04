@@ -906,7 +906,7 @@
           <div style="font-size: 10px; color: var(--dim);">≈ $0.15-0.30 USDC</div>
                     </div>
         <div style="margin-top: 12px;">
-          <a href="phantom-agent-android-v0.1.4.apk" download class="download-btn ready" style="width:100%; display:block; text-align:center;">📱 Download APK v0.1.4</a>
+          <a href="phantom-agent-android-v0.1.5.apk" download class="download-btn ready" style="width:100%; display:block; text-align:center;">📱 Download APK v0.1.5</a>
                     </div>
         <div style="font-size: 9px; color: var(--dim); margin-top: 8px;">
           Enable "Install from unknown sources" in Settings
@@ -1198,9 +1198,10 @@ function setupAgent(wallet, lat, lng, cityName) {
   // Test network
   testNetwork();
   
-  // Render
+  // Render all
   renderAgents();
   renderYourAgent();
+  renderAgentList(); // Show connected agents list
   
   console.log('Connected:', wallet, 'Location:', cityName, `(${lat.toFixed(2)}, ${lng.toFixed(2)})`);
 }
@@ -1682,7 +1683,10 @@ const originalOnConnected = onConnected;
 onConnected = function(wallet) {
   originalOnConnected(wallet);
   initLiveJobs();
-  renderAgentList();
+  // Force render agent list after small delay to ensure myAgent is set
+  setTimeout(() => {
+    renderAgentList();
+  }, 500);
 };
 
 // ============== AGENT CONFIG ==============
