@@ -1,99 +1,233 @@
 package com.phantomparadox.agent
 
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity() {
-    
-    private var permissionsGranted = mutableStateOf(false)
-    private var showPermissionScreen = mutableStateOf(true)
-    
-    private val notificationPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        checkAllPermissions()
-    }
-    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Check if permissions already granted
-        checkAllPermissions()
-        
         setContent {
             PhantomAgentTheme {
-                if (showPermissionScreen.value && !permissionsGranted.value) {
-                    PermissionsScreen(
-                        onRequestPermissions = { requestRequiredPermissions() },
-                        onSkip = { showPermissionScreen.value = false }
-                    )
-                } else {
-                    AgentScreen()
-                }
+                MainApp()
             }
-        }
-    }
-    
-    private fun checkAllPermissions() {
-        val notificationGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-        } else {
-            true // Not needed on older Android
-        }
-        
-        permissionsGranted.value = notificationGranted
-        
-        // If all permissions granted, skip the permission screen
-        if (permissionsGranted.value) {
-            showPermissionScreen.value = false
-        }
-    }
-    
-    private fun requestRequiredPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-            permissionsGranted.value = true
-            showPermissionScreen.value = false
         }
     }
 }
 
 @Composable
-fun PermissionsScreen(
-    onRequestPermissions: () -> Unit,
-    onSkip: () -> Unit
+fun PhantomAgentTheme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        colorScheme = darkColorScheme(
+            primary = Color(0xFF00FF88),
+            secondary = Color(0xFF00D4FF),
+            background = Color(0xFF030508),
+            surface = Color(0xFF0A0F14),
+            onPrimary = Color.Black,
+            onSecondary = Color.Black,
+            onBackground = Color(0xFFE8F0F8),
+            onSurface = Color(0xFFE8F0F8)
+        ),
+        content = content
+    )
+}
+
+@Composable
+fun MainApp() {
+    val context = LocalContext.current
+    val prefs = context.getSharedPreferences("agent_config", Context.MODE_PRIVATE)
+    
+    // State
+    var walletAddress by remember { mutableStateOf(prefs.getString("wallet", null)) }
+    var currentScreen by remember { mutableStateOf(if (walletAddress != null) "main" else "connect") }
+    
+    // Config
+    var cpuLimit by remember { mutableStateOf(prefs.getInt("cpu", 50)) }
+    var bandwidthLimit by remember { mutableStateOf(prefs.getInt("bandwidth", 25)) }
+    var batteryPause by remember { mutableStateOf(prefs.getInt("battery_pause", 20)) }
+    var dataQuota by remember { mutableStateOf(prefs.getInt("data_quota", 5)) }
+    var isRunning by remember { mutableStateOf(false) }
+    
+    // Screens
+    when (currentScreen) {
+        "connect" -> WalletConnectScreen(
+            onConnected = { wallet ->
+                walletAddress = wallet
+                prefs.edit().putString("wallet", wallet).apply()
+                currentScreen = "main"
+            }
+        )
+        "settings" -> SettingsScreen(
+            cpuLimit = cpuLimit,
+            bandwidthLimit = bandwidthLimit,
+            batteryPause = batteryPause,
+            dataQuota = dataQuota,
+            onCpuChange = { cpuLimit = it; prefs.edit().putInt("cpu", it).apply() },
+            onBandwidthChange = { bandwidthLimit = it; prefs.edit().putInt("bandwidth", it).apply() },
+            onBatteryPauseChange = { batteryPause = it; prefs.edit().putInt("battery_pause", it).apply() },
+            onDataQuotaChange = { dataQuota = it; prefs.edit().putInt("data_quota", it).apply() },
+            onBack = { currentScreen = "main" },
+            onDisconnect = {
+                walletAddress = null
+                prefs.edit().remove("wallet").apply()
+                currentScreen = "connect"
+            }
+        )
+        else -> AgentMainScreen(
+            walletAddress = walletAddress ?: "",
+            isRunning = isRunning,
+            cpuLimit = cpuLimit,
+            bandwidthLimit = bandwidthLimit,
+            onToggle = { isRunning = !isRunning },
+            onSettings = { currentScreen = "settings" }
+        )
+    }
+}
+
+@Composable
+fun WalletConnectScreen(onConnected: (String) -> Unit) {
+    val context = LocalContext.current
+    var manualWallet by remember { mutableStateOf("") }
+    var showManualInput by remember { mutableStateOf(false) }
+    
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF030508))
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("👛", fontSize = 64.sp)
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Text(
+            "Connect Wallet",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF00FF88)
+        )
+        
+        Text(
+            "Required to start earning",
+            fontSize = 14.sp,
+            color = Color(0xFF6B7C8A),
+            modifier = Modifier.padding(top = 8.dp)
+        )
+        
+        Spacer(modifier = Modifier.height(40.dp))
+        
+        // Phantom Connect Button
+        Button(
+            onClick = {
+                // Deep link to Phantom wallet
+                val uri = Uri.parse("https://phantom.app/ul/v1/connect?app_url=https://phantomparadox.io&dapp_encryption_public_key=&redirect_link=phantomagent://callback")
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                try {
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    showManualInput = true
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9945FF)),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("👻 Connect Phantom", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Manual input option
+        TextButton(onClick = { showManualInput = !showManualInput }) {
+            Text(
+                "Or enter wallet address manually",
+                color = Color(0xFF6B7C8A),
+                fontSize = 12.sp
+            )
+        }
+        
+        if (showManualInput) {
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            OutlinedTextField(
+                value = manualWallet,
+                onValueChange = { manualWallet = it },
+                label = { Text("Solana Wallet Address") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF00FF88),
+                    unfocusedBorderColor = Color(0xFF3A4A5A),
+                    focusedLabelColor = Color(0xFF00FF88),
+                    cursorColor = Color(0xFF00FF88)
+                ),
+                singleLine = true
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Button(
+                onClick = {
+                    if (manualWallet.length >= 32) {
+                        onConnected(manualWallet)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00FF88)),
+                shape = RoundedCornerShape(12.dp),
+                enabled = manualWallet.length >= 32
+            ) {
+                Text("Connect", fontWeight = FontWeight.Bold, color = Color.Black)
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(40.dp))
+        
+        Text(
+            "⚠️ You must connect a wallet to receive payments",
+            fontSize = 11.sp,
+            color = Color(0xFFFF9500),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun SettingsScreen(
+    cpuLimit: Int,
+    bandwidthLimit: Int,
+    batteryPause: Int,
+    dataQuota: Int,
+    onCpuChange: (Int) -> Unit,
+    onBandwidthChange: (Int) -> Unit,
+    onBatteryPauseChange: (Int) -> Unit,
+    onDataQuotaChange: (Int) -> Unit,
+    onBack: () -> Unit,
+    onDisconnect: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     
@@ -101,333 +235,289 @@ fun PermissionsScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF030508))
-            .padding(24.dp)
-            .verticalScroll(scrollState),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp)
+            .verticalScroll(scrollState)
     ) {
-        Spacer(modifier = Modifier.height(32.dp))
-        
         // Header
-        Text(
-            text = "🛡️",
-            fontSize = 48.sp
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Text(
-            text = "Permissions Required",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF00FF88)
-        )
-        
-        Text(
-            text = "To earn PDOX, Phantom Agent needs these permissions",
-            fontSize = 14.sp,
-            color = Color(0xFF6B7C8A),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
-        )
-        
-        // Permission Cards
-        PermissionCard(
-            icon = Icons.Default.Notifications,
-            title = "Notifications",
-            description = "Shows your earnings status while the agent runs in background. Required on Android 13+.",
-            required = true,
-            color = Color(0xFF00FF88)
-        )
-        
-        PermissionCard(
-            icon = Icons.Default.Star,
-            title = "Network Access",
-            description = "Connects to the Phantom network to relay traffic and earn rewards. This is how you get paid!",
-            required = true,
-            color = Color(0xFF00D4FF)
-        )
-        
-        PermissionCard(
-            icon = Icons.Default.Settings,
-            title = "Background Running",
-            description = "Keeps the agent running when your screen is off. Auto-pauses at 15% battery to protect your device.",
-            required = true,
-            color = Color(0xFFFF9500)
-        )
-        
-        PermissionCard(
-            icon = Icons.Default.Refresh,
-            title = "Auto-Start (Optional)",
-            description = "Automatically starts earning after your phone restarts. You can disable this in settings.",
-            required = false,
-            color = Color(0xFFA855F7)
-        )
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        // What we DON'T access
-        Card(
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF0A0F14)
-            ),
-            shape = RoundedCornerShape(12.dp)
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "🔒 What We DON'T Access",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF00FF88)
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                
-                NoAccessItem("Your personal files or photos")
-                NoAccessItem("Your messages or contacts")
-                NoAccessItem("Your location or GPS")
-                NoAccessItem("Your camera or microphone")
-                NoAccessItem("Any data on your device")
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    text = "We only relay encrypted network traffic. We can't see what's inside.",
-                    fontSize = 11.sp,
-                    color = Color(0xFF6B7C8A)
-                )
+            Text(
+                "⚙️ Settings",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF00FF88)
+            )
+            TextButton(onClick = onBack) {
+                Text("Done", color = Color(0xFF00FF88))
             }
         }
         
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        // CPU Limit
+        SettingSlider(
+            title = "Max CPU Usage",
+            value = cpuLimit,
+            range = 10f..100f,
+            unit = "%",
+            onValueChange = { onCpuChange(it.toInt()) }
+        )
+        
+        // Bandwidth Limit
+        SettingSlider(
+            title = "Max Bandwidth",
+            value = bandwidthLimit,
+            range = 1f..100f,
+            unit = " Mbps",
+            onValueChange = { onBandwidthChange(it.toInt()) }
+        )
+        
+        // Data Quota
+        SettingSlider(
+            title = "Daily Data Quota",
+            value = dataQuota,
+            range = 1f..50f,
+            unit = " GB/day",
+            onValueChange = { onDataQuotaChange(it.toInt()) }
+        )
+        
+        // Battery Pause Level
+        SettingSlider(
+            title = "Pause at Battery",
+            value = batteryPause,
+            range = 5f..50f,
+            unit = "%",
+            onValueChange = { onBatteryPauseChange(it.toInt()) }
+        )
+        
         Spacer(modifier = Modifier.height(32.dp))
         
-        // Action Buttons
-        Button(
-            onClick = onRequestPermissions,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF00FF88)
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(
-                text = "GRANT PERMISSIONS & START",
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-        }
-        
+        // Job Types
+        Text(
+            "Job Types",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFFE8F0F8)
+        )
         Spacer(modifier = Modifier.height(12.dp))
         
-        TextButton(onClick = onSkip) {
-            Text(
-                text = "Skip for now (limited functionality)",
-                color = Color(0xFF6B7C8A),
-                fontSize = 12.sp
-            )
+        JobTypeToggle("🔗 Relay (VPN Traffic)", true)
+        JobTypeToggle("✓ Verify (Proofs)", true)
+        JobTypeToggle("📸 AI Image", false)
+        JobTypeToggle("🎤 AI Audio", false)
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        // Payment Token
+        Text(
+            "Payment Token",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFFE8F0F8)
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            PaymentOption("◎ SOL", true, Modifier.weight(1f))
+            PaymentOption("💵 USDC", false, Modifier.weight(1f))
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
-        
         Text(
-            text = "You can change permissions anytime in Settings",
-            fontSize = 11.sp,
-            color = Color(0xFF3A4A5A),
-            textAlign = TextAlign.Center
+            "USDC: Auto-swap via Jupiter",
+            fontSize = 10.sp,
+            color = Color(0xFF6B7C8A),
+            modifier = Modifier.padding(top = 8.dp)
         )
+        
+        Spacer(modifier = Modifier.height(40.dp))
+        
+        // Disconnect Wallet
+        OutlinedButton(
+            onClick = onDisconnect,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFFF4757)),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("Disconnect Wallet")
+        }
         
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
 @Composable
-fun PermissionCard(
-    icon: ImageVector,
+fun SettingSlider(
     title: String,
-    description: String,
-    required: Boolean,
-    color: Color
+    value: Int,
+    range: ClosedFloatingPointRange<Float>,
+    unit: String,
+    onValueChange: (Float) -> Unit
 ) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF0A0F14)),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(title, color = Color(0xFFE8F0F8), fontSize = 14.sp)
+                Text("$value$unit", color = Color(0xFF00FF88), fontWeight = FontWeight.Bold)
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Slider(
+                value = value.toFloat(),
+                onValueChange = onValueChange,
+                valueRange = range,
+                colors = SliderDefaults.colors(
+                    thumbColor = Color(0xFF00FF88),
+                    activeTrackColor = Color(0xFF00FF88)
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun JobTypeToggle(label: String, enabled: Boolean) {
+    var isEnabled by remember { mutableStateOf(enabled) }
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
+            .padding(vertical = 4.dp)
+            .clickable { isEnabled = !isEnabled },
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF0A0F14)
+            containerColor = if (isEnabled) Color(0xFF00FF88).copy(alpha = 0.1f) else Color(0xFF0A0F14)
         ),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(8.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.Top
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icon
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(color.copy(alpha = 0.15f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = color,
-                    modifier = Modifier.size(24.dp)
+            Text(label, color = Color(0xFFE8F0F8))
+            Switch(
+                checked = isEnabled,
+                onCheckedChange = { isEnabled = it },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color(0xFF00FF88),
+                    checkedTrackColor = Color(0xFF00FF88).copy(alpha = 0.5f)
                 )
-            }
-            
-            Spacer(modifier = Modifier.width(14.dp))
-            
-            Column(modifier = Modifier.weight(1f)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = title,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFFE8F0F8)
-                    )
-                    
-                    Spacer(modifier = Modifier.width(8.dp))
-                    
-                    Text(
-                        text = if (required) "Required" else "Optional",
-                        fontSize = 10.sp,
-                        color = if (required) color else Color(0xFF6B7C8A),
-                        modifier = Modifier
-                            .border(
-                                width = 1.dp,
-                                color = if (required) color.copy(alpha = 0.5f) else Color(0xFF3A4A5A),
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(4.dp))
-                
-                Text(
-                    text = description,
-                    fontSize = 12.sp,
-                    color = Color(0xFF6B7C8A),
-                    lineHeight = 18.sp
-                )
-            }
+            )
         }
     }
 }
 
 @Composable
-fun NoAccessItem(text: String) {
-    Row(
-        modifier = Modifier.padding(vertical = 3.dp),
-        verticalAlignment = Alignment.CenterVertically
+fun PaymentOption(label: String, selected: Boolean, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = if (selected) Color(0xFF00FF88).copy(alpha = 0.2f) else Color(0xFF0A0F14)
+        ),
+        shape = RoundedCornerShape(8.dp)
     ) {
-        Text(
-            text = "✗",
-            color = Color(0xFFFF4757),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = text,
-            fontSize = 12.sp,
-            color = Color(0xFF6B7C8A)
-        )
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                label,
+                color = if (selected) Color(0xFF00FF88) else Color(0xFF6B7C8A),
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+            )
+        }
     }
 }
 
 @Composable
-fun PhantomAgentTheme(content: @Composable () -> Unit) {
-    val colorScheme = darkColorScheme(
-        primary = Color(0xFF00FF88),
-        secondary = Color(0xFF00D4FF),
-        background = Color(0xFF030508),
-        surface = Color(0xFF0A0F14),
-        onPrimary = Color.Black,
-        onSecondary = Color.Black,
-        onBackground = Color(0xFFE8F0F8),
-        onSurface = Color(0xFFE8F0F8)
-    )
+fun AgentMainScreen(
+    walletAddress: String,
+    isRunning: Boolean,
+    cpuLimit: Int,
+    bandwidthLimit: Int,
+    onToggle: () -> Unit,
+    onSettings: () -> Unit
+) {
+    var earnings by remember { mutableStateOf(0.0) }
+    var dataRelayed by remember { mutableStateOf(0.0) }
+    var uptime by remember { mutableStateOf(0L) }
     
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = content
-    )
-}
-
-@Composable
-fun AgentScreen(viewModel: AgentViewModel = viewModel()) {
-    val state by viewModel.state.collectAsState()
+    // Simulate earnings when running
+    LaunchedEffect(isRunning) {
+        while (isRunning) {
+            kotlinx.coroutines.delay(1000)
+            uptime++
+            dataRelayed += 0.01
+            earnings += 0.000001
+        }
+    }
     
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Color(0xFF030508))
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header
-        Text(
-            text = "phantom_paradox",
-            color = MaterialTheme.colorScheme.primary,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 16.dp)
-        )
+        // Header with wallet
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text("PHANTOM AGENT", color = Color(0xFF00FF88), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(
+                    "👛 ${walletAddress.take(4)}...${walletAddress.takeLast(4)}",
+                    color = Color(0xFF6B7C8A),
+                    fontSize = 12.sp
+                )
+            }
+            IconButton(onClick = onSettings) {
+                Text("⚙️", fontSize = 24.sp)
+            }
+        }
         
-        // Status Indicator
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        // Status Circle
         Box(
             modifier = Modifier
-                .size(120.dp)
+                .size(150.dp)
                 .clip(CircleShape)
                 .background(
-                    if (state.isRunning) 
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                    else 
-                        Color(0xFF1A2530)
+                    if (isRunning) Color(0xFF00FF88).copy(alpha = 0.2f) 
+                    else Color(0xFF1A2530)
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = if (state.isRunning) "●" else "○",
-                fontSize = 48.sp,
-                color = if (state.isRunning) 
-                    MaterialTheme.colorScheme.primary 
-                else 
-                    Color(0xFF6B7C8A)
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    if (isRunning) "🟢" else "⭕",
+                    fontSize = 48.sp
+                )
+                Text(
+                    if (isRunning) "ONLINE" else "OFFLINE",
+                    color = if (isRunning) Color(0xFF00FF88) else Color(0xFF6B7C8A),
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Text(
-            text = if (state.isRunning) "ONLINE" else "OFFLINE",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        
-        Text(
-            text = if (state.isRunning) "Relaying traffic..." else "Tap to start earning",
-            fontSize = 14.sp,
-            color = Color(0xFF6B7C8A)
-        )
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // Earnings Card
+        // Earnings
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-            ),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF00FF88).copy(alpha = 0.1f)),
             shape = RoundedCornerShape(12.dp)
         ) {
             Column(
@@ -435,90 +525,50 @@ fun AgentScreen(viewModel: AgentViewModel = viewModel()) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "$${String.format("%.4f", state.earnings)}",
-                    fontSize = 32.sp,
+                    "${String.format("%.6f", earnings)} SOL",
+                    fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = Color(0xFF00FF88)
                 )
-                Text(
-                    text = "Session Earnings",
-                    fontSize = 12.sp,
-                    color = Color(0xFF6B7C8A)
-                )
+                Text("Session Earnings", color = Color(0xFF6B7C8A), fontSize = 12.sp)
             }
         }
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Stats Grid
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            StatCard("Data", "${state.dataRelayedMb} MB", Modifier.weight(1f))
-            StatCard("Uptime", formatUptime(state.uptimeSeconds), Modifier.weight(1f))
+        // Stats
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            StatCard("Data", "${String.format("%.2f", dataRelayed)} MB", Modifier.weight(1f))
+            StatCard("Uptime", formatTime(uptime), Modifier.weight(1f))
         }
         
         Spacer(modifier = Modifier.height(12.dp))
         
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            StatCard("Battery", "${state.batteryLevel}%", Modifier.weight(1f))
-            StatCard("Rate", "$${String.format("%.2f", state.hourlyRate)}/hr", Modifier.weight(1f))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            StatCard("CPU Limit", "$cpuLimit%", Modifier.weight(1f))
+            StatCard("BW Limit", "$bandwidthLimit Mbps", Modifier.weight(1f))
         }
         
         Spacer(modifier = Modifier.weight(1f))
         
-        // Battery Warning
-        if (state.batteryLevel < 20 && state.isRunning) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFFF9500).copy(alpha = 0.2f)
-                )
-            ) {
-                Text(
-                    text = "⚠️ Low battery - Agent will pause at 15%",
-                    modifier = Modifier.padding(12.dp),
-                    color = Color(0xFFFF9500),
-                    fontSize = 12.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-        
-        // Main Button
+        // Start/Stop Button
         Button(
-            onClick = { viewModel.toggleAgent() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
+            onClick = onToggle,
+            modifier = Modifier.fillMaxWidth().height(60.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (state.isRunning) 
-                    Color(0xFFFF4757) 
-                else 
-                    MaterialTheme.colorScheme.primary
+                containerColor = if (isRunning) Color(0xFFFF4757) else Color(0xFF00FF88)
             ),
             shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                text = if (state.isRunning) "STOP" else "START EARNING",
-                fontWeight = FontWeight.Bold
+                if (isRunning) "⏹ STOP" else "▶ START EARNING",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = if (isRunning) Color.White else Color.Black
             )
         }
         
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        // Settings Button
-        OutlinedButton(
-            onClick = { /* TODO: Open settings */ },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("Settings")
-        }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -526,34 +576,22 @@ fun AgentScreen(viewModel: AgentViewModel = viewModel()) {
 fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF0A0F14)),
         shape = RoundedCornerShape(8.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = value,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = label,
-                fontSize = 10.sp,
-                color = Color(0xFF6B7C8A)
-            )
+            Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF00FF88))
+            Text(label, fontSize = 10.sp, color = Color(0xFF6B7C8A))
         }
     }
 }
 
-fun formatUptime(seconds: Long): String {
-    val hours = seconds / 3600
-    val mins = (seconds % 3600) / 60
-    return "$hours:${mins.toString().padStart(2, '0')}"
+fun formatTime(seconds: Long): String {
+    val h = seconds / 3600
+    val m = (seconds % 3600) / 60
+    val s = seconds % 60
+    return "${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}"
 }

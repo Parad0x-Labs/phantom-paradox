@@ -1291,22 +1291,38 @@ function renderYourAgent() {
 function renderAgentList() {
   const list = document.getElementById('agentList');
   
-  if (agents.length === 0) {
-    list.innerHTML = '<div class="empty-state" style="padding: 20px;">No other agents online</div>';
-    return;
-  }
-  
-  // Only show REAL agents from devnet
-  list.innerHTML = agents.slice(0, 10).map(agent => `
-    <div class="agent-item">
-      <div class="agent-addr">${agent.wallet.slice(0, 8)}...${agent.wallet.slice(-4)}</div>
-      <div class="agent-location">📍 ${agent.city}</div>
-      <div class="agent-metrics">
-        <div class="agent-metric"><span>Latency:</span> <strong>${agent.latency}ms</strong></div>
-        <div class="agent-metric"><span>BW:</span> <strong>${agent.bandwidth} Mbps</strong></div>
+  // Show connected user info
+  if (connectedWallet && myAgent) {
+    let html = `
+      <div class="agent-item you" style="background: rgba(0,255,136,0.1); border-left: 3px solid var(--green);">
+        <div class="agent-addr" style="color: var(--green);">⭐ YOU - ${connectedWallet.slice(0, 4)}...${connectedWallet.slice(-4)}</div>
+        <div class="agent-location">📍 ${myAgent.city || 'Unknown'}</div>
+        <div class="agent-metrics">
+          <div class="agent-metric"><span>Latency:</span> <strong style="color: var(--green);">${myAgent.latency || '--'}ms</strong></div>
+          <div class="agent-metric"><span>BW:</span> <strong style="color: var(--green);">${myAgent.bandwidth || '--'} Mbps</strong></div>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+    
+    if (agents.length === 0) {
+      html += '<div style="padding: 15px; text-align: center; color: var(--dim); font-size: 11px;">You are the only agent online right now.<br>More agents will appear as they connect.</div>';
+    } else {
+      html += agents.slice(0, 10).map(agent => `
+        <div class="agent-item">
+          <div class="agent-addr">${agent.wallet.slice(0, 8)}...${agent.wallet.slice(-4)}</div>
+          <div class="agent-location">📍 ${agent.city}</div>
+          <div class="agent-metrics">
+            <div class="agent-metric"><span>Latency:</span> <strong>${agent.latency}ms</strong></div>
+            <div class="agent-metric"><span>BW:</span> <strong>${agent.bandwidth} Mbps</strong></div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    list.innerHTML = html;
+  } else {
+    list.innerHTML = '<div class="empty-state" style="padding: 20px;">Connect wallet to see agents</div>';
+  }
 }
 
 // ============== LIVE JOBS SIMULATION ==============
