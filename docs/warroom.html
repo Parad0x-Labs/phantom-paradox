@@ -451,8 +451,10 @@
   
   <div class="tabs">
     <div class="tab active" data-tab="map">🗺️ Network Map</div>
-    <div class="tab" data-tab="jobs">💼 Jobs</div>
-    <div class="tab" data-tab="deploy">📦 Deploy</div>
+    <div class="tab" data-tab="live">⚡ Live Jobs</div>
+    <div class="tab" data-tab="jobs">💼 Job Catalog</div>
+    <div class="tab" data-tab="score">🏆 Scores</div>
+    <div class="tab" data-tab="deploy">📦 Agent Shop</div>
   </div>
   
   <!-- MAP TAB -->
@@ -516,11 +518,91 @@
     </div>
   </div>
   
-  <!-- JOBS TAB -->
+  <!-- LIVE JOBS TAB -->
+  <div class="tab-content" id="tab-live">
+    <div style="padding: 15px 20px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <span style="color: var(--dim);">Live Job Queue</span>
+        <span style="color: var(--green); font-weight: bold; margin-left: 10px;" id="liveJobCount">0 jobs</span>
+        <span style="color: var(--dim); margin-left: 20px;">Devnet SOL payments</span>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button onclick="fetchLiveJobs()" class="download-btn" style="background: var(--green); color: #000;">🔄 Refresh</button>
+        <button onclick="claimRandomJob()" class="download-btn" id="claimBtn" disabled style="background: var(--cyan); color: #000;">📥 Claim Job</button>
+      </div>
+    </div>
+    <div class="jobs-grid" id="liveJobsGrid">
+      <div class="empty-state" style="padding: 40px; grid-column: 1/-1;">
+        <div style="font-size: 48px;">⏳</div>
+        <div style="margin-top: 10px;">Connect wallet to see live jobs</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- SCORE TAB -->
+  <div class="tab-content" id="tab-score">
+    <div style="padding: 20px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px; margin: 0 auto;">
+        <!-- Your Score -->
+        <div class="job-card" style="border-color: var(--cyan);">
+          <div class="section-title">Your Agent Score</div>
+          <div id="myScoreCard">
+            <div class="empty-state" style="padding: 20px;">
+              <div style="font-size: 32px;">👆</div>
+              <div>Connect wallet to see score</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Score Tiers -->
+        <div class="job-card">
+          <div class="section-title">Score Tiers</div>
+          <div id="tierList">
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);"><span>👑 ELITE</span><span style="color: var(--green);">99%+ → +25% bonus</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);"><span>⭐ EXCELLENT</span><span style="color: var(--green);">95%+ → +15% bonus</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);"><span>✨ GREAT</span><span style="color: var(--green);">90%+ → +10% bonus</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);"><span>👍 GOOD</span><span style="color: var(--green);">85%+ → +5% bonus</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);"><span>➖ AVERAGE</span><span style="color: var(--dim);">80%+ → Base rate</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);"><span>⚠️ POOR</span><span style="color: var(--orange);">70%+ → -5% penalty</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);"><span>❌ BAD</span><span style="color: var(--orange);">60%+ → -10% penalty</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);"><span>🚫 TERRIBLE</span><span style="color: var(--red);">50%+ → -20% penalty</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);"><span>💀 CRITICAL</span><span style="color: var(--red);">40%+ → -30% penalty</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);"><span>🔒 SUSPENDED</span><span style="color: var(--red);">30%+ → No jobs</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);"><span>⛔ BANNED</span><span style="color: var(--red);">20%+ → Account locked</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0;"><span>☠️ BLACKLIST</span><span style="color: var(--red);"><20% → Permanent ban</span></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Leaderboard -->
+      <div class="job-card" style="max-width: 900px; margin: 20px auto;">
+        <div class="section-title">🏆 Top Agents Leaderboard</div>
+        <div id="leaderboard">
+          <div style="display: grid; grid-template-columns: 60px 1fr 100px 100px 100px; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-weight: bold; color: var(--dim); font-size: 11px;">
+            <div>RANK</div><div>AGENT</div><div>SCORE</div><div>TIER</div><div>EARNED</div>
+          </div>
+          <div id="leaderboardRows" style="max-height: 400px; overflow-y: auto;">
+            <div class="empty-state" style="padding: 30px;">Loading leaderboard...</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Ledger -->
+      <div class="job-card" style="max-width: 900px; margin: 20px auto;">
+        <div class="section-title">📒 Transaction Ledger (Last 20)</div>
+        <div id="ledgerEntries" style="max-height: 300px; overflow-y: auto;">
+          <div class="empty-state" style="padding: 20px;">No transactions yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JOBS CATALOG TAB -->
   <div class="tab-content" id="tab-jobs">
     <div style="padding: 15px 20px; background: var(--card); border-bottom: 1px solid var(--border);">
       <span style="color: var(--dim);">Customer pays listed price →</span>
-      <span style="color: var(--green); font-weight: bold;"> You earn 95%</span>
+      <span style="color: var(--green); font-weight: bold;"> You earn 97%</span>
+      <span style="color: var(--dim); margin-left: 20px;">(3% platform fee)</span>
     </div>
     <div class="jobs-grid">
       <div class="job-card">
@@ -1035,9 +1117,21 @@ function renderYourAgent() {
 function renderAgentList() {
   const list = document.getElementById('agentList');
   
-  if (agents.length === 0) {
+  if (agents.length === 0 && !connectedWallet) {
     list.innerHTML = '<div class="empty-state" style="padding: 20px;">No other agents online</div>';
     return;
+  }
+  
+  // Generate some simulated agents when connected
+  if (connectedWallet && agents.length === 0) {
+    const simCities = ['Berlin', 'Tokyo', 'New York', 'London', 'Sydney'];
+    agents = simCities.map((city, i) => ({
+      wallet: 'Agent' + (i+1) + 'x'.repeat(30),
+      city,
+      latency: 50 + Math.floor(Math.random() * 150),
+      bandwidth: 20 + Math.floor(Math.random() * 80),
+      capLevel: 1 + Math.floor(Math.random() * 4)
+    }));
   }
   
   list.innerHTML = agents.slice(0, 10).map(agent => `
@@ -1051,6 +1145,315 @@ function renderAgentList() {
     </div>
   `).join('');
 }
+
+// ============== LIVE JOBS SIMULATION ==============
+
+const LAMPORTS_PER_SOL = 1_000_000_000;
+let liveJobs = [];
+let myScore = { score: 8000, tier: 'AVERAGE', emoji: '➖', earned: 0, jobs: 0, streak: 0 };
+let ledger = [];
+let leaderboard = [];
+
+const JOB_TEMPLATES = [
+  { cat: 'RELAY', type: 'vpn_tunnel', title: '🔗 VPN Relay', rate: 1000000, unit: 'MB' },
+  { cat: 'RELAY', type: 'geo_unlock', title: '🌍 Geo-Unlock', rate: 2000000, unit: 'MB' },
+  { cat: 'AI_IMAGE', type: 'photo_enhance', title: '📸 4x Upscale', rate: 20000000, unit: 'image' },
+  { cat: 'AI_IMAGE', type: 'bg_remove', title: '✂️ BG Remove', rate: 10000000, unit: 'image' },
+  { cat: 'AI_IMAGE', type: 'style_transfer', title: '🎨 Style Transfer', rate: 30000000, unit: 'image' },
+  { cat: 'AI_AUDIO', type: 'transcribe', title: '🎤 Transcribe', rate: 50000000, unit: 'minute' },
+  { cat: 'AI_AUDIO', type: 'translate', title: '🌐 Translate Audio', rate: 80000000, unit: 'minute' },
+  { cat: 'AI_TEXT', type: 'summarize', title: '📄 Summarize', rate: 10000000, unit: 'page' },
+  { cat: 'AI_TEXT', type: 'ocr', title: '📝 OCR', rate: 5000000, unit: 'page' },
+  { cat: 'AI_VIDEO', type: 'compress', title: '🎬 Video Compress', rate: 100000000, unit: 'minute' },
+  { cat: 'VERIFICATION', type: 'merkle', title: '✓ Merkle Verify', rate: 20000000, unit: 'batch' },
+  { cat: 'VERIFICATION', type: 'jury', title: '⚖️ Jury Duty', rate: 500000000, unit: 'case' },
+  { cat: 'COMPUTE', type: 'cpu', title: '💻 CPU Task', rate: 5000000, unit: 'minute' },
+  { cat: 'COMPUTE', type: 'ml', title: '🧠 ML Inference', rate: 50000000, unit: 'batch' },
+];
+
+const TIERS = [
+  { min: 9900, name: 'ELITE', emoji: '👑', mult: 1.25, color: '#FFD700' },
+  { min: 9500, name: 'EXCELLENT', emoji: '⭐', mult: 1.15, color: '#00FF88' },
+  { min: 9000, name: 'GREAT', emoji: '✨', mult: 1.10, color: '#00D4FF' },
+  { min: 8500, name: 'GOOD', emoji: '👍', mult: 1.05, color: '#88FF88' },
+  { min: 8000, name: 'AVERAGE', emoji: '➖', mult: 1.00, color: '#AAAAAA' },
+  { min: 7000, name: 'POOR', emoji: '⚠️', mult: 0.95, color: '#FFAA00' },
+  { min: 6000, name: 'BAD', emoji: '❌', mult: 0.90, color: '#FF6600' },
+  { min: 5000, name: 'TERRIBLE', emoji: '🚫', mult: 0.80, color: '#FF4444' },
+  { min: 4000, name: 'CRITICAL', emoji: '💀', mult: 0.70, color: '#FF0000' },
+  { min: 3000, name: 'SUSPENDED', emoji: '🔒', mult: 0, color: '#880000' },
+  { min: 2000, name: 'BANNED', emoji: '⛔', mult: 0, color: '#440000' },
+  { min: 0, name: 'BLACKLIST', emoji: '☠️', mult: 0, color: '#000000' },
+];
+
+function getTier(score) {
+  return TIERS.find(t => score >= t.min) || TIERS[TIERS.length - 1];
+}
+
+function genJobId() {
+  return 'JOB-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+}
+
+function createSimJob() {
+  const t = JOB_TEMPLATES[Math.floor(Math.random() * JOB_TEMPLATES.length)];
+  const size = Math.floor(1 + Math.random() * 10);
+  const price = t.rate * size;
+  const clients = ['Brain7x..Corp', 'Brain9k..Labs', 'BrainAI..DAO', 'Brain2m..Tech'];
+  
+  return {
+    id: genJobId(),
+    category: t.cat,
+    type: t.type,
+    title: t.title,
+    price: price,
+    priceSOL: price / LAMPORTS_PER_SOL,
+    size: size + ' ' + t.unit,
+    client: clients[Math.floor(Math.random() * clients.length)],
+    createdAt: new Date(),
+    deadline: new Date(Date.now() + 300000), // 5 min
+  };
+}
+
+function fetchLiveJobs() {
+  // Generate 5-10 jobs
+  liveJobs = [];
+  for (let i = 0; i < 5 + Math.floor(Math.random() * 6); i++) {
+    liveJobs.push(createSimJob());
+  }
+  renderLiveJobs();
+}
+
+function renderLiveJobs() {
+  const grid = document.getElementById('liveJobsGrid');
+  const count = document.getElementById('liveJobCount');
+  const claimBtn = document.getElementById('claimBtn');
+  
+  count.textContent = liveJobs.length + ' jobs';
+  claimBtn.disabled = !connectedWallet || liveJobs.length === 0;
+  
+  if (liveJobs.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="padding: 40px; grid-column: 1/-1;"><div style="font-size: 48px;">📭</div><div>No jobs available. Click Refresh!</div></div>';
+    return;
+  }
+  
+  grid.innerHTML = liveJobs.map(job => `
+    <div class="job-card" style="border-left: 3px solid var(--${job.category === 'AI_IMAGE' ? 'purple' : job.category === 'RELAY' ? 'green' : job.category === 'VERIFICATION' ? 'blue' : 'cyan'});">
+      <div class="job-card-header">
+        <span class="job-card-title">${job.title}</span>
+        <span class="job-card-rate">${job.priceSOL.toFixed(4)} SOL</span>
+      </div>
+      <div class="job-card-desc">${job.size} from ${job.client}</div>
+      <div style="margin-top: 8px; font-size: 10px; color: var(--dim);">ID: ${job.id.slice(0, 16)}...</div>
+      <div style="margin-top: 8px; font-size: 11px;"><span style="color: var(--dim);">You earn:</span> <span style="color: var(--green);">${(job.priceSOL * 0.97).toFixed(4)} SOL</span></div>
+      <button onclick="claimJob('${job.id}')" class="download-btn" style="margin-top: 10px; width: 100%; ${!connectedWallet ? 'opacity: 0.5;' : ''}">📥 Claim This Job</button>
+    </div>
+  `).join('');
+}
+
+function claimRandomJob() {
+  if (liveJobs.length === 0) return;
+  const job = liveJobs[Math.floor(Math.random() * liveJobs.length)];
+  claimJob(job.id);
+}
+
+function claimJob(jobId) {
+  if (!connectedWallet) {
+    alert('Connect wallet first!');
+    return;
+  }
+  
+  const job = liveJobs.find(j => j.id === jobId);
+  if (!job) return;
+  
+  // Remove from available
+  liveJobs = liveJobs.filter(j => j.id !== jobId);
+  
+  // Simulate completion (90% success rate)
+  const success = Math.random() < 0.90;
+  const quality = 70 + Math.floor(Math.random() * 30);
+  const onTime = Math.random() < 0.85;
+  
+  // Calculate score change
+  let change = 0;
+  if (success) {
+    change = 10 + Math.floor(quality / 2);
+    if (onTime) change += 20;
+    if (myScore.streak >= 3) change += Math.min(50, myScore.streak * 5);
+    change = Math.min(change, 150);
+    myScore.streak++;
+    myScore.jobs++;
+    
+    const earned = job.price * 0.97;
+    myScore.earned += earned;
+    
+    // Add ledger entry
+    ledger.unshift({
+      type: 'JOB_PAYMENT',
+      to: connectedWallet.slice(0, 8) + '..',
+      amount: earned,
+      desc: `Payment: ${job.title}`,
+      time: new Date(),
+    });
+    
+  } else {
+    change = myScore.streak === 0 ? -150 : -100;
+    myScore.streak = 0;
+    myScore.jobs++;
+    
+    ledger.unshift({
+      type: 'PENALTY',
+      to: connectedWallet.slice(0, 8) + '..',
+      amount: 0,
+      desc: `Job failed: ${job.title}`,
+      time: new Date(),
+    });
+  }
+  
+  const oldScore = myScore.score;
+  const oldTier = getTier(oldScore);
+  myScore.score = Math.max(0, Math.min(10000, myScore.score + change));
+  const newTier = getTier(myScore.score);
+  myScore.tier = newTier.name;
+  myScore.emoji = newTier.emoji;
+  
+  // Update leaderboard
+  updateLeaderboard();
+  
+  // Render
+  renderLiveJobs();
+  renderMyScore();
+  renderLedger();
+  
+  // Alert
+  if (success) {
+    alert(`✅ Job completed!\n\nQuality: ${quality}%\nOn Time: ${onTime ? 'Yes' : 'No'}\nEarned: ${(job.price * 0.97 / LAMPORTS_PER_SOL).toFixed(4)} SOL\n\nScore: ${oldScore} → ${myScore.score} (${change > 0 ? '+' : ''}${change})\nTier: ${oldTier.emoji} ${oldTier.name} → ${newTier.emoji} ${newTier.name}`);
+  } else {
+    alert(`❌ Job failed!\n\nScore: ${oldScore} → ${myScore.score} (${change})\nStreak reset to 0`);
+  }
+}
+
+function renderMyScore() {
+  const card = document.getElementById('myScoreCard');
+  
+  if (!connectedWallet) {
+    card.innerHTML = '<div class="empty-state" style="padding: 20px;"><div style="font-size: 32px;">👆</div><div>Connect wallet to see score</div></div>';
+    return;
+  }
+  
+  const tier = getTier(myScore.score);
+  
+  card.innerHTML = `
+    <div style="text-align: center; padding: 20px;">
+      <div style="font-size: 48px;">${tier.emoji}</div>
+      <div style="font-size: 32px; font-weight: bold; color: ${tier.color};">${tier.name}</div>
+      <div style="font-size: 24px; margin: 10px 0;">${(myScore.score / 100).toFixed(2)}%</div>
+      <div style="background: var(--card-alt); border-radius: 4px; height: 20px; overflow: hidden; margin: 15px 0;">
+        <div style="height: 100%; width: ${myScore.score / 100}%; background: ${tier.color}; transition: width 0.3s;"></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; font-size: 12px;">
+        <div><div style="color: var(--dim);">Jobs</div><div style="font-weight: bold;">${myScore.jobs}</div></div>
+        <div><div style="color: var(--dim);">Streak</div><div style="font-weight: bold; color: var(--green);">🔥 ${myScore.streak}</div></div>
+        <div><div style="color: var(--dim);">Earned</div><div style="font-weight: bold; color: var(--green);">${(myScore.earned / LAMPORTS_PER_SOL).toFixed(4)} SOL</div></div>
+      </div>
+      <div style="margin-top: 15px; font-size: 11px; color: var(--dim);">Multiplier: ${tier.mult}x</div>
+    </div>
+  `;
+}
+
+function renderLedger() {
+  const container = document.getElementById('ledgerEntries');
+  
+  if (ledger.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding: 20px;">No transactions yet</div>';
+    return;
+  }
+  
+  container.innerHTML = ledger.slice(0, 20).map(e => `
+    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 11px;">
+      <div>
+        <span style="color: ${e.type === 'JOB_PAYMENT' ? 'var(--green)' : 'var(--red)'};">${e.type === 'JOB_PAYMENT' ? '📥' : '⚠️'} ${e.type}</span>
+        <span style="color: var(--dim); margin-left: 10px;">${e.desc}</span>
+      </div>
+      <div>
+        <span style="color: ${e.amount > 0 ? 'var(--green)' : 'var(--dim)'};">${e.amount > 0 ? '+' + (e.amount / LAMPORTS_PER_SOL).toFixed(4) + ' SOL' : '-'}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateLeaderboard() {
+  // Add myself if not exists
+  const myIdx = leaderboard.findIndex(a => a.wallet === connectedWallet);
+  if (myIdx >= 0) {
+    leaderboard[myIdx] = { wallet: connectedWallet, ...myScore };
+  } else if (connectedWallet) {
+    leaderboard.push({ wallet: connectedWallet, ...myScore });
+  }
+  
+  // Add some fake agents
+  if (leaderboard.length < 10) {
+    const fakeAgents = [
+      { wallet: 'Elite9x..AAA', score: 9950, tier: 'ELITE', earned: 125000000000 },
+      { wallet: 'Star7k..BBB', score: 9600, tier: 'EXCELLENT', earned: 98000000000 },
+      { wallet: 'Great5m..CCC', score: 9200, tier: 'GREAT', earned: 72000000000 },
+      { wallet: 'Good3n..DDD', score: 8700, tier: 'GOOD', earned: 45000000000 },
+      { wallet: 'Avg2p..EEE', score: 8200, tier: 'AVERAGE', earned: 23000000000 },
+      { wallet: 'Work1q..FFF', score: 7800, tier: 'POOR', earned: 12000000000 },
+      { wallet: 'Try8r..GGG', score: 6500, tier: 'BAD', earned: 5000000000 },
+    ];
+    fakeAgents.forEach(a => {
+      if (!leaderboard.find(l => l.wallet === a.wallet)) {
+        leaderboard.push(a);
+      }
+    });
+  }
+  
+  // Sort by score
+  leaderboard.sort((a, b) => b.score - a.score);
+  renderLeaderboard();
+}
+
+function renderLeaderboard() {
+  const rows = document.getElementById('leaderboardRows');
+  
+  if (leaderboard.length === 0) {
+    rows.innerHTML = '<div class="empty-state" style="padding: 30px;">No agents yet</div>';
+    return;
+  }
+  
+  rows.innerHTML = leaderboard.slice(0, 50).map((a, i) => {
+    const tier = getTier(a.score);
+    const isMe = a.wallet === connectedWallet;
+    return `
+      <div style="display: grid; grid-template-columns: 60px 1fr 100px 100px 100px; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; ${isMe ? 'background: rgba(57, 197, 207, 0.1);' : ''}">
+        <div style="font-weight: bold; ${i < 3 ? 'color: var(--green);' : ''}">#${i + 1}</div>
+        <div style="color: ${isMe ? 'var(--cyan)' : 'var(--text)'};">${a.wallet.slice(0, 8)}..${a.wallet.slice(-4)} ${isMe ? '(YOU)' : ''}</div>
+        <div>${(a.score / 100).toFixed(2)}%</div>
+        <div style="color: ${tier.color};">${tier.emoji} ${tier.name}</div>
+        <div style="color: var(--green);">${(a.earned / LAMPORTS_PER_SOL).toFixed(2)} SOL</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Initialize live jobs when wallet connects
+function initLiveJobs() {
+  fetchLiveJobs();
+  renderMyScore();
+  updateLeaderboard();
+  renderLedger();
+  
+  // Enable claim button
+  document.getElementById('claimBtn').disabled = false;
+}
+
+// Extend onConnected to init live jobs
+const originalOnConnected = onConnected;
+onConnected = function(wallet) {
+  originalOnConnected(wallet);
+  initLiveJobs();
+  renderAgentList();
+};
 
 document.addEventListener('DOMContentLoaded', init);
 
