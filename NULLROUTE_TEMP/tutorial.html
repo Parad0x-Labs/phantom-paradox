@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devnet Setup - NULLROUTE</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230d1117' width='100' height='100' rx='8'/><text y='50' x='50' text-anchor='middle' font-size='40' font-family='monospace' fill='%2300f3ff'>N</text><text y='80' x='50' text-anchor='middle' font-size='18' font-family='monospace' fill='%234ac26b'>SOL</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --accent-green: #4ac26b;
+            --accent-blue: #6cb6ff;
+            --accent-cyan: #00f3ff;
+            --accent-orange: #d4a72c;
+            --border: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-dark); 
+            color: var(--text-primary); 
+            line-height: 1.7; 
+            min-height: 100vh;
+        }
+        .container { max-width: 700px; margin: 0 auto; padding: 2rem; }
+        
+        nav { 
+            padding: 1rem 2rem; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+        nav a { color: var(--text-secondary); text-decoration: none; }
+        nav a:hover { color: var(--accent-cyan); }
+        
+        h1 { 
+            font-size: 2rem; 
+            margin: 2rem 0 0.5rem;
+            text-align: center;
+        }
+        h1 span { color: var(--accent-cyan); }
+        
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, rgba(212, 167, 44, 0.1), rgba(244, 112, 103, 0.05));
+            border: 1px solid var(--accent-orange);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .warning strong { color: var(--accent-orange); }
+        .warning p { color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem; }
+        
+        .step {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .step-num {
+            background: var(--accent-cyan);
+            color: #000;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        
+        .step-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        
+        .step-content {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .step-content a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+        }
+        .step-content a:hover { text-decoration: underline; }
+        
+        .step-content strong {
+            color: var(--accent-green);
+        }
+        
+        .step-note {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-dark);
+            border-left: 2px solid var(--accent-green);
+            font-size: 0.8rem;
+            color: var(--accent-green);
+        }
+        
+        .done-box {
+            background: rgba(74, 194, 107, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .done-box h3 {
+            color: var(--accent-green);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.5rem;
+        }
+        
+        .done-box p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--accent-cyan);
+            color: #000;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.9; }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">nullroute</a>
+        <span style="color: var(--accent-cyan);">devnet setup</span>
+    </nav>
+
+    <div class="container">
+        <h1>Phantom <span>Devnet</span> Setup</h1>
+        <p class="subtitle">// switch wallet to test network</p>
+
+        <div class="warning">
+            <strong>DEVNET ONLY</strong>
+            <p>Devnet SOL has no real value. It's free test currency for developers.</p>
+        </div>
+
+        <div class="step">
+            <div class="step-header">
+                <span class="step-num">1</span>
+                <span class="step-title">Open Phantom Wallet</span>
+            </div>
+            <div class="step-content">
+                Make sure you have the <a href="https://phantom.app" target="_blank">Phantom browser extension</a> installed.
+                Click the Phantom icon in your browser toolbar.
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-header">
+                <span class="step-num">2</span>
+                <span class="step-title">Open Settings</span>
+            </div>
+            <div class="step-content">
+                In the Phantom popup, click the <strong>Settings</strong> icon (gear icon, bottom-left corner).
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-header">
+                <span class="step-num">3</span>
+                <span class="step-title">Enable Developer Settings</span>
+            </div>
+            <div class="step-content">
+                Scroll down to find <strong>"Developer Settings"</strong> and toggle <strong>"Testnet Mode"</strong> ON.
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-header">
+                <span class="step-num">4</span>
+                <span class="step-title">Switch to Devnet</span>
+            </div>
+            <div class="step-content">
+                Go to Settings -> <strong>"Change Network"</strong> -> Select <strong>"Solana Devnet"</strong>
+            </div>
+            <div class="step-note">
+                Your wallet will show "Devnet" badge and balance resets to 0 (this is normal)
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-header">
+                <span class="step-num">5</span>
+                <span class="step-title">Get Test SOL</span>
+            </div>
+            <div class="step-content">
+                Return to NULLROUTE and use the <strong>Devnet Faucet</strong> to get free test SOL for transactions.
+            </div>
+        </div>
+
+        <div class="done-box">
+            <h3>Setup Complete</h3>
+            <p>Your Phantom wallet is now connected to Solana Devnet. You can test NULLROUTE transfers with free Devnet SOL.</p>
+            <a href="index.html" class="btn">Back to NULLROUTE</a>
+        </div>
+    </div>
+
+    <footer>
+        NULLROUTE // Devnet Testing Environment
+    </footer>
+</body>
+</html>

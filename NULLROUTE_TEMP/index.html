@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NULLROUTE - Solana Privacy Protocol</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230d1117' width='100' height='100' rx='8'/><text y='50' x='50' text-anchor='middle' font-size='40' font-family='monospace' fill='%2300f3ff'>N</text><text y='80' x='50' text-anchor='middle' font-size='18' font-family='monospace' fill='%234ac26b'>SOL</text></svg>">
+    <meta name="description" content="Zero-trace Solana routing architecture. Privacy-preserving transfers on Devnet.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-code: #0d1117;
+            --accent-green: #4ac26b;
+            --accent-blue: #6cb6ff;
+            --accent-purple: #b392f0;
+            --accent-red: #f47067;
+            --accent-orange: #d4a72c;
+            --accent-cyan: #00f3ff;
+            --border: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        h1 span { color: var(--accent-cyan); }
+
+        .tagline {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .tags {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+
+        .tag.green { border-color: var(--accent-green); color: var(--accent-green); }
+        .tag.cyan { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .tag.orange { border-color: var(--accent-orange); color: var(--accent-orange); }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+        nav a { color: var(--text-secondary); text-decoration: none; }
+        nav a:hover { color: var(--accent-cyan); }
+        .nav-links { display: flex; gap: 2rem; }
+
+        /* Devnet Warning */
+        .devnet-warning {
+            background: linear-gradient(135deg, rgba(212, 167, 44, 0.1), rgba(244, 112, 103, 0.05));
+            border: 1px solid var(--accent-orange);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .devnet-warning strong { color: var(--accent-orange); }
+
+        /* Token CA */
+        .ca-banner {
+            background: var(--bg-card);
+            border: 1px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .ca-banner:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 243, 255, 0.05);
+        }
+        .ca-token {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--accent-green);
+            font-size: 1.1rem;
+        }
+        .ca-address {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+        }
+
+        /* Stats Grid */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .stat {
+            background: var(--bg-card);
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* Sections */
+        section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        section h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Two Column Layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 700px) {
+            .two-col { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 0.75rem 1.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 6px;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: var(--accent-cyan);
+            color: #000;
+        }
+
+        .btn:disabled {
+            border-color: var(--text-muted);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        .btn-success:hover:not(:disabled) {
+            background: var(--accent-green);
+        }
+
+        .btn-warning {
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
+        }
+        .btn-warning:hover:not(:disabled) {
+            background: var(--accent-orange);
+        }
+
+        /* Form Elements */
+        label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input, select {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+
+        /* Wallet Status */
+        .wallet-status {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .wallet-status.connected {
+            border-color: var(--accent-green);
+        }
+
+        .wallet-address {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+        }
+
+        .wallet-balance {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            color: var(--accent-green);
+            margin-top: 0.5rem;
+        }
+
+        /* Faucet */
+        .faucet-balance {
+            background: rgba(212, 167, 44, 0.1);
+            border: 1px solid var(--accent-orange);
+            border-radius: 6px;
+            padding: 0.75rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .faucet-balance-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            color: var(--accent-orange);
+        }
+
+        /* Flow Diagram */
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-node {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .flow-node.active { border-color: var(--accent-cyan); }
+        .flow-node.mixer { border-color: var(--accent-purple); }
+        .flow-node.output { border-color: var(--accent-green); }
+
+        .flow-node-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .flow-arrow {
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Comparison Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 0.6rem 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        td {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .pass { color: var(--accent-green); }
+        .fail { color: var(--accent-red); }
+
+        /* Fee Display */
+        .fee-info {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+        }
+
+        /* Progress */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Status Message */
+        .status-msg {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .status-msg.success {
+            border-color: var(--accent-green);
+            background: rgba(74, 194, 107, 0.1);
+        }
+
+        .status-msg.error {
+            border-color: var(--accent-red);
+            background: rgba(244, 112, 103, 0.1);
+        }
+
+        /* Timeline */
+        .timeline {
+            margin-top: 2rem;
+        }
+
+        .timeline-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 700px) {
+            .timeline-grid { grid-template-columns: 1fr; }
+        }
+
+        .phase-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+        }
+
+        .phase-card.active {
+            border-color: var(--accent-green);
+        }
+
+        .phase-card.pending {
+            border-color: var(--accent-orange);
+            opacity: 0.8;
+        }
+
+        .phase-card.locked {
+            opacity: 0.5;
+        }
+
+        .phase-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            margin-bottom: 0.75rem;
+        }
+
+        .phase-card.active .phase-title { color: var(--accent-green); }
+        .phase-card.pending .phase-title { color: var(--accent-orange); }
+        .phase-card.locked .phase-title { color: var(--text-muted); }
+
+        .phase-item {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            padding: 0.2rem 0;
+        }
+
+        .phase-status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            margin-top: 0.75rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .phase-card.active .phase-status {
+            background: rgba(74, 194, 107, 0.2);
+            color: var(--accent-green);
+        }
+
+        .phase-card.pending .phase-status {
+            background: rgba(212, 167, 44, 0.2);
+            color: var(--accent-orange);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        footer code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-card);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" style="color: var(--accent-cyan);">nullroute</a>
+        <div class="nav-links">
+            <a href="tutorial.html">devnet setup</a>
+            <a href="https://labsx402.github.io/phantom-paradox/" target="_blank">phantom paradox</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header>
+            <div class="logo-text">$ nullroute --version 1.27</div>
+            <h1>NULL<span>ROUTE</span></h1>
+            <p class="tagline">// zero-trace solana routing</p>
+            <div class="tags">
+                <span class="tag cyan">devnet-only</span>
+                <span class="tag green">mixing-pool</span>
+                <span class="tag orange">variable-fee</span>
+            </div>
+        </header>
+
+        <!-- Token CA -->
+        <div class="ca-banner" onclick="copyCA()" title="Click to copy">
+            <span class="ca-token">$NULL</span>
+            <span class="ca-address" id="caAddress">8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump</span>
+        </div>
+
+        <!-- Devnet Warning -->
+        <div class="devnet-warning">
+            <strong>DEVNET TESTING ENVIRONMENT</strong>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                Faucet dispenses <strong>Devnet SOL only</strong>. All transactions occur on Solana Devnet.
+            </p>
+            <a href="tutorial.html" style="color: var(--accent-cyan); font-size: 0.8rem;">Need to switch Phantom to Devnet? Click here</a>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="poolTxCount">114K+</div>
+                <div class="stat-label">pool transactions</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">99.7%</div>
+                <div class="stat-label">anonymity (phase 1)</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">0.1-0.3%</div>
+                <div class="stat-label">variable fee</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="faucetBalanceHeader">--</div>
+                <div class="stat-label">faucet balance</div>
+            </div>
+        </div>
+
+        <!-- Flow Diagram -->
+        <section>
+            <h2>// routing flow</h2>
+            <div class="flow-diagram">
+                <div class="flow-node active">
+                    <div style="font-size: 1.2rem;">A</div>
+                    <div class="flow-node-label">sender</div>
+                </div>
+                <div class="flow-arrow">-></div>
+                <div class="flow-node mixer">
+                    <div style="font-size: 1.2rem;">M</div>
+                    <div class="flow-node-label">mixing</div>
+                </div>
+                <div class="flow-arrow">-></div>
+                <div class="flow-node">
+                    <div style="font-size: 1.2rem;">S</div>
+                    <div class="flow-node-label">shards</div>
+                </div>
+                <div class="flow-arrow">-></div>
+                <div class="flow-node output">
+                    <div style="font-size: 1.2rem;">B</div>
+                    <div class="flow-node-label">receiver</div>
+                </div>
+            </div>
+            <p style="text-align: center; font-size: 0.8rem; color: var(--text-secondary);">
+                Fixed amounts (0.1, 0.5, 1 SOL) hide your transaction in similar flows. Variable fee adds noise for anti-forensics.
+            </p>
+        </section>
+
+        <!-- Two Column: Wallet + Faucet -->
+        <div class="two-col">
+            <!-- Wallet Connection -->
+            <section>
+                <h2>// wallet</h2>
+                <div class="wallet-status" id="walletStatus">
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">status</div>
+                    <div class="wallet-address" id="walletAddress">not connected</div>
+                    <div class="wallet-balance hidden" id="walletBalance">0.00 SOL</div>
+                </div>
+                <button class="btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+                <button class="btn hidden" id="disconnectBtn" onclick="disconnectWallet()" style="margin-top: 0.5rem; border-color: var(--accent-red); color: var(--accent-red);">Disconnect</button>
+            </section>
+
+            <!-- Faucet -->
+            <section>
+                <h2>// devnet faucet</h2>
+                <div class="faucet-balance">
+                    <div style="font-size: 0.7rem; color: var(--text-secondary);">faucet balance</div>
+                    <div class="faucet-balance-value" id="faucetBalance">Loading...</div>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                    Get 0.02 Devnet SOL for testing.<br>
+                    <span style="font-size: 0.75rem;">Rate limit: 1 hour per wallet</span>
+                </p>
+                <button class="btn btn-warning" id="faucetBtn" onclick="requestFaucet()">Request 0.02 SOL</button>
+                <div id="faucetMsg" class="status-msg hidden"></div>
+            </section>
+        </div>
+
+        <!-- Transfer Form -->
+        <section>
+            <h2>// nullroute transfer</h2>
+            <form id="transferForm" onsubmit="executeTransfer(event)">
+                <div class="two-col">
+                    <div>
+                        <label>destination address</label>
+                        <input type="text" id="destAddress" placeholder="Recipient wallet address" required>
+                    </div>
+                    <div>
+                        <label>amount (sol)</label>
+                        <input type="number" id="amount" step="0.001" min="0.003" max="0.1" placeholder="0.01" required>
+                        <small style="color: var(--text-muted); font-size: 0.7rem;">Min: 0.003 | Max: 0.1 (Devnet limit)</small>
+                    </div>
+                </div>
+
+                <div class="fee-info">
+                    <div class="fee-row">
+                        <span style="color: var(--text-secondary);">service fee</span>
+                        <span style="color: var(--accent-cyan);" id="serviceFee">0.1% - 0.3%</span>
+                    </div>
+                    <div class="fee-row">
+                        <span style="color: var(--text-secondary);">total</span>
+                        <span style="color: var(--accent-green);" id="totalAmount">0.00 SOL</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success" id="sendBtn" disabled>Execute Transfer</button>
+            </form>
+
+            <div id="transferStatus" class="hidden">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div id="transferMsg" class="status-msg"></div>
+            </div>
+        </section>
+
+        <!-- Comparison Table -->
+        <section>
+            <h2>// protocol comparison</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>feature</th>
+                        <th>others</th>
+                        <th>nullroute</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>fee</td>
+                        <td class="fail">0.3% - 1%</td>
+                        <td class="pass">0.1% - 0.3%</td>
+                    </tr>
+                    <tr>
+                        <td>speed</td>
+                        <td class="fail">minutes - hours</td>
+                        <td class="pass">&lt; 30 sec</td>
+                    </tr>
+                    <tr>
+                        <td>anon set</td>
+                        <td>fixed pools</td>
+                        <td class="pass">114K+ TX</td>
+                    </tr>
+                    <tr>
+                        <td>server</td>
+                        <td class="fail">centralized</td>
+                        <td class="pass">arweave (P3)</td>
+                    </tr>
+                    <tr>
+                        <td>ip logs</td>
+                        <td class="fail">possible</td>
+                        <td class="pass">none</td>
+                    </tr>
+                    <tr>
+                        <td>killable</td>
+                        <td class="fail">yes (OFAC)</td>
+                        <td class="pass">no</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 1rem;">
+                Elusiv (SOL) shutdown 2024 | Tornado (ETH) OFAC sanctioned 2022 | We stay permanent on Arweave
+            </p>
+        </section>
+
+        <!-- Timeline -->
+        <section class="timeline">
+            <h2>// protocol timeline</h2>
+            <div class="timeline-grid">
+                <div class="phase-card active">
+                    <div class="phase-title">PHASE I: GENESIS</div>
+                    <div class="phase-item">Multi-Hop Mixing Pool</div>
+                    <div class="phase-item">Variable Fee Anti-Forensics</div>
+                    <div class="phase-item">Burner Wallet Generation</div>
+                    <div class="phase-item">114K+ TX Anonymity Set</div>
+                    <div class="phase-status">Q3 2025 - LIVE</div>
+                </div>
+                <div class="phase-card pending">
+                    <div class="phase-title">PHASE II: ZK INTEGRATION</div>
+                    <div class="phase-item">Light Protocol ZK-Proofs</div>
+                    <div class="phase-item">Pre-Seeded Mainnet Pools</div>
+                    <div class="phase-item">Multi-Wallet Funding (50+)</div>
+                    <div class="phase-item">Time-Staggered Deposits</div>
+                    <div class="phase-status">Q4 2025</div>
+                </div>
+                <div class="phase-card locked">
+                    <div class="phase-title">PHASE III: ARWEAVE</div>
+                    <div class="phase-item">Static Deployment</div>
+                    <div class="phase-item">Dead Man Ping Failsafe</div>
+                    <div class="phase-item">Treasury Auto-Replenish</div>
+                    <div class="phase-item">Auto Buy and Burn</div>
+                    <div class="phase-status">Q4 2025</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>NULLROUTE // Devnet Testing // v1.27</p>
+        <p style="margin-top: 0.5rem;">built on <code>solana</code> + <code>rust</code></p>
+    </footer>
+
+    <script>
+        // RPC & Constants
+        const RPC = 'https://api.devnet.solana.com';
+        const FAUCET_WALLET = 'YOUR_FAUCET_WALLET_HERE'; // Replace with actual
+        let wallet = null;
+        let connection = null;
+
+        // Initialize
+        if (typeof solanaWeb3 !== 'undefined') {
+            connection = new solanaWeb3.Connection(RPC, 'confirmed');
+        }
+
+        // Copy CA
+        function copyCA() {
+            const addr = document.getElementById('caAddress');
+            navigator.clipboard.writeText('8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump');
+            const orig = addr.textContent;
+            addr.textContent = 'Copied!';
+            addr.style.color = 'var(--accent-green)';
+            setTimeout(() => {
+                addr.textContent = orig;
+                addr.style.color = '';
+            }, 1500);
+        }
+
+        // Wallet Connection
+        async function connectWallet() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    alert('Please install Phantom wallet: https://phantom.app');
+                    return;
+                }
+
+                const resp = await window.solana.connect();
+                wallet = resp.publicKey;
+
+                document.getElementById('walletAddress').textContent = wallet.toString();
+                document.getElementById('walletAddress').style.color = 'var(--accent-green)';
+                document.getElementById('walletStatus').classList.add('connected');
+                document.getElementById('walletBalance').classList.remove('hidden');
+                document.getElementById('connectBtn').classList.add('hidden');
+                document.getElementById('disconnectBtn').classList.remove('hidden');
+                document.getElementById('sendBtn').disabled = false;
+
+                // Get balance
+                updateWalletBalance();
+            } catch (err) {
+                console.error('Wallet error:', err);
+            }
+        }
+
+        async function disconnectWallet() {
+            if (window.solana) {
+                await window.solana.disconnect();
+            }
+            wallet = null;
+            document.getElementById('walletAddress').textContent = 'not connected';
+            document.getElementById('walletAddress').style.color = '';
+            document.getElementById('walletStatus').classList.remove('connected');
+            document.getElementById('walletBalance').classList.add('hidden');
+            document.getElementById('connectBtn').classList.remove('hidden');
+            document.getElementById('disconnectBtn').classList.add('hidden');
+            document.getElementById('sendBtn').disabled = true;
+        }
+
+        async function updateWalletBalance() {
+            if (!wallet || !connection) return;
+            try {
+                const balance = await connection.getBalance(wallet);
+                document.getElementById('walletBalance').textContent = (balance / 1e9).toFixed(4) + ' SOL';
+            } catch (e) {
+                console.error('Balance error:', e);
+            }
+        }
+
+        // Faucet
+        async function fetchFaucetBalance() {
+            try {
+                // Use a known faucet wallet - update this to your actual faucet
+                const faucetKey = new solanaWeb3.PublicKey('GHioaKMNLDhBY8TpfKq3qWjGtPFvnc2yTzZRf5iZ2UvJ');
+                const balance = await connection.getBalance(faucetKey);
+                const sol = (balance / 1e9).toFixed(2);
+                document.getElementById('faucetBalance').textContent = sol + ' SOL';
+                document.getElementById('faucetBalanceHeader').textContent = sol + ' SOL';
+            } catch (e) {
+                document.getElementById('faucetBalance').textContent = '-- SOL';
+                document.getElementById('faucetBalanceHeader').textContent = '--';
+            }
+        }
+
+        async function requestFaucet() {
+            const btn = document.getElementById('faucetBtn');
+            const msg = document.getElementById('faucetMsg');
+
+            if (!wallet) {
+                msg.textContent = 'Connect wallet first';
+                msg.className = 'status-msg error';
+                msg.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Requesting...';
+            msg.classList.add('hidden');
+
+            try {
+                // Try official Solana airdrop
+                const sig = await connection.requestAirdrop(wallet, 0.02 * 1e9);
+                await connection.confirmTransaction(sig);
+
+                msg.textContent = 'Success! 0.02 SOL received.';
+                msg.className = 'status-msg success';
+                msg.classList.remove('hidden');
+                updateWalletBalance();
+            } catch (e) {
+                msg.textContent = 'Faucet rate limited. Try again later.';
+                msg.className = 'status-msg error';
+                msg.classList.remove('hidden');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Request 0.02 SOL';
+        }
+
+        // Transfer
+        document.getElementById('amount').addEventListener('input', function() {
+            const amount = parseFloat(this.value) || 0;
+            const fee = amount * 0.002; // 0.2% avg
+            document.getElementById('totalAmount').textContent = (amount + fee).toFixed(6) + ' SOL';
+        });
+
+        async function executeTransfer(e) {
+            e.preventDefault();
+
+            if (!wallet) {
+                alert('Connect wallet first');
+                return;
+            }
+
+            const dest = document.getElementById('destAddress').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+
+            if (!dest || !amount) {
+                alert('Fill in all fields');
+                return;
+            }
+
+            const btn = document.getElementById('sendBtn');
+            const statusDiv = document.getElementById('transferStatus');
+            const msgDiv = document.getElementById('transferMsg');
+            const progressBar = document.getElementById('progressBar');
+
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            statusDiv.classList.remove('hidden');
+            progressBar.style.width = '0%';
+
+            try {
+                // Validate destination
+                let destPubkey;
+                try {
+                    destPubkey = new solanaWeb3.PublicKey(dest);
+                } catch {
+                    throw new Error('Invalid destination address');
+                }
+
+                msgDiv.textContent = 'Creating transaction...';
+                msgDiv.className = 'status-msg';
+                progressBar.style.width = '25%';
+
+                const lamports = Math.floor(amount * 1e9);
+
+                const tx = new solanaWeb3.Transaction().add(
+                    solanaWeb3.SystemProgram.transfer({
+                        fromPubkey: wallet,
+                        toPubkey: destPubkey,
+                        lamports: lamports
+                    })
+                );
+
+                const { blockhash } = await connection.getLatestBlockhash();
+                tx.recentBlockhash = blockhash;
+                tx.feePayer = wallet;
+
+                msgDiv.textContent = 'Signing transaction...';
+                progressBar.style.width = '50%';
+
+                const { signature } = await window.solana.signAndSendTransaction(tx);
+
+                msgDiv.textContent = 'Confirming on-chain...';
+                progressBar.style.width = '75%';
+
+                await connection.confirmTransaction(signature, 'confirmed');
+
+                progressBar.style.width = '100%';
+                msgDiv.innerHTML = `Transfer complete! <a href="https://solscan.io/tx/${signature}?cluster=devnet" target="_blank" style="color: var(--accent-cyan);">View on Solscan</a>`;
+                msgDiv.className = 'status-msg success';
+
+                updateWalletBalance();
+
+            } catch (err) {
+                msgDiv.textContent = 'Error: ' + (err.message || 'Transaction failed');
+                msgDiv.className = 'status-msg error';
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Execute Transfer';
+        }
+
+        // Auto-connect if already connected
+        if (window.solana && window.solana.isPhantom) {
+            window.solana.connect({ onlyIfTrusted: true }).then((resp) => {
+                wallet = resp.publicKey;
+                document.getElementById('walletAddress').textContent = wallet.toString();
+                document.getElementById('walletAddress').style.color = 'var(--accent-green)';
+                document.getElementById('walletStatus').classList.add('connected');
+                document.getElementById('walletBalance').classList.remove('hidden');
+                document.getElementById('connectBtn').classList.add('hidden');
+                document.getElementById('disconnectBtn').classList.remove('hidden');
+                document.getElementById('sendBtn').disabled = false;
+                updateWalletBalance();
+            }).catch(() => {});
+        }
+
+        // Init
+        if (connection) {
+            fetchFaucetBalance();
+        }
+    </script>
+</body>
+</html>

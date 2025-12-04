@@ -85,7 +85,7 @@ else
     log_info "Cloning repository..."
     $SUDO mkdir -p "$INSTALL_DIR"
     $SUDO chown $USER:$USER "$INSTALL_DIR"
-    git clone https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet.git "$INSTALL_DIR"
+    git clone https://github.com/LabsX402/phantom-paradox.git "$INSTALL_DIR"
 fi
 
 # ================================================================

@@ -21,8 +21,8 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source $HOME/.cargo/env
 
 # Clone and build
-git clone https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet.git
-cd PhantomGrid-Wraith-Testnet/agents/desktop
+git clone https://github.com/LabsX402/phantom-paradox.git
+cd phantom-paradox/agents/desktop
 cargo build --release
 
 # Run
@@ -36,8 +36,8 @@ sudo dnf install -y gcc openssl-devel pkgconfig
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source $HOME/.cargo/env
 
-git clone https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet.git
-cd PhantomGrid-Wraith-Testnet/agents/desktop
+git clone https://github.com/LabsX402/phantom-paradox.git
+cd phantom-paradox/agents/desktop
 cargo build --release
 ./target/release/phantom-agent start
 ```
@@ -53,8 +53,8 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source $HOME/.cargo/env
 
 # Clone and build
-git clone https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet.git
-cd PhantomGrid-Wraith-Testnet/agents/desktop
+git clone https://github.com/LabsX402/phantom-paradox.git
+cd phantom-paradox/agents/desktop
 cargo build --release
 ./target/release/phantom-agent start
 ```
@@ -66,8 +66,8 @@ cargo build --release
 3. Open PowerShell:
 
 ```powershell
-git clone https://github.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet.git
-cd PhantomGrid-Wraith-Testnet\agents\desktop
+git clone https://github.com/LabsX402/phantom-paradox.git
+cd phantom-paradox\agents\desktop
 cargo build --release
 .\target\release\phantom-agent.exe start
 ```

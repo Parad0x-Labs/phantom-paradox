@@ -1,0 +1,78 @@
+node_modules/
+wallets/
+farmed_wallets/
+accounting/
+*.log
+.env
+.DS_Store
+dist/
+build/
+.history
+
+# Garbage files from PowerShell errors
+)
+sages*
+*Out-Null*
+
+# Farming scripts (local only)
+*farm*.ps1
+*FARMING*.ps1
+fake_history.ps1
+
+# Old design files
+styles.css
+public/diagram.html
+
+# Sensitive files - NEVER commit these!
+*.json
+!package.json
+!package-lock.json
+!public/config.json
+# config.js is now merged into app.js (obfuscated), keep original locally only
+!public/config.js
+!tsconfig.json
+!tsconfig.*.json
+
+# Obfuscation backups - keep originals local only
+public/app.original.js
+public/config.original.js
+obfuscate.js
+
+# Private keys and wallet files
+*.txt
+!README*.txt
+!LICENSE*.txt
+*-phantom.txt
+*-master.json
+*-master-phantom.txt
+vault*.json
+blackmirror*.json
+faucet*.json
+mixing_pool.json
+
+# Logs and test data
+farming_log.txt
+*.log
+
+# Server configs with keys - contains API keys
+server.js
+config.js
+
+# Test scripts with keys
+test_*.js
+farm*.js
+fund*.js
+check_*.js
+create_*.js
+get_*.js
+find_*.js
+transfer_*.js
+send_*.js
+quick_*.js
+simple_*.js
+airdrop*.js
+process_*.js
+setup_*.js
+update_*.sh
+update_*.bat
+

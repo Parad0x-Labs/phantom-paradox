@@ -7,7 +7,7 @@ Turn your Raspberry Pi into a 24/7 passive income device. Plug in, earn crypto.
 SSH into your Pi running Raspberry Pi OS Lite, then:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/main/agents/phantom-box/scripts/setup.sh | bash
+curl -sSL https://raw.githubusercontent.com/LabsX402/phantom-paradox/main/agents/phantom-box/scripts/setup.sh | bash
 ```
 
 This will:
@@ -49,7 +49,7 @@ ssh pi@raspberrypi.local
 sudo apt update && sudo apt upgrade -y
 
 # Run setup script
-curl -sSL https://raw.githubusercontent.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/main/agents/phantom-box/scripts/setup.sh | bash
+curl -sSL https://raw.githubusercontent.com/LabsX402/phantom-paradox/main/agents/phantom-box/scripts/setup.sh | bash
 ```
 
 ### 3. Access Dashboard
@@ -111,7 +111,7 @@ sudo systemctl restart phantom-agent
 sudo systemctl stop phantom-agent
 
 # Update agent
-curl -sSL https://raw.githubusercontent.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/main/agents/phantom-box/scripts/setup.sh | bash
+curl -sSL https://raw.githubusercontent.com/LabsX402/phantom-paradox/main/agents/phantom-box/scripts/setup.sh | bash
 ```
 
 ## LED Status (if using official case)

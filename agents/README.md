@@ -6,10 +6,10 @@ Earn passive income by contributing bandwidth, compute, and verification to the 
 
 | Platform | Command |
 |----------|---------|
-| **Mobile** | Open [agent-app](https://phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet/docs/agent-app/) on phone → Install |
+| **Mobile** | Open [agent-app](https://labsx402.github.io/phantom-paradox/docs/agent-app/) on phone → Install |
 | **Browser** | Load `chromium/` or `firefox/` folder in browser |
 | **Desktop** | `cargo build --release && ./target/release/phantom-agent start` |
-| **Raspberry Pi** | `curl -sSL https://raw.githubusercontent.com/PhantomGrid-Wraight/PhantomGrid-Wraith-Testnet/main/agents/phantom-box/scripts/setup.sh \| bash` |
+| **Raspberry Pi** | `curl -sSL https://raw.githubusercontent.com/LabsX402/phantom-paradox/main/agents/phantom-box/scripts/setup.sh \| bash` |
 
 ## Agent Types
 

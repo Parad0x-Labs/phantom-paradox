@@ -35,17 +35,17 @@
 
 ## 🔗 Live Demo
 
-**Production Site:** [phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet](https://phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet/)
+**Production Site:** [labsx402.github.io/phantom-paradox](https://labsx402.github.io/phantom-paradox/)
 
 ### Pages
 
 | Page | Description |
 |------|-------------|
-| [Landing](https://phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet/) | Main site |
-| [Agent Network](https://phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet/docs/agents.html) | Join as agent, download apps |
-| [Live Simulation](https://phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet/docs/sim.html) | 24/7 trading simulation |
-| [API Docs](https://phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet/docs/api.html) | Verify transactions |
-| [Lab](https://phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet/docs/lab.html) | Live tests |
+| [Landing](https://labsx402.github.io/phantom-paradox/) | Main site |
+| [Agent Network](https://labsx402.github.io/phantom-paradox/docs/agents.html) | Join as agent, download apps |
+| [Live Simulation](https://labsx402.github.io/phantom-paradox/docs/sim.html) | 24/7 trading simulation |
+| [API Docs](https://labsx402.github.io/phantom-paradox/docs/api.html) | Verify transactions |
+| [Lab](https://labsx402.github.io/phantom-paradox/docs/lab.html) | Live tests |
 
 ---
 
@@ -96,8 +96,8 @@ Earn SOL/USDC by sharing bandwidth, compute, and verification:
 
 | Agent Type | Earnings | Download |
 |------------|----------|----------|
-| 📱 Android App | $0.15-0.30/day | [APK](https://phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet/docs/phantom-agent-android-v0.1.1.apk) |
-| 🌐 Browser Extension | $0.30-0.75/day | [Chrome](https://phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet/docs/phantom-agent-chrome-v0.1.0.zip) / [Firefox](https://phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet/docs/phantom-agent-firefox-v0.1.0.xpi) |
+| 📱 Android App | $0.15-0.30/day | [APK](https://labsx402.github.io/phantom-paradox/docs/phantom-agent-android-v0.1.1.apk) |
+| 🌐 Browser Extension | $0.30-0.75/day | [Chrome](https://labsx402.github.io/phantom-paradox/docs/phantom-agent-chrome-v0.1.0.zip) / [Firefox](https://labsx402.github.io/phantom-paradox/docs/phantom-agent-firefox-v0.1.0.xpi) |
 | 💻 Desktop | $0.75-2.25/day | Coming Soon |
 | 🔲 Phantom Box | $1.50-4.50/day | Coming Soon |
 
@@ -147,7 +147,7 @@ Earn SOL/USDC by sharing bandwidth, compute, and verification:
 
 ## 🔗 Links
 
-- **Website:** [phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet](https://phantomgrid-wraight.github.io/PhantomGrid-Wraith-Testnet/)
+- **Website:** [labsx402.github.io/phantom-paradox](https://labsx402.github.io/phantom-paradox/)
 - **Twitter:** [@SLS_0x](https://twitter.com/SLS_0x)
 
 ---
