@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit
 
 // ============== BACKEND CONNECTION ==============
 // Change this to your server URL (localhost for emulator, real IP for device)
-const val WS_URL = "ws://10.0.2.2:3000/ws" // 10.0.2.2 = localhost for Android emulator
+const val WS_URL = "ws://10.0.2.2:3001/ws" // 10.0.2.2 = localhost for Android emulator
 
 object AgentBackend {
     private var webSocket: WebSocket? = null
