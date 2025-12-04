@@ -1735,43 +1735,66 @@ async function runGearTest() {
   const prompt = document.getElementById('gearTestPrompt');
   const results = document.getElementById('gearTestResults');
   
+  if (!prompt || !results) {
+    console.error('Gear test elements not found');
+    alert('Error: Gear test UI not found');
+    return;
+  }
+  
   prompt.innerHTML = '<div style="text-align:center;padding:30px;"><div style="font-size:32px;">⏳</div><div>Running tests...</div></div>';
   
-  // Detect CPU cores
-  const cpuCores = navigator.hardwareConcurrency || 4;
-  
-  // Estimate RAM (not accurate but gives idea)
-  const ram = navigator.deviceMemory || 4;
-  
-  // Test bandwidth
-  let speed = 25;
-  let latency = 100;
   try {
+    // Detect CPU cores
+    const cpuCores = navigator.hardwareConcurrency || 4;
+    
+    // Estimate RAM (Chrome only, fallback to 4GB)
+    const ram = navigator.deviceMemory || 4;
+    
+    // Test latency to Solana devnet
+    let speed = 25;
+    let latency = 100;
+    
     const start = performance.now();
-    await fetch('https://api.devnet.solana.com', { method: 'HEAD', mode: 'no-cors' });
-    latency = Math.floor(performance.now() - start);
-    speed = Math.max(10, 100 - latency); // Rough estimate
-  } catch(e) {}
-  
-  // Show results
-  document.getElementById('gearCpu').textContent = cpuCores;
-  document.getElementById('gearRam').textContent = ram;
-  document.getElementById('gearSpeed').textContent = speed;
-  document.getElementById('gearLatency').textContent = latency;
-  
-  // Set suggested values
-  document.getElementById('cpuSlider').value = Math.min(50, cpuCores * 10);
-  document.getElementById('ramSlider').value = Math.min(ram * 512, 4096);
-  document.getElementById('bwSlider').value = Math.min(speed, 50);
-  
-  updateSlider('cpu');
-  updateSlider('ram');
-  updateSlider('bw');
-  
-  prompt.style.display = 'none';
-  results.style.display = 'block';
-  
-  logAudit('GEAR_TEST', 'Hardware scan completed', { cpuCores, ram, speed, latency });
+    try {
+      await fetch('https://api.devnet.solana.com', { method: 'POST', mode: 'cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'getHealth' }) });
+      latency = Math.floor(performance.now() - start);
+    } catch(e) {
+      // Fallback ping test
+      try {
+        await fetch('https://www.google.com/favicon.ico', { mode: 'no-cors', cache: 'no-store' });
+        latency = Math.floor(performance.now() - start);
+      } catch(e2) {
+        latency = 150;
+      }
+    }
+    
+    // Estimate speed from latency (rough)
+    speed = Math.max(10, Math.min(100, Math.floor(200 - latency)));
+    
+    // Show results
+    document.getElementById('gearCpu').textContent = cpuCores;
+    document.getElementById('gearRam').textContent = ram;
+    document.getElementById('gearSpeed').textContent = speed;
+    document.getElementById('gearLatency').textContent = latency;
+    
+    // Set suggested values
+    document.getElementById('cpuSlider').value = Math.min(50, cpuCores * 10);
+    document.getElementById('ramSlider').value = Math.min(ram * 1024, 4096);
+    document.getElementById('bwSlider').value = Math.min(speed, 50);
+    
+    updateSlider('cpu');
+    updateSlider('ram');
+    updateSlider('bw');
+    
+    prompt.style.display = 'none';
+    results.style.display = 'block';
+    
+    logAudit('GEAR_TEST', 'Hardware scan completed', { cpuCores, ram, speed, latency });
+    
+  } catch(err) {
+    console.error('Gear test failed:', err);
+    prompt.innerHTML = '<div style="text-align:center;padding:30px;color:var(--red);"><div style="font-size:32px;">❌</div><div>Test failed. Try again.</div><button onclick="runGearTest()" class="download-btn" style="margin-top:15px;">🔄 Retry</button></div>';
+  }
 }
 
 // Toggle agent on/off
