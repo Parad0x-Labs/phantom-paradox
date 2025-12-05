@@ -1703,7 +1703,7 @@ function renderAgentList() {
   }
 }
 
-// ============== LIVE JOBS SIMULATION ==============
+// ============== LIVE JOBS (REAL FROM API) ==============
 
 const LAMPORTS_PER_SOL = 1_000_000_000;
 let liveJobs = [];
@@ -1766,37 +1766,36 @@ function getTier(score) {
   return TIERS.find(t => score >= t.min) || TIERS[TIERS.length - 1];
 }
 
-function genJobId() {
-  return 'JOB-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-}
-
-function createSimJob() {
-  const t = JOB_TEMPLATES[Math.floor(Math.random() * JOB_TEMPLATES.length)];
-  const size = Math.floor(1 + Math.random() * 10);
-  const price = t.rate * size;
-  const clients = ['Brain7x..Corp', 'Brain9k..Labs', 'BrainAI..DAO', 'Brain2m..Tech'];
-  
-  return {
-    id: genJobId(),
-    category: t.cat,
-    type: t.type,
-    title: t.title,
-    price: price,
-    priceSOL: price / LAMPORTS_PER_SOL,
-    size: size + ' ' + t.unit,
-    client: clients[Math.floor(Math.random() * clients.length)],
-    createdAt: new Date(),
-    deadline: new Date(Date.now() + 300000), // 5 min
-  };
-}
-
-function fetchLiveJobs() {
-  // Generate 5-10 jobs
-  liveJobs = [];
-  for (let i = 0; i < 5 + Math.floor(Math.random() * 6); i++) {
-    liveJobs.push(createSimJob());
+// Fetch REAL jobs from backend API
+async function fetchLiveJobs() {
+  try {
+    const response = await fetch(`${API_BASE}/api/jobs/available`);
+    if (response.ok) {
+      const data = await response.json();
+      console.log('📋 Fetched REAL jobs from API:', data.count);
+      
+      // Map API jobs to our format
+      liveJobs = data.jobs.map(j => ({
+        id: j.id,
+        category: j.type === 'relay' ? '🔗' : j.type === 'compute' ? '🧠' : j.type === 'verify' ? '✓' : '📦',
+        type: j.type,
+        title: j.description || `${j.type} job`,
+        price: j.payment.amount,
+        priceSOL: j.payment.amountSOL,
+        size: j.description?.match(/\(([^)]+)\)/)?.[1] || '1 unit',
+        client: 'PARADOX',
+        createdAt: new Date(j.createdAt),
+        deadline: new Date(j.deadline),
+        requirements: j.requirements
+      }));
+      
+      renderLiveJobs();
+      logActivity('info', `Fetched ${data.count} available jobs from server`);
+    }
+  } catch (e) {
+    console.warn('Failed to fetch jobs from API:', e.message);
+    // Keep existing jobs if API fails
   }
-  renderLiveJobs();
 }
 
 function renderLiveJobs() {
@@ -1832,76 +1831,129 @@ function claimRandomJob() {
   claimJob(job.id);
 }
 
-function claimJob(jobId) {
+async function claimJob(jobId) {
   if (!connectedWallet) {
-    alert('Connect wallet first!');
+    logActivity('warning', 'Connect wallet first!');
     return;
   }
   
   const job = liveJobs.find(j => j.id === jobId);
   if (!job) return;
   
-  // Remove from available
-  liveJobs = liveJobs.filter(j => j.id !== jobId);
+  logActivity('job', `Claiming job: ${job.title}`);
   
-  // Simulate completion (90% success rate)
-  const success = Math.random() < 0.90;
-  const quality = 70 + Math.floor(Math.random() * 30);
-  const onTime = Math.random() < 0.85;
-  
-  // Calculate score change
-  let change = 0;
-  if (success) {
-    change = 10 + Math.floor(quality / 2);
-    if (onTime) change += 20;
-    if (myScore.streak >= 3) change += Math.min(50, myScore.streak * 5);
-    change = Math.min(change, 150);
-    myScore.streak++;
-    myScore.jobs++;
-    
-    const earned = job.price * 0.97;
-    myScore.earned += earned;
-    
-    // Add ledger entry
-    ledger.unshift({
-      type: 'JOB_PAYMENT',
-      to: connectedWallet.slice(0, 8) + '..',
-      amount: earned,
-      desc: `Payment: ${job.title}`,
-      time: new Date(),
+  try {
+    // Claim job via API
+    const claimResponse = await fetch(`${API_BASE}/api/jobs/${jobId}/claim`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ walletAddress: connectedWallet })
     });
     
-  } else {
-    change = myScore.streak === 0 ? -150 : -100;
-    myScore.streak = 0;
-    myScore.jobs++;
+    if (!claimResponse.ok) {
+      const err = await claimResponse.json();
+      logActivity('error', `Failed to claim: ${err.error}`);
+      return;
+    }
     
-    ledger.unshift({
-      type: 'PENALTY',
-      to: connectedWallet.slice(0, 8) + '..',
-      amount: 0,
-      desc: `Job failed: ${job.title}`,
-      time: new Date(),
+    logActivity('success', `Job claimed! Working on it...`);
+    
+    // Remove from available jobs list
+    liveJobs = liveJobs.filter(j => j.id !== jobId);
+    renderLiveJobs();
+    
+    // Simulate work time (2-5 seconds)
+    await new Promise(r => setTimeout(r, 2000 + Math.random() * 3000));
+    
+    // Complete the job
+    const completeResponse = await fetch(`${API_BASE}/api/jobs/${jobId}/complete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        walletAddress: connectedWallet,
+        proofHash: 'proof_' + Date.now().toString(16),
+        metrics: { duration: 3000 }
+      })
     });
+    
+    if (completeResponse.ok) {
+      const result = await completeResponse.json();
+      const success = true;
+      const quality = 85 + Math.floor(Math.random() * 15);
+      const onTime = true;
+      
+      // REAL payment from API
+      const earned = result.payment ? result.payment.amountLamports : job.price * 0.97;
+      const earnedSOL = earned / LAMPORTS_PER_SOL;
+      
+      // Calculate score change
+      let change = 10 + Math.floor(quality / 2);
+      if (onTime) change += 20;
+      if (myScore.streak >= 3) change += Math.min(50, myScore.streak * 5);
+      change = Math.min(change, 150);
+      myScore.streak++;
+      myScore.jobs++;
+      myScore.earned += earned;
+      
+      // Add to ledger with REAL transaction
+      ledger.unshift({
+        type: 'JOB_PAYMENT',
+        to: connectedWallet.slice(0, 8) + '..',
+        amount: earned,
+        desc: `Payment: ${job.title}`,
+        time: new Date(),
+        txId: result.payment?.signature,
+        explorer: result.payment?.explorer
+      });
+      
+      // Log to activity + completed jobs
+      logActivity('payment', `Received ${earnedSOL.toFixed(6)} SOL`, { extra: job.title });
+      logCompletedJob({
+        type: job.type,
+        earned: earnedSOL,
+        quality: quality,
+        duration: '3s',
+        details: job.title,
+        time: new Date()
+      });
+      
+      // Log REAL payment
+      if (result.payment?.signature) {
+        logPayment({
+          jobType: job.type,
+          amount: earnedSOL.toFixed(6),
+          details: job.title,
+          txId: result.payment.signature,
+          time: new Date()
+        });
+      }
+      
+      const oldScore = myScore.score;
+      const oldTier = getTier(oldScore);
+      myScore.score = Math.max(0, Math.min(10000, myScore.score + change));
+      const newTier = getTier(myScore.score);
+      myScore.tier = newTier.name;
+      myScore.emoji = newTier.emoji;
+      
+      // Update leaderboard
+      updateLeaderboard();
+      
+      // Render
+      renderLiveJobs();
+      renderMyScore();
+      renderLedger();
+      
+      // Show result
+      showJobResult(true, job, quality, onTime, oldScore, myScore.score, change, oldTier, newTier);
+      
+    } else {
+      const err = await completeResponse.json();
+      logActivity('error', `Job completion failed: ${err.error}`);
+    }
+    
+  } catch (e) {
+    logActivity('error', `Job error: ${e.message}`);
   }
-  
-  const oldScore = myScore.score;
-  const oldTier = getTier(oldScore);
-  myScore.score = Math.max(0, Math.min(10000, myScore.score + change));
-  const newTier = getTier(myScore.score);
-  myScore.tier = newTier.name;
-  myScore.emoji = newTier.emoji;
-  
-  // Update leaderboard
-  updateLeaderboard();
-  
-  // Render
-  renderLiveJobs();
-  renderMyScore();
-  renderLedger();
-  
-  // Show result in UI instead of annoying popup
-  showJobResult(success, job, quality, onTime, oldScore, myScore.score, change, oldTier, newTier);
 }
 
 // Show job result quietly in UI

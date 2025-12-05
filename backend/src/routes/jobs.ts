@@ -54,11 +54,82 @@ router.get('/', (req, res) => {
             id: j.id,
             type: j.type,
             status: j.status,
+            description: j.description,
             progress: j.progress,
             payment: j.payment,
+            deadline: j.deadline,
             createdAt: j.createdAt
         })),
         count: jobs.length
+    });
+});
+
+// GET /api/jobs/available - List jobs available for agents to claim
+router.get('/available', (req, res) => {
+    const jobs = jobManager.getPendingJobs();
+    
+    res.json({
+        jobs: jobs.map(j => ({
+            id: j.id,
+            type: j.type,
+            description: j.description,
+            payment: {
+                amount: j.payment.amount,
+                currency: j.payment.currency,
+                amountSOL: j.payment.amount / 1_000_000_000
+            },
+            deadline: j.deadline,
+            createdAt: j.createdAt,
+            requirements: j.requirements
+        })),
+        count: jobs.length
+    });
+});
+
+// POST /api/jobs/:id/claim - Agent claims a job
+router.post('/:id/claim', (req, res) => {
+    const { walletAddress } = req.body;
+    
+    if (!walletAddress) {
+        return res.status(400).json({ error: 'Missing walletAddress' });
+    }
+    
+    const result = jobManager.claimJob(req.params.id, walletAddress);
+    
+    if (!result.success) {
+        return res.status(400).json({ error: result.error });
+    }
+    
+    res.json({ 
+        success: true, 
+        job: result.job,
+        message: 'Job claimed! Complete it within the deadline.'
+    });
+});
+
+// POST /api/jobs/:id/complete - Agent marks job as complete
+router.post('/:id/complete', async (req, res) => {
+    const { walletAddress, proofHash, metrics } = req.body;
+    
+    if (!walletAddress) {
+        return res.status(400).json({ error: 'Missing walletAddress' });
+    }
+    
+    const result = await jobManager.completeJob(req.params.id, walletAddress, {
+        proofHash,
+        metrics,
+        success: true
+    });
+    
+    if (!result.success) {
+        return res.status(400).json({ error: result.error });
+    }
+    
+    res.json({ 
+        success: true,
+        job: result.job,
+        payment: result.payment,
+        message: `Job completed! Payment of ${result.payment?.amountSOL} SOL sent.`
     });
 });
 

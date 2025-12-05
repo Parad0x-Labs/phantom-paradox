@@ -131,6 +131,7 @@ server.listen(PORT, () => {
     // Start background tasks
     agentManager.startCleanupTask();
     jobManager.startAssignmentLoop();
+    jobManager.startJobGenerator(); // Generate real test jobs
 });
 
 // Graceful shutdown

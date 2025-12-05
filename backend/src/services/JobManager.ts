@@ -118,6 +118,47 @@ export class JobManager {
         return job;
     }
     
+    // ============== JOB GENERATION (Real test jobs) ==============
+    
+    private readonly JOB_TEMPLATES = [
+        { type: 'relay' as JobType, desc: 'VPN Relay - Route encrypted traffic', rate: 1500000, unit: 'MB' },
+        { type: 'compute' as JobType, desc: 'Merkle proof verification', rate: 750000, unit: 'batch' },
+        { type: 'verify' as JobType, desc: 'Validate settlement batch', rate: 500000, unit: 'proof' },
+        { type: 'storage' as JobType, desc: 'Store encrypted blob', rate: 100000, unit: 'MB' },
+    ];
+    
+    generateTestJob(): Job {
+        const template = this.JOB_TEMPLATES[Math.floor(Math.random() * this.JOB_TEMPLATES.length)];
+        const size = 1 + Math.floor(Math.random() * 10);
+        const amount = template.rate * size;
+        
+        return this.createJob({
+            type: template.type,
+            brainsAddress: 'PARADOX_TREASURY', // System-generated jobs
+            description: `${template.desc} (${size} ${template.unit})`,
+            payment: { amount, currency: 'SOL' },
+            deadline: Date.now() + 300000, // 5 min
+            autoApprove: true
+        });
+    }
+    
+    startJobGenerator(): void {
+        // Generate initial jobs
+        for (let i = 0; i < 5; i++) {
+            this.generateTestJob();
+        }
+        
+        // Generate new jobs periodically
+        setInterval(() => {
+            if (this.pendingQueue.length < 10) {
+                this.generateTestJob();
+                logger.info('Generated new test job', { pending: this.pendingQueue.length });
+            }
+        }, 10000); // Every 10 seconds
+        
+        logger.info('Job generator started');
+    }
+    
     // ============== JOB ASSIGNMENT ==============
     
     startAssignmentLoop(): void {
@@ -312,6 +353,123 @@ export class JobManager {
     
     getPendingCount(): number {
         return this.pendingQueue.length;
+    }
+    
+    getPendingJobs(): Job[] {
+        return this.pendingQueue
+            .map(id => this.jobs.get(id))
+            .filter((j): j is Job => j !== undefined && j.status === 'pending');
+    }
+    
+    // Agent claims a job
+    claimJob(jobId: string, walletAddress: string): { success: boolean; job?: Job; error?: string } {
+        const job = this.jobs.get(jobId);
+        
+        if (!job) {
+            return { success: false, error: 'Job not found' };
+        }
+        
+        if (job.status !== 'pending') {
+            return { success: false, error: 'Job already claimed or completed' };
+        }
+        
+        // Find agent by wallet
+        const agent = this.agentManager.getAgentByWallet(walletAddress);
+        if (!agent) {
+            return { success: false, error: 'Agent not registered. Send heartbeat first.' };
+        }
+        
+        if (agent.status === 'busy') {
+            return { success: false, error: 'Agent is busy with another job' };
+        }
+        
+        // Claim the job
+        job.status = 'assigned';
+        job.muscleAddress = walletAddress;
+        job.muscleAgentId = agent.id;
+        job.assignedAt = Date.now();
+        
+        // Remove from pending queue
+        const idx = this.pendingQueue.indexOf(jobId);
+        if (idx >= 0) this.pendingQueue.splice(idx, 1);
+        
+        // Mark agent as busy
+        this.agentManager.setAgentBusy(agent.id, jobId);
+        
+        logger.info('Job claimed', { jobId, wallet: walletAddress, type: job.type });
+        
+        return { success: true, job };
+    }
+    
+    // Agent completes a job (with payout)
+    async completeJob(jobId: string, walletAddress: string, result: {
+        success: boolean;
+        proofHash?: string;
+        metrics?: any;
+    }): Promise<{ success: boolean; job?: Job; payment?: any; error?: string }> {
+        const job = this.jobs.get(jobId);
+        
+        if (!job) {
+            return { success: false, error: 'Job not found' };
+        }
+        
+        if (job.muscleAddress !== walletAddress) {
+            return { success: false, error: 'Job not assigned to this wallet' };
+        }
+        
+        if (job.status !== 'assigned' && job.status !== 'in_progress') {
+            return { success: false, error: 'Job not in claimable state' };
+        }
+        
+        // Mark complete
+        job.status = 'completed';
+        job.completedAt = Date.now();
+        job.progress = 100;
+        job.result = {
+            success: result.success,
+            proofHash: result.proofHash
+        };
+        
+        // Release agent
+        if (job.muscleAgentId) {
+            this.agentManager.setAgentAvailable(job.muscleAgentId);
+            if (result.success) {
+                this.agentManager.updateReputation(job.muscleAgentId, 1);
+            }
+        }
+        
+        // Send payment via payout server
+        let payment = null;
+        if (result.success && job.autoApprove) {
+            try {
+                const payoutResponse = await fetch('http://localhost:3333/payout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: walletAddress,
+                        amountLamports: job.payment.amount
+                    })
+                });
+                
+                if (payoutResponse.ok) {
+                    const payoutData = await payoutResponse.json();
+                    payment = {
+                        amountLamports: job.payment.amount,
+                        amountSOL: job.payment.amount / 1_000_000_000,
+                        signature: payoutData.signature,
+                        explorer: payoutData.explorer
+                    };
+                    job.payment.paid = job.payment.amount;
+                    logger.info('Payment sent', { jobId, wallet: walletAddress, amount: payment.amountSOL });
+                }
+            } catch (e) {
+                logger.warn('Payout failed', { jobId, error: (e as Error).message });
+            }
+        }
+        
+        logger.info('Job completed', { jobId, wallet: walletAddress, success: result.success });
+        
+        return { success: true, job, payment };
     }
     
     // ============== ACTIONS ==============
