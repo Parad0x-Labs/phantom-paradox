@@ -173,12 +173,31 @@ const Nulla = {
   inputEl: null,
   avatarEl: null,
 
-  // Initialize
+  // Initialize with Shadow DOM isolation
   async init(containerId = 'nulla-app') {
-    this.container = document.getElementById(containerId);
-    if (!this.container) {
+    const hostElement = document.getElementById(containerId);
+    if (!hostElement) {
       console.error('Nulla: Container not found');
       return;
+    }
+
+    // 🛡️ SHADOW DOM ISOLATION (Zone 3 Fix)
+    // Creates an isolated "bunker" that protects Nulla from external CSS/JS attacks
+    try {
+      this.shadowRoot = hostElement.attachShadow({ mode: 'closed' });
+      this.container = document.createElement('div');
+      this.container.id = 'nulla-shadow-container';
+      this.shadowRoot.appendChild(this.container);
+      
+      // Inject styles into shadow (must be inside shadow root)
+      await this.injectShadowStyles();
+      
+      console.log('🛡️ Nulla: Shadow DOM Protocol Active - Isolation engaged');
+    } catch (e) {
+      // Fallback to regular DOM if Shadow DOM fails (older browsers)
+      console.warn('Nulla: Shadow DOM unavailable, using fallback', e);
+      this.container = hostElement;
+      this.shadowRoot = null;
     }
 
     // Initialize IndexedDB
@@ -226,6 +245,18 @@ const Nulla = {
 
     // Start spontaneous behaviors (living character)
     this.startSpontaneousBehaviors();
+
+    // 🛡️ CSP Violation Handler - Nulla glitches on security breaches
+    document.addEventListener('securitypolicyviolation', (e) => {
+      this.setMood('glitch');
+      this.addMessage('nulla', 
+        `🛡️ GLITCH BREACH! CSP blocked: ${e.violatedDirective}<br>
+         Attempted: ${e.blockedURI?.slice(0, 30) || 'unknown'}...<br>
+         Shield holding! 🔴`,
+        'glitch'
+      );
+      console.warn('[Nulla CSP] Violation:', e.violatedDirective, e.blockedURI);
+    });
 
     console.log('Nulla initialized:', this.state.evolution.title, '| XP:', this.state.evolution.xp);
   },
@@ -311,7 +342,7 @@ const Nulla = {
 
   async updateSoulHash() {
     this.state.soulHash = await this.computeSoulHash();
-    const hashEl = document.getElementById('nulla-hash');
+    const hashEl = this.$('#nulla-hash');
     if (hashEl) {
       hashEl.innerHTML = `Soul: <code>${this.state.soulHash.slice(0, 16)}...</code>`;
       hashEl.title = `Full hash: ${this.state.soulHash}\nClick to copy`;
@@ -376,15 +407,22 @@ const Nulla = {
       </div>
     `;
 
-    this.messagesEl = document.getElementById('nulla-messages');
-    this.inputEl = document.getElementById('nulla-input');
-    this.avatarEl = document.getElementById('nulla-char');
+    // Query elements from shadow root or document
+    const root = this.shadowRoot || document;
+    this.messagesEl = root.getElementById ? root.getElementById('nulla-messages') : root.querySelector('#nulla-messages');
+    this.inputEl = root.getElementById ? root.getElementById('nulla-input') : root.querySelector('#nulla-input');
+    this.avatarEl = root.getElementById ? root.getElementById('nulla-char') : root.querySelector('#nulla-char');
+  },
+
+  // Helper to query elements (shadow-aware)
+  $(selector) {
+    return this.shadowRoot ? this.shadowRoot.querySelector(selector) : document.querySelector(selector);
   },
 
   // Setup event listeners
   setupListeners() {
-    const form = document.getElementById('nulla-form');
-    const input = document.getElementById('nulla-input');
+    const form = this.$('#nulla-form');
+    const input = this.$('#nulla-input');
     
     if (!form || !input) {
       console.error('Nulla: Form or input not found!');
@@ -396,7 +434,7 @@ const Nulla = {
     form.parentNode.replaceChild(newForm, form);
     
     // Get fresh reference to input after clone
-    this.inputEl = document.getElementById('nulla-input');
+    this.inputEl = this.$('#nulla-input');
     
     // Form submit handler
     newForm.addEventListener('submit', (e) => {
@@ -1027,8 +1065,8 @@ const Nulla = {
     // Update XP bar
     const nextStage = EVOLUTION_STAGES.find(s => s.xp > xp) || EVOLUTION_STAGES[4];
     const progress = nextStage ? (xp / nextStage.xp * 100) : 100;
-    const xpBar = document.getElementById('xp-bar');
-    const xpText = document.getElementById('xp-text');
+    const xpBar = this.$('#xp-bar');
+    const xpText = this.$('#xp-text');
     if (xpBar) xpBar.style.width = `${Math.min(100, progress)}%`;
     if (xpText) xpText.textContent = `${xp} / ${nextStage?.xp || '∞'} XP`;
   },
@@ -1341,6 +1379,45 @@ const Nulla = {
     this.addMessage('nulla', html, 'safe');
   },
 
+  // 🛡️ SHADOW DOM: Inject styles into isolated container
+  async injectShadowStyles() {
+    if (!this.shadowRoot) return;
+    
+    const style = document.createElement('style');
+    
+    // Try to fetch the CSS file
+    try {
+      const cssPath = document.querySelector('link[href*="nulla.css"]')?.href 
+                   || '../assets/nulla.css';
+      const response = await fetch(cssPath);
+      if (response.ok) {
+        style.textContent = await response.text();
+      } else {
+        throw new Error('CSS fetch failed');
+      }
+    } catch (e) {
+      // Fallback: Essential inline styles
+      console.warn('Nulla: Could not fetch CSS, using inline fallback');
+      style.textContent = `
+        :host { all: initial; z-index: 2147483647; position: fixed; bottom: 20px; right: 20px; }
+        #nulla-shadow-container { 
+          width: 320px; background: rgba(10, 10, 20, 0.95); 
+          border: 1px solid rgba(0, 255, 255, 0.3); border-radius: 12px;
+          font-family: 'JetBrains Mono', monospace; color: #fff; font-size: 12px;
+        }
+        .nulla-messages { max-height: 200px; overflow-y: auto; padding: 10px; }
+        .nulla-msg p { margin: 5px 0; }
+        .nulla-msg-nulla p { color: #00ffff; }
+        #nulla-input { width: 100%; background: #111; border: 1px solid #333; 
+          color: #fff; padding: 8px; border-radius: 4px; }
+        button { background: #00ffff; color: #000; border: none; padding: 5px 10px; 
+          cursor: pointer; border-radius: 4px; margin: 2px; }
+      `;
+    }
+    
+    this.shadowRoot.prepend(style);
+  },
+
   // Cross-tab sync
   onStorageChange(e) {
     if (e.key === NULLA_STATE_KEY && e.newValue) {
@@ -1649,7 +1726,7 @@ const Nulla = {
 
   // Quick visual glitch
   glitchBlink() {
-    const avatar = document.getElementById('nulla-avatar');
+    const avatar = this.$('#nulla-char');
     if (avatar) {
       avatar.classList.add('glitch-blink');
       setTimeout(() => avatar.classList.remove('glitch-blink'), 200);
