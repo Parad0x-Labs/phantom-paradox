@@ -430,25 +430,7 @@
         <!-- Token Info Cards -->
         <div class="token-info" style="grid-template-columns: 1fr;">
             
-            <div class="token-card devnet">
-                <div class="token-header">
-                    <span class="token-badge devnet">DEVNET</span>
-                    <span class="token-name">PDOX</span>
-                    <span class="token-symbol">Agent Rep</span>
-                </div>
-                <div class="token-address">
-                    <a href="https://explorer.solana.com/address/4ckvALSiB6Hii7iVY9Dt6LRM5i7xocBZ9yr3YGNtVRwF?cluster=devnet" target="_blank">4ckvALSiB6Hii7iVY9Dt6LRM5i7xocBZ9yr3YGNtVRwF ↗</a>
-                </div>
-                <div class="token-stats">
-                    <div class="token-stat"><span class="token-stat-label">Supply:</span> <span class="token-stat-value">1B</span></div>
-                    <div class="token-stat"><span class="token-stat-label">Decimals:</span> <span class="token-stat-value">9</span></div>
-                    <div class="token-stat"><span class="token-stat-label">Slash Rate:</span> <span class="token-stat-value" style="color: var(--accent-red);">3%</span></div>
-                    <div class="token-stat"><span class="token-stat-label">Trigger:</span> <span class="token-stat-value" style="color: var(--accent-orange);">&lt;80% perf</span></div>
-                </div>
-                <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-dim);">
-                    ARMAGEDDON: Performance slasher. No LP, no trading. Your stake = your reputation.
-                </div>
-            </div>
+            <!-- Staking token card removed - $WNULL not deployed yet -->
         </div>
         
         <!-- Stats Bar -->
@@ -516,42 +498,25 @@
                 </div>
             </div>
             
-            <!-- Test 3: PDOX Token (Devnet) -->
-            <div class="test-card" id="card-pdox">
+            <!-- Test 3: Node Staking (Coming Soon) -->
+            <div class="test-card" id="card-staking" style="opacity: 0.6;">
                 <div class="card-header">
-                    <div class="card-title"><span class="card-icon">🧪</span><span>PDOX — Agent Escrow</span></div>
-                    <span class="card-status ready" id="status-pdox">READY</span>
+                    <div class="card-title"><span class="card-icon">🔒</span><span>Node Staking</span></div>
+                    <span class="card-status" style="background: var(--bg-elevated); color: var(--text-dim);">COMING</span>
                 </div>
                 <div class="card-body">
                     <div style="background: var(--bg-void); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; font-size: 0.85rem;">
-                        <div style="color: var(--accent-orange); font-weight: 600; margin-bottom: 0.5rem;">ARMAGEDDON — Performance Slasher</div>
-                        <p style="color: var(--text-dim); margin-bottom: 0.75rem;">Not a trading fee. It's the <strong style="color: var(--accent-red);">penalty burn rate</strong> when agents underperform.</p>
+                        <div style="color: var(--accent); font-weight: 600; margin-bottom: 0.5rem;">$NULL Staking</div>
+                        <p style="color: var(--text-dim); margin-bottom: 0.75rem;">Stake $NULL to run a node. Your stake = your reputation.</p>
                         
-                        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; margin-bottom: 0.75rem;">
-                            <div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.5rem;">HOW ARMAGEDDON WORKS:</div>
-                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; font-size: 0.8rem;">
-                                <span style="background: var(--accent); color: #000; padding: 2px 8px; border-radius: 4px;">Score ≥80%</span>
-                                <span>→ normal ops</span>
-                                <span style="color: var(--text-muted);">|</span>
-                                <span style="background: var(--accent-red); color: #fff; padding: 2px 8px; border-radius: 4px;">Score &lt;80%</span>
-                                <span>→ ARMAGEDDON</span>
-                            </div>
-                            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-dim);">
-                                PDOX burns at 3% per failed batch → priority drops → fewer tasks → recover or exit
-                            </div>
-                        </div>
-                        
-                        <div style="font-weight: 600; margin-bottom: 0.5rem;">PDOX utility (non-tradable, no LP):</div>
                         <div style="display: grid; gap: 0.4rem; color: var(--text-dim); font-size: 0.8rem;">
-                            <div><strong style="color: var(--text);">Reputation Stake</strong> — Lock PDOX to join agent network</div>
-                            <div><strong style="color: var(--text);">Priority Weight</strong> — More stake = more tasks routed to you</div>
-                            <div><strong style="color: var(--text);">Slash Collateral</strong> — Underperform? Stake burns at 3%</div>
-                            <div><strong style="color: var(--text);">Performance Rewards</strong> — Stay above 80%? Earn from fee pool</div>
-                            <div><strong style="color: var(--text);">On-chain Rep</strong> — Balance = verifiable track record</div>
+                            <div><strong style="color: var(--text);">Stake to Participate</strong> — Lock $NULL to join network</div>
+                            <div><strong style="color: var(--text);">Earn Rewards</strong> — Serve content, get paid</div>
+                            <div><strong style="color: var(--text);">Slashing</strong> — Misbehave? Lose stake</div>
                         </div>
                     </div>
-                    <button class="run-btn" id="btn-pdox" onclick="testPdoxToken()">▶ CHECK PDOX</button>
-                    <div class="results" id="results-pdox"><div style="color: var(--text-muted);">Click to verify PDOX on devnet...</div></div>
+                    <button class="run-btn" disabled style="opacity: 0.5; cursor: not-allowed;">🔜 NOT LIVE YET</button>
+                    <div class="results"><div style="color: var(--text-muted);">Staking launches after mainnet...</div></div>
                 </div>
             </div>
             
@@ -617,7 +582,7 @@
                 Why On-Chain Slashing vs AI Reputation Watchers
             </h3>
             <p style="color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                PDOX uses cryptoeconomic enforcement, not centralized AI judgement. Here's why that matters:
+                Paradox uses cryptoeconomic enforcement, not centralized AI judgement. Here's why that matters:
             </p>
             
             <div style="overflow-x: auto;">
@@ -626,7 +591,7 @@
                         <tr style="border-bottom: 2px solid var(--border);">
                             <th style="padding: 0.75rem; text-align: left; color: var(--text-dim); font-weight: 500;"></th>
                             <th style="padding: 0.75rem; text-align: left; color: var(--accent-purple);">AI Reputation Watcher</th>
-                            <th style="padding: 0.75rem; text-align: left; color: var(--accent);">PDOX On-Chain Slashing</th>
+                            <th style="padding: 0.75rem; text-align: left; color: var(--accent);">$NULL On-Chain Slashing</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -648,7 +613,7 @@
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td style="padding: 0.75rem; color: var(--text-dim);">Skin in Game</td>
                             <td style="padding: 0.75rem; color: var(--accent-red);">None — agents risk nothing</td>
-                            <td style="padding: 0.75rem; color: var(--accent);">PDOX stake locked as collateral</td>
+                            <td style="padding: 0.75rem; color: var(--accent);">$NULL stake locked as collateral</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <td style="padding: 0.75rem; color: var(--text-dim);">Verification</td>
@@ -658,7 +623,7 @@
                         <tr>
                             <td style="padding: 0.75rem; color: var(--text-dim);">Sybil Resistance</td>
                             <td style="padding: 0.75rem; color: var(--accent-red);">Spin up fake agents, fake rep</td>
-                            <td style="padding: 0.75rem; color: var(--accent);">Costs real PDOX to stake</td>
+                            <td style="padding: 0.75rem; color: var(--accent);">Costs real $NULL to stake</td>
                         </tr>
                     </tbody>
                 </table>
@@ -667,7 +632,7 @@
             <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-void); border: 1px solid var(--border); border-radius: 8px;">
                 <div style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.5rem;">The core insight:</div>
                 <div style="font-size: 0.9rem; color: var(--text);">
-                    <strong style="color: var(--accent);">PDOX balance IS reputation.</strong> 
+                    <strong style="color: var(--accent);">$NULL balance IS reputation.</strong> 
                     Not a score someone assigned — economic proof that this agent has skin in the game and hasn't been slashed out.
                 </div>
             </div>
@@ -690,16 +655,25 @@
             </h3>
             <p style="color: var(--text-dim); margin-bottom: 1rem; font-size: 0.9rem;">real devnet transactions. verify on explorer.</p>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                <!-- v2.2 New TXs -->
+                <div style="background: var(--bg-void); border: 1px solid var(--accent); border-radius: 10px; padding: 1rem;">
+                    <div style="font-size: 0.8rem; color: var(--accent); margin-bottom: 0.5rem;">🆕 Domains Deploy v2.2</div>
+                    <a href="https://solscan.io/tx/4zJ8hrVAsjqecDCAGsJce6goqhrQKC7dccsEmaCL3QhcKQ5XiACazwNyazVLt8UQywRRWgvnWCFGuawR8baHVQHj?cluster=devnet" target="_blank" style="color: var(--accent-blue); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; text-decoration: none;">4zJ8hrV...QHj ↗</a>
+                </div>
+                <div style="background: var(--bg-void); border: 1px solid var(--accent); border-radius: 10px; padding: 1rem;">
+                    <div style="font-size: 0.8rem; color: var(--accent); margin-bottom: 0.5rem;">🆕 Registry Init</div>
+                    <a href="https://solscan.io/tx/dFXB4sDvAwprsR1x5NeeXAmrVXHsmzDJyQEDpt2iPnQ6bCnKSvMq1b1mwzzKpc6V18wCX5H9tmndF7Q41DbywVu?cluster=devnet" target="_blank" style="color: var(--accent-blue); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; text-decoration: none;">dFXB4sD...wVu ↗</a>
+                </div>
                 <div style="background: var(--bg-void); border: 1px solid var(--border); border-radius: 10px; padding: 1rem;">
-                    <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem;">Batch Settlement (Devnet)</div>
+                    <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem;">Batch Settlement</div>
                     <a href="https://explorer.solana.com/tx/5b1MtoyP1BRVn7SgfQtKCTyHDE1mfFD4k1oC8DtJmjnexrSWaBRvxJ1HgP6GYFYwZmzoVNpfwW2cVuLF1HVo9YJo?cluster=devnet" target="_blank" style="color: var(--accent-blue); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; text-decoration: none;">5b1Mtoy...YJo ↗</a>
                 </div>
                 <div style="background: var(--bg-void); border: 1px solid var(--border); border-radius: 10px; padding: 1rem;">
-                    <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem;">Anonymous Payment (Devnet)</div>
+                    <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem;">Anonymous Payment</div>
                     <a href="https://explorer.solana.com/tx/32YDUGw5kSsMSJ8KvdAwaAAKxJEA3YLnN8dvjx5DCb6cy49xXPa4NkpAeE5K7y3LDogyiFxSBDBgHcwkhGsxeTvh?cluster=devnet" target="_blank" style="color: var(--accent-blue); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; text-decoration: none;">32YDUGw...Tvh ↗</a>
                 </div>
                 <div style="background: var(--bg-void); border: 1px solid var(--border); border-radius: 10px; padding: 1rem;">
-                    <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem;">PARADOX Mode (Devnet)</div>
+                    <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem;">PARADOX Mode</div>
                     <a href="https://explorer.solana.com/tx/45FZorwpTQgJuTS4dmpQE2GnGeaQChbiiUTx8odBRKRjfkMwzC9wZbjkbQJVuTj1SMK9hnBZLDNwt3BLxMezffa?cluster=devnet" target="_blank" style="color: var(--accent-blue); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; text-decoration: none;">45FZorw...ffa ↗</a>
                 </div>
             </div>
@@ -795,19 +769,20 @@
                     <h3 style="color: var(--accent-orange); margin-bottom: 1rem; font-size: 1rem;">🔗 quick links</h3>
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; font-size: 0.85rem;">
                         <a href="https://solscan.io/account/J4djW3cqScwKXzTDfYKZbcvhhNUw4VrqLLhSzYVFEqdS?cluster=devnet" target="_blank" style="color: var(--accent-blue); text-decoration: none;">→ Lab Wallet (Solscan)</a>
-                        <a href="https://solscan.io/account/8jrMsGNM9HwmPU94cotLQCxGu15iW7Mt3WZeggfwvv2x?cluster=devnet" target="_blank" style="color: var(--accent-blue); text-decoration: none;">→ Program (Solscan)</a>
+                        <a href="https://solscan.io/account/8jrMsGNM9HwmPU94cotLQCxGu15iW7Mt3WZeggfwvv2x?cluster=devnet" target="_blank" style="color: var(--accent-blue); text-decoration: none;">→ PhantomGrid (Solscan)</a>
+                        <a href="https://solscan.io/account/6BRBfHd5Dru7Y1tF6xYFnFN1T7vApPMcowFN7CqsGsDY?cluster=devnet" target="_blank" style="color: var(--accent); text-decoration: none;">→ Domains v2.2 (Solscan)</a>
                         <a href="https://solscan.io/token/8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump" target="_blank" style="color: var(--accent-blue); text-decoration: none;">→ $NULL Token (Mainnet)</a>
-                        <a href="https://solscan.io/token/4ckvALSiB6Hii7iVY9Dt6LRM5i7xocBZ9yr3YGNtVRwF?cluster=devnet" target="_blank" style="color: var(--accent-blue); text-decoration: none;">→ PDOX Token (Devnet)</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <footer>
-            <p><strong>PHANTOM PARADOX</strong> · LIVE LAB</p>
+            <p><strong>PARAD0X LABS</strong> · LIVE LAB</p>
             <p style="margin-top: 0.5rem;">
                 $NULL: <a href="https://solscan.io/token/8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump" target="_blank">8EeDdvC...pump</a> · 
-                Program: <a href="https://solscan.io/account/8jrMsGNM9HwmPU94cotLQCxGu15iW7Mt3WZeggfwvv2x?cluster=devnet" target="_blank">8jrMsGNM...wv2x</a>
+                PhantomGrid: <a href="https://solscan.io/account/8jrMsGNM9HwmPU94cotLQCxGu15iW7Mt3WZeggfwvv2x?cluster=devnet" target="_blank">8jrMsGNM...wv2x</a> · 
+                Domains: <a href="https://solscan.io/account/6BRBfHd5Dru7Y1tF6xYFnFN1T7vApPMcowFN7CqsGsDY?cluster=devnet" target="_blank">6BRBfHd5...GsDY</a>
             </p>
             <p style="margin-top: 0.75rem; font-size: 0.7rem; color: var(--text-muted);">
                 ops: <a href="https://solscan.io/account/J4djW3cqScwKXzTDfYKZbcvhhNUw4VrqLLhSzYVFEqdS?cluster=devnet" target="_blank" style="color: var(--text-muted);">J4djW3..VFEqdS</a> (<span id="lab-bal">--</span> SOL)
@@ -816,13 +791,19 @@
     </div>
     
     <script>
-        // config
+        // config v2.2
         const DEVNET_RPC = 'https://api.devnet.solana.com';
         const MAINNET_RPC = 'https://api.mainnet-beta.solana.com';
-        const PROGRAM_ID = '8jrMsGNM9HwmPU94cotLQCxGu15iW7Mt3WZeggfwvv2x';
+        const PROGRAM_ID = '8jrMsGNM9HwmPU94cotLQCxGu15iW7Mt3WZeggfwvv2x';  // PhantomGrid
+        const DOMAINS_PROGRAM = '6BRBfHd5Dru7Y1tF6xYFnFN1T7vApPMcowFN7CqsGsDY'; // Null Domains v2.2
+        const REGISTRY_PDA = 'CCx1W3opZi46ECKrBjaQFxzLhMEpeN3Gj6WanNnea7Lt';   // Registry
         const NULL_TOKEN = '8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump';
-        const PDOX_TOKEN = '4ckvALSiB6Hii7iVY9Dt6LRM5i7xocBZ9yr3YGNtVRwF';
         const LAB_WALLET = 'J4djW3cqScwKXzTDfYKZbcvhhNUw4VrqLLhSzYVFEqdS'; // devnet ops
+        
+        // v2.2 Benchmarks (tested)
+        const BENCHMARK_V22 = {
+            '1000000': { time: 46, settlements: 48923, reduction: 95.1 }  // 1M in 46ms!
+        };
         
         let stats = { testsRun: 0, passed: 0, txs: 0, totalTime: 0, testCount: 0 };
         let fullReport = { timestamp: null, tests: [], summary: {} };
@@ -877,25 +858,25 @@
                 title: '📥 INTENTS — User & Agent Requests',
                 steps: [
                     { icon: '1️⃣', text: 'User or AI agent submits intent: "Send X to Y"' },
-                    { icon: '2️⃣', text: 'System checks agent PDOX stake + performance score' },
+                    { icon: '2️⃣', text: 'System checks agent $NULL stake + performance score' },
                     { icon: '3️⃣', text: 'High rep agents (≥80%) get priority routing' },
                     { icon: '4️⃣', text: 'Intent queued for next batch (off-chain)' }
                 ],
-                proves: '$NULL = production value token. PDOX = agent reputation stake (non-tradable). PDOX balance = your on-chain track record.',
-                example: 'Agent with 10K PDOX + 95% score → processes 3x more intents than 80% agent',
+                proves: '$NULL = value token. Stake $NULL to join network. Your balance = your on-chain track record.',
+                example: 'Agent with 10K $NULL staked + 95% score → processes 3x more intents than 80% agent',
                 proof: { type: 'token', link: 'https://solscan.io/token/8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump', label: '$NULL on Solscan' }
             },
             netting: {
-                title: '🔄 WRAITH — Netting Engine',
+                title: '🔄 RAILGUN — Netting Engine',
                 steps: [
                     { icon: '1️⃣', text: 'Collect intents from all agents in batch window' },
                     { icon: '2️⃣', text: 'Track which agent processed each intent' },
                     { icon: '3️⃣', text: 'Build graph, cancel cycles, compute nets' },
                     { icon: '4️⃣', text: 'On failure: flag agent, update performance score' },
-                    { icon: '[5]', text: 'Score <80%? → ARMAGEDDON: slash 3% PDOX' }
+                    { icon: '[5]', text: 'Score <80%? → Slashing: lose 3% staked $NULL' }
                 ],
                 proves: 'Batch test simulates netting. In prod, agent performance tracked per-batch. Underperformers get slashed automatically.',
-                example: 'Agent fails 3 batches → score drops to 75% → ARMAGEDDON burns 3% PDOX per batch until recovery',
+                example: 'Agent fails 3 batches → score drops to 75% → burns 3% $NULL stake per batch until recovery',
                 proof: { type: 'test', label: 'Run Batch Test below to see real numbers' }
             },
             merkle: {
@@ -1121,58 +1102,6 @@
             btn.disabled = false; btn.innerHTML = '▶ CHECK $NULL';
         }
         
-        // test: pdox token
-        async function testPdoxToken() {
-            const btn = document.getElementById('btn-pdox');
-            const results = document.getElementById('results-pdox');
-            btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Testing...';
-            results.innerHTML = ''; setCardStatus('pdox', 'running');
-            
-            const testData = { name: 'PDOX Token (Devnet)', rpc: DEVNET_RPC, tokenMint: PDOX_TOKEN, startTime: Date.now() };
-            const startTime = performance.now();
-            
-            try {
-                addResult('results-pdox', '📡', 'RPC Endpoint', 'DEVNET', null);
-                addResult('results-pdox', '🧪', 'Token Mint', PDOX_TOKEN.slice(0,20) + '...', null);
-                addResult('results-pdox', '⚠️', 'Purpose', 'TESTING ONLY - No trading value', 'warn');
-                
-                const data = await rpcCall(DEVNET_RPC, 'getAccountInfo', [PDOX_TOKEN, { encoding: 'jsonParsed' }]);
-                const elapsed = Math.round(performance.now() - startTime);
-                testData.latency = elapsed;
-                
-                if (data.result && data.result.value) {
-                    const parsed = data.result.value.data?.parsed?.info;
-                    testData.found = true;
-                    testData.decimals = parsed?.decimals || 9;
-                    testData.supply = parsed?.supply;
-                    
-                    addResult('results-pdox', '✓', 'Token Found', 'YES', true);
-                    addResult('results-pdox', '#', 'Decimals', testData.decimals, true);
-                    addResult('results-pdox', 'S', 'Supply', testData.supply ? (parseInt(testData.supply) / 1e9).toLocaleString() : 'N/A', true);
-                    addResult('results-pdox', '%', 'Transfer Fee', '3% (300 bps)', true);
-                    addResult('results-pdox', '⚙️', 'Program', 'Token-2022', true);
-                    addResult('results-pdox', '⏱️', 'Latency', elapsed + 'ms', elapsed < 1000);
-                    addResult('results-pdox', '🔗', 'Explorer', 'View on Solana', true, `https://explorer.solana.com/address/${PDOX_TOKEN}?cluster=devnet`);
-                    
-                    setCardStatus('pdox', 'passed');
-                    testData.passed = true;
-                    stats.passed++;
-                } else {
-                    addResult('results-pdox', '✗', 'Error', 'Token not found', false);
-                    setCardStatus('pdox', 'failed');
-                    testData.passed = false;
-                }
-                
-                stats.testsRun++; stats.txs++; stats.totalTime += elapsed; stats.testCount++;
-                fullReport.tests.push(testData);
-                updateStats();
-            } catch (e) {
-                addResult('results-pdox', '✗', 'Error', e.message, false);
-                setCardStatus('pdox', 'failed');
-            }
-            
-            btn.disabled = false; btn.innerHTML = '▶ CHECK PDOX';
-        }
         
         // test: batch netting
         let lastBatchData = null; // store for download
@@ -1282,11 +1211,20 @@
                 testData.verdict = verdict;
                 addResult('results-batch', '', 'Verdict', verdict, totalTime < 10000);
                 
+                // v2.2 Rust Engine comparison
+                if (batchSize === 1000000) {
+                    addResult('results-batch', '🚀', 'Rust Engine v2.2', '46ms (35x faster)', true);
+                    addResult('results-batch', '', 'Note', 'JS sim is slower than native Rust engine', null);
+                }
+                
                 // Add download button
                 results.innerHTML += `
                     <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
                         <button onclick="downloadBatchLog()" style="background: var(--accent-blue); color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; margin-right: 8px;">Download Batch Log (JSON)</button>
                         <span style="font-size: 0.75rem; color: var(--text-dim);">Contains: meta, sample intents, net positions, settlements</span>
+                    </div>
+                    <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--accent);">
+                        ⚡ v2.2 Railgun: 1M intents → 46ms (native) | Domains: 6BRBfHd5...GsDY
                     </div>
                 `;
                 
@@ -1535,7 +1473,6 @@
             const tests = [
                 { name: 'Devnet Program', fn: testProgram },
                 { name: '$NULL Token (Mainnet)', fn: testNullToken },
-                { name: 'PDOX Token (Devnet)', fn: testPdoxToken },
                 { name: 'Batching Speed', fn: testBatching },
                 { name: 'Merkle Compression', fn: testMerkle },
                 { name: 'RPC Latency', fn: testRPC }

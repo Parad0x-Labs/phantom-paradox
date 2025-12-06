@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>.NULL Project — Complete Technical Overview</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230a0f14' width='100' height='100' rx='12'/><text y='65' x='50' text-anchor='middle' font-size='40' font-family='monospace' fill='%2300ff88'>∅</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #030508;
+            --bg-card: #0a0f14;
+            --bg-elevated: #111820;
+            --border: #1a2530;
+            --accent: #00ff88;
+            --accent-dim: #00ff8860;
+            --accent-blue: #00d4ff;
+            --accent-purple: #a855f7;
+            --accent-orange: #ff9500;
+            --accent-red: #ff4757;
+            --text: #e8f0f8;
+            --text-dim: #6b7c8a;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Space Grotesk', sans-serif; background: var(--bg-void); color: var(--text); min-height: 100vh; line-height: 1.6; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, var(--border) 1px, transparent 1px) 0 0 / 60px 60px, linear-gradient(0deg, var(--border) 1px, transparent 1px) 0 0 / 60px 60px; opacity: 0.08; pointer-events: none; z-index: -1; }
+        
+        header { background: linear-gradient(180deg, var(--bg-card) 0%, transparent 100%); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { font-size: 2rem; }
+        .logo-text { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+        nav { display: flex; gap: 20px; }
+        nav a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; }
+        nav a:hover, nav a.active { color: var(--accent); }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .hero { text-align: center; padding: 3rem 0; }
+        .hero h1 { font-size: 4rem; font-weight: 700; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--accent), var(--accent-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-sub { font-size: 1.2rem; color: var(--text-dim); max-width: 700px; margin: 0 auto 1rem; }
+        
+        .status-bar { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin: 2rem 0; }
+        .status-item { text-align: center; }
+        .status-value { font-size: 2rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .status-label { font-size: 0.8rem; color: var(--text-dim); }
+        .status-done { color: var(--accent); }
+        .status-progress { color: var(--accent-blue); }
+        .status-pending { color: var(--text-dim); }
+        
+        .section { margin: 3rem 0; }
+        .section-title { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-size: 1.4rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+        
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .card-title { font-size: 1.1rem; font-weight: 600; }
+        .card-status { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; }
+        .card-status.done { background: var(--accent); color: #000; }
+        .card-status.tested { background: var(--accent-blue); color: #000; }
+        .card-status.building { background: var(--accent-orange); color: #000; }
+        .card-status.planned { background: var(--bg-elevated); color: var(--text-dim); border: 1px solid var(--border); }
+        .card-status.locked { background: var(--bg-void); color: var(--text-dim); border: 1px dashed var(--border); }
+        
+        .card-content { color: var(--text-dim); font-size: 0.9rem; }
+        .card-content p { margin-bottom: 0.5rem; }
+        
+        .features { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+        .feature { background: var(--bg-elevated); border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; }
+        .feature.done { border-color: var(--accent); color: var(--accent); }
+        .feature.tested { border-color: var(--accent-blue); color: var(--accent-blue); }
+        
+        .proof-link { display: inline-block; margin-top: 1rem; color: var(--accent-blue); text-decoration: none; font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; }
+        .proof-link:hover { text-decoration: underline; }
+        
+        .code-block { background: var(--bg-void); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; overflow-x: auto; white-space: pre; }
+        
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+        
+        .metric-card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
+        .metric-value { font-size: 2.5rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--accent); }
+        .metric-label { font-size: 0.85rem; color: var(--text-dim); margin-top: 0.25rem; }
+        .metric-proof { font-size: 0.7rem; color: var(--accent-blue); margin-top: 0.5rem; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        
+        .timeline { position: relative; padding-left: 30px; }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+        .timeline-item { position: relative; padding-bottom: 1.5rem; }
+        .timeline-item::before { content: ''; position: absolute; left: -26px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--border); }
+        .timeline-item.done::before { background: var(--accent); }
+        .timeline-item.active::before { background: var(--accent-blue); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 10px var(--accent-blue); } 50% { box-shadow: none; } }
+        
+        .warning-box { background: linear-gradient(135deg, #1a1a0a, #2a1a0a); border: 1px solid var(--accent-orange); border-radius: 12px; padding: 1rem; margin: 1rem 0; }
+        .warning-box h4 { color: var(--accent-orange); margin-bottom: 0.5rem; }
+        
+        footer { text-align: center; padding: 3rem 2rem; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+        footer a { color: var(--accent); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span class="logo-icon">∅</span>
+            <div>
+                <div class="logo-text">.NULL PROJECT</div>
+                <div style="font-size: 0.7rem; color: var(--text-dim);">Complete Technical Overview</div>
+            </div>
+        </div>
+        <nav>
+            <a href="../index.html">Home</a>
+            <a href="lab.html">Lab</a>
+            <a href="api.html">API</a>
+            <a href="null-project.html" class="active">.null</a>
+        </nav>
+    </header>
+    
+    <div class="container">
+        <div class="hero">
+            <h1>.null</h1>
+            <p class="hero-sub">Decentralized domains on Solana. P2P content delivery. AI-powered security. Privacy-first architecture.</p>
+        </div>
+        
+        <!-- Status Overview -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-value status-done">7</div>
+                <div class="status-label">Components Built</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value status-done">5</div>
+                <div class="status-label">Devnet Tested</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value status-progress">3</div>
+                <div class="status-label">In Progress</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value status-pending">4</div>
+                <div class="status-label">Planned</div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: P2P Network -->
+        <div class="section">
+            <h2 class="section-title">// 01. P2P Network Layer</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">libp2p Mesh Network</span>
+                    <span class="card-status done">BUILT</span>
+                </div>
+                <div class="card-content">
+                    <p>Decentralized content delivery using libp2p. Nodes discover each other via Kademlia DHT. Content addressed by CID (IPFS-compatible).</p>
+                    <p><strong>Protocol:</strong> QUIC transport, Noise encryption, GossipSub for pub/sub.</p>
+                    <div class="features">
+                        <span class="feature done">kademlia DHT</span>
+                        <span class="feature done">gossipsub</span>
+                        <span class="feature done">noise encryption</span>
+                        <span class="feature done">hole punching</span>
+                        <span class="feature">relay nodes</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Sybil & Eclipse Defense</span>
+                    <span class="card-status done">BUILT</span>
+                </div>
+                <div class="card-content">
+                    <p>Stake-weighted peer selection. Must stake $WNULL to participate as a serving node. Quorum requirement: 3+ peers must agree on content.</p>
+                    <div class="features">
+                        <span class="feature done">stake-to-speak</span>
+                        <span class="feature done">3-peer quorum</span>
+                        <span class="feature done">peer scoring</span>
+                        <span class="feature">reputation decay</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: Domain Resolution -->
+        <div class="section">
+            <h2 class="section-title">// 02. Domain Resolution</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Solana Domain Registry</span>
+                    <span class="card-status tested">DEVNET LIVE</span>
+                </div>
+                <div class="card-content">
+                    <p>On-chain domain registry. Maps human-readable names to IPFS CIDs. Supports registration, transfer, update, expiry.</p>
+                    <div class="code-block">Program:  6BRBfHd5Dru7Y1tF6xYFnFN1T7vApPMcowFN7CqsGsDY
+Registry: CCx1W3opZi46ECKrBjaQFxzLhMEpeN3Gj6WanNnea7Lt
+Network:  devnet</div>
+                    <div class="features">
+                        <span class="feature tested">register_domain</span>
+                        <span class="feature tested">update_cid</span>
+                        <span class="feature tested">transfer_domain</span>
+                        <span class="feature done">reserved_domains</span>
+                        <span class="feature">expiry_renewal</span>
+                    </div>
+                    <a href="https://solscan.io/account/6BRBfHd5Dru7Y1tF6xYFnFN1T7vApPMcowFN7CqsGsDY?cluster=devnet" target="_blank" class="proof-link">→ View on Solscan</a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Resolution Flow</span>
+                    <span class="card-status done">BUILT</span>
+                </div>
+                <div class="card-content">
+                    <div class="code-block">User types: mysite.null
+    │
+    ├─► Browser splits: ["mysite", "null"]
+    ├─► Query Solana: PDA ["domain", "mysite"]
+    ├─► Get CID: QmXyz...
+    ├─► Fetch from P2P network (nearest node)
+    ├─► Decompress (Singularity engine)
+    └─► Render page</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: Tokenomics -->
+        <div class="section">
+            <h2 class="section-title">// 03. $NULL + $WNULL Tokenomics</h2>
+            
+            <div class="grid-2">
+                <div class="card" style="border-color: var(--accent);">
+                    <div class="card-header">
+                        <span class="card-title">$NULL — Value Token</span>
+                        <span class="card-status tested">MAINNET</span>
+                    </div>
+                    <div class="card-content">
+                        <p>Main tradeable token. Deflationary via domain fee burns.</p>
+                        <div class="code-block">Mint: 8EeDdvC...pump
+Supply: ~1B (decreasing)
+Type: Token-2022
+Mint/Freeze: REVOKED</div>
+                        <div class="features">
+                            <span class="feature tested">trading live</span>
+                            <span class="feature tested">burn mechanism</span>
+                            <span class="feature">governance voting</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="border-color: var(--accent-blue);">
+                    <div class="card-header">
+                        <span class="card-title">$WNULL — Utility Token</span>
+                        <span class="card-status building">BUILDING</span>
+                    </div>
+                    <div class="card-content">
+                        <p>Wrapped NULL for node operations. 1:1 wrap/unwrap.</p>
+                        <div class="code-block">Use: Node staking
+     Settlement rewards
+     Bandwidth payments
+Wrap: Lock NULL → Get WNULL
+Unwrap: Burn WNULL → Get NULL</div>
+                        <div class="features">
+                            <span class="feature done">wrap logic</span>
+                            <span class="feature done">unwrap logic</span>
+                            <span class="feature">escrow vault</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Fee Distribution</span>
+                    <span class="card-status done">DESIGNED</span>
+                </div>
+                <div class="card-content">
+                    <div class="code-block">Domain Registration Fee:
+├── 50% → BURNED (deflationary pressure)
+└── 50% → Treasury (node reward pool)
+
+Node Earnings:
+├── Serve content → Earn $WNULL from pool
+├── Uptime bonus → Extra rewards for 99%+ availability
+└── Stake more → Higher priority routing
+
+Custom TLD Auction:
+├── 100% of winning bid → BURNED
+├── TLD owner earns 80% of subdomain fees
+└── 20% → Paradox protocol fee</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: Storage & Replication -->
+        <div class="section">
+            <h2 class="section-title">// 04. Storage & Replication</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Content-Addressed Storage</span>
+                    <span class="card-status done">BUILT</span>
+                </div>
+                <div class="card-content">
+                    <p>IPFS-compatible CID addressing. Content chunked via FastCDC. Replicated across nodes based on demand.</p>
+                    <div class="features">
+                        <span class="feature done">CID generation</span>
+                        <span class="feature done">FastCDC chunking</span>
+                        <span class="feature done">Blake3 hashing</span>
+                        <span class="feature">pinning incentives</span>
+                        <span class="feature">garbage collection</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Replication Strategy</span>
+                    <span class="card-status done">DESIGNED</span>
+                </div>
+                <div class="card-content">
+                    <div class="code-block">Hot Content (high demand):
+├── Replicated to 10+ nodes automatically
+├── Geographic distribution for low latency
+└── Cached at edge nodes
+
+Cold Content (low demand):
+├── Minimum 3 node replication
+├── Owner can pay for more replicas
+└── Garbage collected if unpaid + unused</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 5: Nulla AI -->
+        <div class="section">
+            <h2 class="section-title">// 05. Nulla — AI Integrity Guardian</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Threat Detection System</span>
+                    <span class="card-status done">DESIGNED</span>
+                </div>
+                <div class="card-content">
+                    <p>Anthropomorphic IDS. Nulla visualizes security state. Normal → Alert → GLITCH based on threat level.</p>
+                    
+                    <div class="grid-3" style="margin: 1rem 0;">
+                        <div class="metric-card">
+                            <div style="font-size: 2rem;">😊</div>
+                            <div class="metric-label">Normal Mode</div>
+                            <div class="metric-proof">All systems clear</div>
+                        </div>
+                        <div class="metric-card" style="border-color: var(--accent-orange);">
+                            <div style="font-size: 2rem;">😐</div>
+                            <div class="metric-label">Alert Mode</div>
+                            <div class="metric-proof">Suspicious activity</div>
+                        </div>
+                        <div class="metric-card" style="border-color: var(--accent-red);">
+                            <div style="font-size: 2rem;">😱</div>
+                            <div class="metric-label">GLITCH Mode</div>
+                            <div class="metric-proof">Active attack</div>
+                        </div>
+                    </div>
+                    
+                    <table>
+                        <tr><th>Threat</th><th>Detection</th><th>Response</th></tr>
+                        <tr><td>Port Scan</td><td>Rapid SYN packets</td><td>Alert + log source</td></tr>
+                        <tr><td>Phishing Site</td><td>Domain reputation check</td><td>Block + warn user</td></tr>
+                        <tr><td>Wallet Drain TX</td><td>SetAuthority in simulation</td><td>BLOCK signing</td></tr>
+                        <tr><td>Replay Attack</td><td>Nonce already used</td><td>Reject + alert</td></tr>
+                        <tr><td>DDoS</td><td>CPU > 90%</td><td>Rate limit + shed load</td></tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Transaction Simulation ("Taste Test")</span>
+                    <span class="card-status done">DESIGNED</span>
+                </div>
+                <div class="card-content">
+                    <p>Before signing ANY Solana transaction, Nulla simulates it on a forked state.</p>
+                    <div class="code-block">1. User clicks "Approve" on DApp
+2. Nulla intercepts request
+3. Dry-run simulation against forked chain
+4. Analyze: balance changes, authority changes, suspicious patterns
+5. Safe → "It's just a swap! Yummy." ✓
+6. Danger → GLITCH MODE. "They're stealing your SOL!" ✗ BLOCKED</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Nulla Evolution (Gamification)</span>
+                    <span class="card-status planned">PLANNED</span>
+                </div>
+                <div class="card-content">
+                    <p>Nulla evolves based on user activity. More domains, more activity = higher level Nulla with new abilities.</p>
+                    <div class="code-block">Stage 1: The Spark (Baby) — Basic alerts
+Stage 2: The Wanderer (Child) — Network monitoring  
+Stage 3: The Rebel (Teen) — Active defense
+Stage 4: The Guardian (Master) — Full protection suite
+
+Evolution triggers:
+├── Register 5 domains → Stage 2
+├── Run node for 30 days → Stage 3
+├── Stake 10K NULL → Stage 4
+└── Report valid bug → Bonus XP</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 6: VPN Integration -->
+        <div class="section">
+            <h2 class="section-title">// 06. Ghost Mode (VPN Layer)</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Decentralized VPN</span>
+                    <span class="card-status planned">PLANNED</span>
+                </div>
+                <div class="card-content">
+                    <p>Route traffic through node network. Pay per MB in $WNULL. No central VPN provider.</p>
+                    <div class="code-block">Traffic Flow:
+User → Encrypted tunnel → Exit Node → Internet
+     ← Response ← Exit Node ← Encrypted tunnel
+
+Payment:
+├── Per-MB pricing (set by exit node)
+├── Streaming micropayments via netting
+├── No subscription, pay-as-you-go
+└── Node operators earn $WNULL</div>
+                    <div class="features">
+                        <span class="feature">wireguard tunnels</span>
+                        <span class="feature">multi-hop routing</span>
+                        <span class="feature">bandwidth market</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 7: Paradox Engine -->
+        <div class="section">
+            <h2 class="section-title">// 07. Paradox Engine v2.2</h2>
+            
+            <div class="grid-2">
+                <div class="card" style="border-color: var(--accent);">
+                    <div class="card-header">
+                        <span class="card-title">Singularity Compression</span>
+                        <span class="card-status tested">TESTED</span>
+                    </div>
+                    <div class="card-content">
+                        <p>ZSTD with trained dictionaries. Type-specific preprocessing. Adaptive chunking.</p>
+                        <div class="grid-3" style="margin: 1rem 0;">
+                            <div class="metric-card">
+                                <div class="metric-value">85%+</div>
+                                <div class="metric-label">HTML Ratio</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">88%+</div>
+                                <div class="metric-label">JSON Ratio</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">32%+</div>
+                                <div class="metric-label">PNG Optimization</div>
+                            </div>
+                        </div>
+                        <div class="features">
+                            <span class="feature tested">ZSTD level 19</span>
+                            <span class="feature tested">trained dicts</span>
+                            <span class="feature tested">minify-html</span>
+                            <span class="feature tested">minify-js</span>
+                            <span class="feature tested">oxipng</span>
+                            <span class="feature tested">FastCDC chunks</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="border-color: var(--accent-blue);">
+                    <div class="card-header">
+                        <span class="card-title">Railgun Netting</span>
+                        <span class="card-status tested">TESTED</span>
+                    </div>
+                    <div class="card-content">
+                        <p>Nonce-gated deduplication. Parallel graph processing. Blake3 Merkle trees.</p>
+                        <div class="grid-3" style="margin: 1rem 0;">
+                            <div class="metric-card">
+                                <div class="metric-value">46ms</div>
+                                <div class="metric-label">1M Intents</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">95%+</div>
+                                <div class="metric-label">TX Reduction</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">35x</div>
+                                <div class="metric-label">vs v2.0</div>
+                            </div>
+                        </div>
+                        <div class="features">
+                            <span class="feature tested">nonce dedup</span>
+                            <span class="feature tested">DashMap</span>
+                            <span class="feature tested">rayon parallel</span>
+                            <span class="feature tested">Blake3 Merkle</span>
+                            <span class="feature tested">overflow protection</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Security Features</span>
+                    <span class="card-status tested">TESTED</span>
+                </div>
+                <div class="card-content">
+                    <table>
+                        <tr><th>Attack</th><th>Defense</th><th>Status</th></tr>
+                        <tr><td>Integer Overflow</td><td>checked_add, saturating_sub everywhere</td><td style="color: var(--accent);">✓ Tested</td></tr>
+                        <tr><td>Decompression Bomb</td><td>100MB output limit</td><td style="color: var(--accent);">✓ Tested</td></tr>
+                        <tr><td>Double Spend</td><td>Nonce-gated deduplication</td><td style="color: var(--accent);">✓ Tested</td></tr>
+                        <tr><td>Replay Attack</td><td>Strictly increasing nonces per user</td><td style="color: var(--accent);">✓ Tested</td></tr>
+                        <tr><td>Merkle Forgery</td><td>Domain separator in leaf hashing</td><td style="color: var(--accent);">✓ Tested</td></tr>
+                        <tr><td>Null Address</td><td>Reject all-zero addresses</td><td style="color: var(--accent);">✓ Tested</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 8: Solana Programs -->
+        <div class="section">
+            <h2 class="section-title">// 08. Solana Programs</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Deployed Programs</span>
+                    <span class="card-status tested">DEVNET</span>
+                </div>
+                <div class="card-content">
+                    <table>
+                        <tr><th>Program</th><th>Address</th><th>Status</th></tr>
+                        <tr><td>null_domains</td><td><code>6BRBfHd5Dru7Y1tF6xYFnFN1T7vApPMcowFN7CqsGsDY</code></td><td style="color: var(--accent);">✓ Live</td></tr>
+                        <tr><td>phantomgrid</td><td><code>8jrMsGNM9HwmPU94cotLQCxGu15iW7Mt3WZeggfwvv2x</code></td><td style="color: var(--accent);">✓ Live</td></tr>
+                        <tr><td>paradox_vault</td><td>Coming</td><td style="color: var(--text-dim);">Planned</td></tr>
+                        <tr><td>paradox_staking</td><td>Coming</td><td style="color: var(--text-dim);">Planned</td></tr>
+                        <tr><td>paradox_settlement</td><td>Coming</td><td style="color: var(--accent-orange);">Building</td></tr>
+                    </table>
+                    <a href="https://solscan.io/account/6BRBfHd5Dru7Y1tF6xYFnFN1T7vApPMcowFN7CqsGsDY?cluster=devnet" target="_blank" class="proof-link">→ View Domains Program</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 9: Security Audit -->
+        <div class="section">
+            <h2 class="section-title">// 09. Security Audit Checklist</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Audit Status</span>
+                    <span class="card-status building">IN PROGRESS</span>
+                </div>
+                <div class="card-content">
+                    <table>
+                        <tr><th>Area</th><th>Check</th><th>Status</th></tr>
+                        <tr><td>Rust Engine</td><td>No unsafe blocks without justification</td><td style="color: var(--accent);">✓ Pass</td></tr>
+                        <tr><td>Rust Engine</td><td>All arithmetic checked/saturating</td><td style="color: var(--accent);">✓ Pass</td></tr>
+                        <tr><td>Rust Engine</td><td>Decompression bomb defense</td><td style="color: var(--accent);">✓ Pass</td></tr>
+                        <tr><td>Solana Programs</td><td>PDA validation</td><td style="color: var(--accent);">✓ Pass</td></tr>
+                        <tr><td>Solana Programs</td><td>Authority checks</td><td style="color: var(--accent);">✓ Pass</td></tr>
+                        <tr><td>Electron</td><td>Context isolation</td><td style="color: var(--accent-orange);">In Progress</td></tr>
+                        <tr><td>Electron</td><td>No nodeIntegration in renderer</td><td style="color: var(--accent-orange);">In Progress</td></tr>
+                        <tr><td>P2P</td><td>Sybil resistance</td><td style="color: var(--accent);">✓ Designed</td></tr>
+                        <tr><td>P2P</td><td>Eclipse attack defense</td><td style="color: var(--accent);">✓ Designed</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 10: Launch Strategy -->
+        <div class="section">
+            <h2 class="section-title">// 10. Launch Roadmap</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Milestones</span>
+                </div>
+                <div class="card-content">
+                    <div class="timeline">
+                        <div class="timeline-item done">
+                            <strong>Phase 1: Engine v2.2</strong>
+                            <p style="color: var(--text-dim);">Compression + Netting complete. 1M intents in 46ms.</p>
+                        </div>
+                        <div class="timeline-item done">
+                            <strong>Phase 2: Devnet Deploy</strong>
+                            <p style="color: var(--text-dim);">Domain registry live on Solana devnet.</p>
+                        </div>
+                        <div class="timeline-item active">
+                            <strong>Phase 3: Test Nodes (0/5)</strong>
+                            <p style="color: var(--text-dim);">Deploy 5 test nodes running full stack.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <strong>Phase 4: Apps</strong>
+                            <p style="color: var(--text-dim);">Browser, mobile, extensions with engine.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <strong>Phase 5: Mainnet (100+ nodes)</strong>
+                            <p style="color: var(--text-dim);">Public launch when network proven.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <strong>Phase 6: Custom TLDs (100+ nodes)</strong>
+                            <p style="color: var(--text-dim);">Auction-only TLD creation opens.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <strong>Phase 7: Arbitrum Failover</strong>
+                            <p style="color: var(--text-dim);">Cross-chain backup for congestion.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 11: PNS (Custom TLDs) -->
+        <div class="section">
+            <h2 class="section-title">// 11. Paradox Name Service (Custom TLDs)</h2>
+            
+            <div class="warning-box">
+                <h4>🔒 LOCKED — Requires 100+ Active Nodes</h4>
+                <p style="color: var(--text-dim); font-size: 0.85rem;">Custom TLD creation only unlocks after network proven stable with 100+ nodes for 7+ days.</p>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">TLD Auction System</span>
+                    <span class="card-status locked">POST-MAINNET</span>
+                </div>
+                <div class="card-content">
+                    <p>Auction-only TLD creation. No first-come-first-serve. Anti-squatting by design.</p>
+                    <div class="code-block">Request TLD auction: Pay 10K NULL (burned, non-refundable)
+Auction period: 7 days
+Minimum bid: 100K NULL
+Winner: Entire bid BURNED (100% deflationary)
+TLD owner earns: 80% of all subdomain fees
+Protocol fee: 20%
+
+Anti-gaming:
+├── Same wallet can't win 2 auctions in 30 days
+├── Requester can't bid on own auction
+├── Inactive TLD (90 days) returns to pool
+└── Premium TLDs (.x .ai .btc) require 1000+ nodes</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Apps -->
+        <div class="section">
+            <h2 class="section-title">// Apps & Clients</h2>
+            
+            <div class="grid-3">
+                <div class="metric-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🌐</div>
+                    <div style="font-weight: 600;">Paradox Browser</div>
+                    <div class="metric-label">Electron + Rust Engine</div>
+                    <div class="metric-proof" style="color: var(--accent-orange);">BUILDING</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📱</div>
+                    <div style="font-weight: 600;">Mobile App</div>
+                    <div class="metric-label">iOS + Android</div>
+                    <div class="metric-proof">PLANNED</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🧩</div>
+                    <div style="font-weight: 600;">Extension</div>
+                    <div class="metric-label">Chrome/Firefox/Brave</div>
+                    <div class="metric-proof">PLANNED</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🖥️</div>
+                    <div style="font-weight: 600;">Node Software</div>
+                    <div class="metric-label">Rust Binary</div>
+                    <div class="metric-proof" style="color: var(--accent-orange);">BUILDING</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔧</div>
+                    <div style="font-weight: 600;">CLI Tools</div>
+                    <div class="metric-label">Domain management</div>
+                    <div class="metric-proof" style="color: var(--accent);">DONE</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📚</div>
+                    <div style="font-weight: 600;">SDK</div>
+                    <div class="metric-label">TypeScript + Rust</div>
+                    <div class="metric-proof">PLANNED</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trust -->
+        <div class="section">
+            <h2 class="section-title">// Trust & Transparency</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">What's Open vs Closed</span>
+                </div>
+                <div class="card-content">
+                    <div class="grid-2">
+                        <div>
+                            <h4 style="color: var(--accent); margin-bottom: 0.5rem;">✓ OPEN SOURCE (Auditable)</h4>
+                            <ul style="color: var(--text-dim); font-size: 0.85rem; padding-left: 1.5rem;">
+                                <li>Browser UI (Electron shell)</li>
+                                <li>Network layer (libp2p config)</li>
+                                <li>Domain resolution logic</li>
+                                <li>Wallet integrations</li>
+                                <li>All RPC/API calls</li>
+                                <li>Solana program source</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--accent-orange); margin-bottom: 0.5rem;">🔒 CLOSED (Binary Only)</h4>
+                            <ul style="color: var(--text-dim); font-size: 0.85rem; padding-left: 1.5rem;">
+                                <li>Compression algorithms</li>
+                                <li>Netting algorithms</li>
+                                <li>Dictionary training data</li>
+                            </ul>
+                            <p style="color: var(--text-dim); font-size: 0.8rem; margin-top: 0.5rem;"><em>Why? Competitive advantage. These are the "secret sauce."</em></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Security Commitments</span>
+                </div>
+                <div class="card-content">
+                    <table>
+                        <tr><th>Commitment</th><th>Implementation</th></tr>
+                        <tr><td>No IP Logging</td><td>Source auditable. No IP collection in open code.</td></tr>
+                        <tr><td>No Telemetry</td><td>Zero phone-home. Works fully offline.</td></tr>
+                        <tr><td>Code Signing</td><td>All .exe signed with EV certificate.</td></tr>
+                        <tr><td>Reproducible Builds</td><td>Deterministic builds for verification (in progress).</td></tr>
+                        <tr><td>Antivirus Clean</td><td>Target: 0 false positives on VirusTotal.</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <div class="section">
+            <h2 class="section-title">// Verify Everything</h2>
+            <div class="card">
+                <div class="card-content">
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                        <a href="https://solscan.io/account/6BRBfHd5Dru7Y1tF6xYFnFN1T7vApPMcowFN7CqsGsDY?cluster=devnet" target="_blank" class="proof-link">→ Domains Program (Devnet)</a>
+                        <a href="https://solscan.io/tx/4zJ8hrVAsjqecDCAGsJce6goqhrQKC7dccsEmaCL3QhcKQ5XiACazwNyazVLt8UQywRRWgvnWCFGuawR8baHVQHj?cluster=devnet" target="_blank" class="proof-link">→ Deploy TX</a>
+                        <a href="https://solscan.io/token/8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump" target="_blank" class="proof-link">→ $NULL Token (Mainnet)</a>
+                        <a href="lab.html" class="proof-link">→ Live Lab Tests</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <strong>PARAD0X LABS</strong> · Paradox Engine · .NULL<br><br>
+        <a href="https://x.com/parad0x_labs" target="_blank">@parad0x_labs</a> · 
+        <a href="https://solscan.io/token/8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump" target="_blank">$NULL</a> · 
+        <a href="https://solscan.io/account/6BRBfHd5Dru7Y1tF6xYFnFN1T7vApPMcowFN7CqsGsDY?cluster=devnet" target="_blank">Devnet</a>
+    </footer>
+</body>
+</html>
