@@ -376,8 +376,24 @@ const Nulla = {
   // Setup event listeners
   setupListeners() {
     const form = document.getElementById('nulla-form');
-    form.addEventListener('submit', (e) => {
+    const input = document.getElementById('nulla-input');
+    
+    if (!form || !input) {
+      console.error('Nulla: Form or input not found!');
+      return;
+    }
+
+    // Remove old listeners by cloning
+    const newForm = form.cloneNode(true);
+    form.parentNode.replaceChild(newForm, form);
+    
+    // Get fresh reference to input after clone
+    this.inputEl = document.getElementById('nulla-input');
+    
+    // Form submit handler
+    newForm.addEventListener('submit', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       const text = this.inputEl.value.trim();
       if (text) {
         this.handleInput(text);
@@ -385,8 +401,23 @@ const Nulla = {
       }
     });
 
+    // Also handle Enter key directly on input
+    this.inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        const text = this.inputEl.value.trim();
+        if (text) {
+          this.handleInput(text);
+          this.inputEl.value = '';
+        }
+      }
+    });
+
     // Eye tracking
     document.addEventListener('mousemove', (e) => this.trackEyes(e));
+    
+    console.log('Nulla: Listeners attached');
   },
 
   // Eye tracking
