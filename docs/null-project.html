@@ -410,10 +410,13 @@ Cold Content (low demand):
                 </div>
                 <div class="nulla-speech" id="nulla-speech">Click "Run Check" and I'll do REAL network scans. No simulations.</div>
                 <div class="nulla-status safe" id="nulla-status">READY</div>
+                <!-- Text Input (Coming Soon) -->
+                <div style="width: 100%; max-width: 400px; margin-top: 1rem;">
+                    <input type="text" id="nulla-input" placeholder="Talk to Nulla... (coming soon)" disabled style="width: 100%; padding: 0.75rem 1rem; background: var(--bg-void); border: 1px solid var(--border); border-radius: 8px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
+                </div>
                 <div class="nulla-controls">
                     <button onclick="runNullaCheck()" id="nulla-btn" class="primary">▶ RUN CHECK</button>
                     <button onclick="showNullaStats()">📊 STATS</button>
-                    <button onclick="resetNulla()">🗑️ RESET</button>
                 </div>
                 <div id="nulla-log" style="margin-top: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); max-height: 150px; overflow-y: auto; text-align: left; width: 100%; max-width: 500px; background: var(--bg-void); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border);"></div>
             </div>
