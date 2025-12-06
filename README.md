@@ -1,155 +1,82 @@
-# PHANTOM PARADOX
+# Paradox Engine
 
-> **Anonymous payment infrastructure on Solana** — Fast, cheap, private.
+Decentralized domains + payment netting on Solana.
 
-![Status](https://img.shields.io/badge/Network-Devnet-orange) ![License](https://img.shields.io/badge/License-BSL%201.1-blue)
-
----
-
-## 🚀 What We Built
-
-**Phantom Paradox** is a privacy layer for Solana that makes payments untraceable using statistical mixing and Merkle compression.
-
-### Core Features
-
-| Feature | Description |
-|---------|-------------|
-| **🔒 Anonymous Payments** | Break sender→receiver links on-chain |
-| **⚡ Sub-second Settlement** | ~500ms for standard transactions |
-| **💰 Ultra-low Fees** | $0.00001 per transaction |
-| **📦 Batch Processing** | 1M+ intents per batch |
-| **🤖 Agent Network** | Decentralized relay infrastructure |
+![Status](https://img.shields.io/badge/Network-Devnet-orange)
 
 ---
 
-## 📊 Live Stats
+## What It Does
+
+**.null domains** — Human-readable names on Solana. Register `yourname.null`, point it to content.
+
+**Netting engine** — Batch millions of payment intents, settle net differences on-chain. 95%+ transaction reduction.
+
+**P2P delivery** — Content served from node network, not central servers.
+
+---
+
+## Numbers
 
 | Metric | Value |
 |--------|-------|
-| Anonymity (Standard) | 91.6% |
-| Anonymity (MAX) | 99.9% |
-| Cost per proof | $0.00001 |
-| Netting speed @ 100K | <500ms |
+| Netting (1M intents) | 46ms |
+| TX reduction | 95%+ |
+| Compression (HTML) | 85%+ |
+| Compression (JSON) | 88%+ |
 
 ---
 
-## 🔗 Live Demo
-
-**Production Site:** [labsx402.github.io/phantom-paradox](https://labsx402.github.io/phantom-paradox/)
-
-### Pages
-
-| Page | Description |
-|------|-------------|
-| [Landing](https://labsx402.github.io/phantom-paradox/) | Main site |
-| [Agent Network](https://labsx402.github.io/phantom-paradox/docs/agents.html) | Join as agent, download apps |
-| [Live Simulation](https://labsx402.github.io/phantom-paradox/docs/sim.html) | 24/7 trading simulation |
-| [API Docs](https://labsx402.github.io/phantom-paradox/docs/api.html) | Verify transactions |
-| [Lab](https://labsx402.github.io/phantom-paradox/docs/lab.html) | Live tests |
-
----
-
-## ⛓️ On-Chain (Devnet)
+## On-Chain
 
 ```
-Program ID:  8jrMsGNM9HwmPU94cotLQCxGu15iW7Mt3WZeggfwvv2x
-PDOX Token:  4ckvALSiB6Hii7iVY9Dt6LRM5i7xocBZ9yr3YGNtVRwF
-Network:     Solana Devnet
-```
-
-**Verify:**
-```bash
-curl -s -X POST https://api.devnet.solana.com \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"getAccountInfo","params":["8jrMsGNM9HwmPU94cotLQCxGu15iW7Mt3WZeggfwvv2x",{"encoding":"base64"}]}' \
-  | jq '.result.value.executable'
-# Returns: true
+$NULL Token:     8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump (mainnet)
+Domains Program: 6BRBfHd5Dru7Y1tF6xYFnFN1T7vApPMcowFN7CqsGsDY (devnet)
+PhantomGrid:     8jrMsGNM9HwmPU94cotLQCxGu15iW7Mt3WZeggfwvv2x (devnet)
 ```
 
 ---
 
-## 🏗️ Architecture
+## Pages
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  USER INTENT                                                │
-│      ↓                                                      │
-│  NETTING ENGINE ──→ Batch 1M+ intents                      │
-│      ↓                                                      │
-│  POLTERGEIST ──→ Ghost injection (noise)                   │
-│      ↓                                                      │
-│  HYDRA VAULT ──→ Multi-shard distribution                  │
-│      ↓                                                      │
-│  MERKLE COMMIT ──→ On-chain proof                          │
-│      ↓                                                      │
-│  ANONYMOUS PAYOUT ──→ Recipient gets funds                 │
-└─────────────────────────────────────────────────────────────┘
-
-Chain analysis sees: Vault → Payout (no sender link)
-```
+| Page | Link |
+|------|------|
+| Lab (Live Tests) | [lab.html](https://parad0x-labs.github.io/phantom-paradox/docs/lab.html) |
+| .null Project | [null-project.html](https://parad0x-labs.github.io/phantom-paradox/docs/null-project.html) |
+| API | [api.html](https://parad0x-labs.github.io/phantom-paradox/docs/api.html) |
 
 ---
 
-## 📱 Agent Network
-
-Earn SOL/USDC by sharing bandwidth, compute, and verification:
-
-| Agent Type | Earnings | Download |
-|------------|----------|----------|
-| 📱 Android App | $0.15-0.30/day | [APK](https://labsx402.github.io/phantom-paradox/docs/phantom-agent-android-v0.1.1.apk) |
-| 🌐 Browser Extension | $0.30-0.75/day | [Chrome](https://labsx402.github.io/phantom-paradox/docs/phantom-agent-chrome-v0.1.0.zip) / [Firefox](https://labsx402.github.io/phantom-paradox/docs/phantom-agent-firefox-v0.1.0.xpi) |
-| 💻 Desktop | $0.75-2.25/day | Coming Soon |
-| 🔲 Phantom Box | $1.50-4.50/day | Coming Soon |
-
----
-
-## 📁 Repository Structure
+## Structure
 
 ```
-├── programs/           # Solana/Anchor smart contracts
-│   ├── phantom_vault/  # Main vault program
-│   └── pdox_token/     # Token program (Token-2022)
-├── offchain/           # Backend services
-│   └── src/            # Netting engine, API
-├── agents/             # Agent applications
-│   ├── android/        # Kotlin/Compose app
-│   ├── browser-extension/  # Chrome/Firefox
-│   └── desktop/        # Rust binary
-├── docs/               # GitHub Pages site
-├── scripts/            # Deployment & testing
-└── frontend/           # UI components
+programs/           Solana contracts (Anchor)
+offchain/           Backend services
+docs/               GitHub Pages
+scripts/            Deployment tools
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## Versions
 
-| Layer | Technology |
-|-------|------------|
-| Smart Contracts | Rust, Anchor Framework |
-| Backend | TypeScript, Node.js |
-| Mobile | Kotlin, Jetpack Compose |
-| Desktop | Rust |
-| Frontend | HTML/CSS/JS |
-| Blockchain | Solana (Devnet) |
+| Version | Codename | Key Change |
+|---------|----------|------------|
+| v2.2 | Singularity | Trained compression dicts |
+| v2.1 | Railgun | Nonce-gated netting (46ms) |
+| v2.0 | Power | Rust rewrite |
+| v1.0 | Prototype | TypeScript PoC |
 
----
-
-## 📜 License
-
-[Business Source License 1.1](./LICENSE)
-
-- ✅ View, study, test: Free
-- ⏳ Commercial use: License required until Dec 2028
-- 🔓 After Dec 2028: Converts to MIT
+See [CHANGELOG.md](./CHANGELOG.md) for details.
 
 ---
 
-## 🔗 Links
+## Links
 
-- **Website:** [labsx402.github.io/phantom-paradox](https://labsx402.github.io/phantom-paradox/)
-- **Twitter:** [@SLS_0x](https://twitter.com/SLS_0x)
+- **Site:** [parad0x-labs.github.io/phantom-paradox](https://parad0x-labs.github.io/phantom-paradox/)
+- **X:** [@parad0x_labs](https://x.com/parad0x_labs)
+- **Token:** [$NULL on Solscan](https://solscan.io/token/8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump)
 
 ---
 
-*"In the shadows, we trust math"*
+*Parad0x Labs*

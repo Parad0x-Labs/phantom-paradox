@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API — Phantom Paradox</title>
+    <title>API — Paradox Engine</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230a0f14' width='100' height='100' rx='12'/><text y='55' x='50' text-anchor='middle' font-size='24' font-family='monospace' fill='%2300ff88'>API</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -168,11 +168,13 @@
         <h2>// constants</h2>
         
         <div class="endpoint">
-            <pre><code>PROGRAM_ID = "8jrMsGNM9HwmPU94cotLQCxGu15iW7Mt3WZeggfwvv2x"
-PDOX_TOKEN = "4ckvALSiB6Hii7iVY9Dt6LRM5i7xocBZ9yr3YGNtVRwF"
-CONFIG_PDA = "HHefAxKZQqaLj3V2Hd9XfTBRPe8av4JTmvE4DWiygER8"
-NETWORK    = "devnet"
-RPC_URL    = "https://api.devnet.solana.com"</code></pre>
+            <pre><code>// Mainnet
+NULL_TOKEN = "8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump"
+
+// Devnet
+DOMAINS_PROGRAM = "6BRBfHd5Dru7Y1tF6xYFnFN1T7vApPMcowFN7CqsGsDY"
+PHANTOMGRID     = "8jrMsGNM9HwmPU94cotLQCxGu15iW7Mt3WZeggfwvv2x"
+DEVNET_RPC      = "https://api.devnet.solana.com"</code></pre>
         </div>
         
         <h2>// verification endpoints</h2>
@@ -197,20 +199,20 @@ RPC_URL    = "https://api.devnet.solana.com"</code></pre>
             <p><strong>Expected:</strong> <code>executable: true</code>, <code>owner: BPFLoaderUpgradeab1e...</code></p>
         </div>
         
-        <h3>2. Verify PDOX Token</h3>
+        <h3>2. Verify $NULL Token (Mainnet)</h3>
         <div class="endpoint">
             <div class="endpoint-header">
                 <span class="method">GET</span>
                 <span class="url">Solana RPC - getAccountInfo</span>
             </div>
-            <p>Check token exists with Token-2022 program (transfer fee enabled).</p>
+            <p>Check $NULL token exists on mainnet. Token-2022 with mint/freeze revoked.</p>
             <button class="copy-btn" onclick="copyCode('verify-token')">copy</button>
-            <pre id="verify-token"><code>curl -X POST https://api.devnet.solana.com -H "Content-Type: application/json" -d '{
+            <pre id="verify-token"><code>curl -X POST https://api.mainnet-beta.solana.com -H "Content-Type: application/json" -d '{
   "jsonrpc": "2.0",
   "id": 1,
   "method": "getAccountInfo",
   "params": [
-    "4ckvALSiB6Hii7iVY9Dt6LRM5i7xocBZ9yr3YGNtVRwF",
+    "8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump",
     {"encoding": "base64"}
   ]
 }'</code></pre>
