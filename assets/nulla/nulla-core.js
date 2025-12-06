@@ -675,6 +675,47 @@ const Nulla = {
     return { text: response, mood };
   },
 
+  // ⚠️ SECURITY: PII Detection - Protects users from storing secrets
+  checkForPII(value) {
+    if (typeof value !== 'string') return { blocked: false };
+    const v = value.trim();
+    
+    // Private Key patterns (Solana base58, Ethereum hex, etc.)
+    const privateKeyPatterns = [
+      /^[1-9A-HJ-NP-Za-km-z]{64,88}$/,  // Solana private key (64-88 chars base58)
+      /^0x[a-fA-F0-9]{64}$/,             // Ethereum private key
+      /^[a-fA-F0-9]{64}$/,               // Raw hex 32 bytes
+    ];
+    
+    // Seed phrase patterns (12, 24 word mnemonics)
+    const seedPhrasePattern = /^(\w+\s+){11,23}\w+$/;
+    
+    // Check private keys
+    for (const pattern of privateKeyPatterns) {
+      if (pattern.test(v)) {
+        return { blocked: true, type: 'a PRIVATE KEY' };
+      }
+    }
+    
+    // Check seed phrases
+    if (seedPhrasePattern.test(v)) {
+      const words = v.split(/\s+/);
+      if (words.length === 12 || words.length === 24) {
+        return { blocked: true, type: 'a SEED PHRASE' };
+      }
+    }
+    
+    // Check for "private key" or "seed phrase" mentioned
+    const dangerKeywords = ['private key', 'seed phrase', 'mnemonic', 'secret key', 'recovery phrase'];
+    for (const keyword of dangerKeywords) {
+      if (v.toLowerCase().includes(keyword)) {
+        return { blocked: true, type: 'SENSITIVE DATA' };
+      }
+    }
+    
+    return { blocked: false };
+  },
+
   handleTeachFact(text) {
     const patterns = [
       { regex: /my name is (\w+)|call me (\w+)/i, type: 'name', extract: (m) => m[1] || m[2] },
@@ -687,6 +728,16 @@ const Nulla = {
       const match = text.match(regex);
       if (match) {
         const extracted = extract(match);
+        
+        // ⚠️ SECURITY: PII Scrubber - Refuse to store sensitive data
+        const piiCheck = this.checkForPII(type === 'custom' ? extracted.value : extracted);
+        if (piiCheck.blocked) {
+          this.setMood('alert');
+          return {
+            text: `🛡️ SECURITY BLOCK: I detected what looks like ${piiCheck.type}. I REFUSE to store sensitive secrets. This protects you! Never share private keys with anyone - not even me.`,
+            mood: 'alert'
+          };
+        }
         
         if (type === 'name') {
           this.state.userProfile.preferredName = extracted;
