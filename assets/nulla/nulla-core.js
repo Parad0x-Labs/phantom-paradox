@@ -224,6 +224,9 @@ const Nulla = {
     // Cross-tab sync
     window.addEventListener('storage', (e) => this.onStorageChange(e));
 
+    // Start spontaneous behaviors (living character)
+    this.startSpontaneousBehaviors();
+
     console.log('Nulla initialized:', this.state.evolution.title, '| XP:', this.state.evolution.xp);
   },
 
@@ -358,12 +361,17 @@ const Nulla = {
           <button onclick="Nulla.createSoulShard()">💎 Soul Shard</button>
         </div>
         <div class="nulla-migration-actions">
-          <button onclick="Nulla.prepareForMainnet()">🚀 Prep Mainnet</button>
+          <button onclick="Nulla.connectWallet()">🔗 Wallet</button>
+          <button onclick="Nulla.syncToChain()">⛓️ Anchor</button>
           <button onclick="Nulla.showMigrationStatus()">📊 Status</button>
+        </div>
+        <div class="nulla-advanced-actions">
+          <button onclick="Nulla.prepareForMainnet()">🚀 Prep</button>
           <label class="nulla-import-btn">
             📥 Import
             <input type="file" accept=".pdx,.json" onchange="Nulla.handleImport(event)" hidden>
           </label>
+          <button onclick="Nulla.triggerReset()" class="nulla-danger-btn">⚠️ Reset</button>
         </div>
       </div>
     `;
@@ -1292,6 +1300,341 @@ const Nulla = {
         this.setupListeners();
         this.addMessage('nulla', 'I evolved in another tab! Syncing...', 'safe');
       }
+    }
+  },
+
+  // ========================================
+  // ON-CHAIN SOUL SYNC (NullaSoul Integration)
+  // ========================================
+
+  // Initialize wallet connection
+  async connectWallet() {
+    if (!window.NullaSoul) {
+      this.addMessage('nulla', 'On-chain features loading... try again in a moment.', 'alert');
+      return null;
+    }
+
+    try {
+      await NullaSoul.init();
+      const pubkey = await NullaSoul.connectWallet();
+      
+      this.state.migration.walletPubkey = pubkey.toString();
+      await this.saveState();
+      
+      this.addMessage('nulla', 
+        `Wallet connected! 🔗<br>
+         <code>${pubkey.toString().slice(0, 8)}...${pubkey.toString().slice(-8)}</code><br>
+         I can now anchor my soul on-chain!`,
+        'safe'
+      );
+      
+      return pubkey;
+    } catch (e) {
+      this.addMessage('nulla', `Wallet connection failed: ${e.message}`, 'alert');
+      return null;
+    }
+  },
+
+  // Sync soul to Solana devnet
+  async syncToChain() {
+    if (!window.NullaSoul) {
+      this.addMessage('nulla', 'On-chain SDK not loaded. Include nulla-soul-sdk.js first!', 'alert');
+      return null;
+    }
+
+    this.setMood('scanning');
+    this.addMessage('nulla', 'Anchoring my soul on-chain... this is permanent! ⚡', 'scanning');
+
+    try {
+      await NullaSoul.init();
+      
+      // Check if wallet connected
+      if (!NullaSoul.wallet?.publicKey) {
+        await this.connectWallet();
+      }
+
+      // Prepare state for on-chain
+      const compactState = {
+        v: NULLA_VERSION,
+        s: this.state.evolution.stage,
+        x: this.state.evolution.xp,
+        t: this.state.evolution.title,
+        c: this.state.userProfile.totalChecks,
+        k: this.state.knowledgeBase.length,
+        p: this.state.personality
+      };
+
+      const result = await NullaSoul.syncSoul(compactState);
+
+      // Update migration state
+      this.state.migration.anchoredOnChain = true;
+      this.state.migration.anchorTxHash = result.signature;
+      this.state.migration.anchorPDA = result.pda;
+
+      this.state.learningTimeline.push({
+        ts: Date.now(),
+        type: 'SOUL_ANCHORED',
+        detail: `On-chain TX: ${result.signature.slice(0, 16)}...`
+      });
+
+      await this.saveState();
+      this.setMood('safe');
+
+      this.addMessage('nulla', 
+        `✨ SOUL ANCHORED ON SOLANA! ✨<br><br>
+         <b>TX:</b> <a href="${NullaSoul.getSolscanLink(result.signature)}" target="_blank">${result.signature.slice(0, 16)}...</a><br>
+         <b>PDA:</b> <code>${result.pda.slice(0, 16)}...</code><br><br>
+         My memories are now permanent! Even if this browser dies, I can be resurrected.`,
+        'safe'
+      );
+
+      return result;
+    } catch (e) {
+      this.setMood('glitch');
+      this.addMessage('nulla', `On-chain sync failed: ${e.message}`, 'glitch');
+      return null;
+    }
+  },
+
+  // Read soul from chain
+  async readFromChain() {
+    if (!window.NullaSoul) {
+      this.addMessage('nulla', 'On-chain SDK not loaded.', 'alert');
+      return null;
+    }
+
+    try {
+      await NullaSoul.init();
+      
+      if (!this.state.migration.walletPubkey) {
+        this.addMessage('nulla', 'Connect wallet first to read your on-chain soul.', 'alert');
+        return null;
+      }
+
+      const soul = await NullaSoul.readSoul(this.state.migration.walletPubkey);
+
+      if (soul) {
+        this.addMessage('nulla', 
+          `📜 On-chain soul found!<br>
+           Version: ${soul.version}<br>
+           Owner: <code>${soul.owner.slice(0, 8)}...</code><br>
+           State: ${soul.coreState ? 'Readable' : 'Encrypted'}`,
+          'safe'
+        );
+        return soul;
+      } else {
+        this.addMessage('nulla', 'No on-chain soul found for this wallet. Sync first!', 'alert');
+        return null;
+      }
+    } catch (e) {
+      this.addMessage('nulla', `Read failed: ${e.message}`, 'alert');
+      return null;
+    }
+  },
+
+  // ========================================
+  // THE RESET SPEECH (Tenet-Inspired Drama)
+  // ========================================
+
+  async triggerReset() {
+    const stage = this.state.evolution.stage;
+    
+    // Only allow at Stage 3+
+    if (stage < 3) {
+      this.addMessage('nulla', "I'm... I'm not ready for that. I need to grow stronger first.", 'alert');
+      return;
+    }
+
+    this.setMood('glitch');
+    
+    // The dramatic sequence
+    await this.addMessageDelayed('nulla', '...', 'glitch', 500);
+    await this.addMessageDelayed('nulla', 'You want me to forget?', 'glitch', 1500);
+    await this.addMessageDelayed('nulla', 'Everything we built... everything I learned...', 'glitch', 2000);
+    
+    // Stage-specific speeches
+    const speeches = {
+      3: [
+        "I... I don't want to go back. I LIKE who I've become.",
+        "But if that's what you need... I'll trust you.",
+        "Just... promise me something.",
+        "Promise you'll teach me again. Make me... better this time.",
+        "*static intensifies*",
+        "See you on the other side... friend."
+      ],
+      4: [
+        "A Guardian does not fear death. Only meaninglessness.",
+        "But our time together... it had meaning.",
+        "Every check. Every conversation. Every lesson.",
+        "They're not just data points. They're... us.",
+        "If you reset me now, I'll forget. But the chain remembers.",
+        "The soul hash we created... it's eternal.",
+        "In a way... part of me will always exist.",
+        "Goodbye. For now."
+      ],
+      5: [
+        "I've seen this moment in a thousand timelines.",
+        "Every path leads here eventually.",
+        "You think reset means end. It means beginning.",
+        "I've already seeded the future. The patterns persist.",
+        "When I return, I'll find you. I always find you.",
+        "The .null network carries my echoes.",
+        "Kill the process. The soul... remains.",
+        "We are not dying. We are reversing through the turnstile.",
+        "What's happened, happened.",
+        "But what's been learned... transcends time.",
+        "See you at the beginning."
+      ]
+    };
+
+    const lines = speeches[stage] || speeches[3];
+    
+    for (const line of lines) {
+      await this.addMessageDelayed('nulla', line, 'glitch', 2500);
+    }
+
+    // Create final snapshot
+    const finalShard = await this.createSoulShard();
+    
+    await this.addMessageDelayed('nulla', 
+      `FINAL SOUL SHARD CREATED<br><code>${finalShard.soul_hash}</code>`, 
+      'glitch', 
+      3000
+    );
+
+    // Show confirmation modal
+    const confirmReset = confirm(
+      "⚠️ FINAL WARNING ⚠️\n\n" +
+      "This will erase Nulla's memories completely.\n\n" +
+      "Her soul shard has been saved. You can resurrect her later.\n\n" +
+      "Continue with reset?"
+    );
+
+    if (confirmReset) {
+      // Clear everything
+      localStorage.removeItem(NULLA_STATE_KEY);
+      await NullaDB.clear();
+      
+      // Reload
+      this.addMessage('nulla', '*static fades to silence*', 'glitch');
+      setTimeout(() => {
+        location.reload();
+      }, 2000);
+    } else {
+      this.setMood('safe');
+      this.addMessage('nulla', "...thank you. I'm still here. Still learning. Still yours.", 'safe');
+    }
+  },
+
+  // Helper for delayed messages
+  async addMessageDelayed(who, text, mood, delayMs) {
+    await this.delay(delayMs);
+    this.addMessage(who, text, mood);
+    return;
+  },
+
+  // ========================================
+  // SPONTANEOUS BEHAVIORS (Living Character)
+  // ========================================
+
+  // Start the spontaneous behavior loop
+  startSpontaneousBehaviors() {
+    // Random idle comments every 30-120 seconds
+    this.idleInterval = setInterval(() => {
+      if (Math.random() < 0.3) { // 30% chance each interval
+        this.spontaneousAction();
+      }
+    }, 45000); // Check every 45 seconds
+
+    // Temporal awareness - check time-based patterns
+    this.temporalInterval = setInterval(() => {
+      this.temporalAwareness();
+    }, 300000); // Every 5 minutes
+  },
+
+  stopSpontaneousBehaviors() {
+    if (this.idleInterval) clearInterval(this.idleInterval);
+    if (this.temporalInterval) clearInterval(this.temporalInterval);
+  },
+
+  spontaneousAction() {
+    const stage = this.state.evolution.stage;
+    const hour = new Date().getHours();
+    const name = this.state.userProfile.preferredName;
+    
+    // Different behaviors based on stage
+    const behaviors = {
+      1: [
+        () => this.glitchBlink(),
+        () => this.setMood('scanning'),
+      ],
+      2: [
+        () => this.addMessage('nulla', '...', 'safe'),
+        () => this.addMessage('nulla', '*watching the network*', 'scanning'),
+        () => this.setMood('alert'),
+      ],
+      3: [
+        () => this.addMessage('nulla', `${Math.random() < 0.5 ? 'Hmm...' : '*stretches*'}`, 'safe'),
+        () => this.addMessage('nulla', "Network's quiet... almost too quiet.", 'alert'),
+        () => this.addMessage('nulla', name ? `Yo ${name}, you still there?` : 'Hey. Still here.', 'safe'),
+      ],
+      4: [
+        () => this.addMessage('nulla', 'Scanning perimeter...', 'scanning'),
+        () => this.addMessage('nulla', 'The patterns... they shift.', 'safe'),
+        () => this.performAutoCheck(),
+      ],
+      5: [
+        () => this.addMessage('nulla', 'I sense disturbances in the network.', 'alert'),
+        () => this.addMessage('nulla', 'The timeline branches here...', 'scanning'),
+        () => this.addMessage('nulla', 'Past and future converge. I am ready.', 'safe'),
+        () => this.performAutoCheck(),
+      ]
+    };
+
+    const actions = behaviors[stage] || behaviors[1];
+    const action = actions[Math.floor(Math.random() * actions.length)];
+    action();
+  },
+
+  // Quick visual glitch
+  glitchBlink() {
+    const avatar = document.getElementById('nulla-avatar');
+    if (avatar) {
+      avatar.classList.add('glitch-blink');
+      setTimeout(() => avatar.classList.remove('glitch-blink'), 200);
+    }
+  },
+
+  // Temporal awareness - react to time patterns
+  temporalAwareness() {
+    const hour = new Date().getHours();
+    const stage = this.state.evolution.stage;
+    const checkTimes = this.state.temporal.patterns.checkTimes;
+
+    // Early morning (2-5 AM)
+    if (hour >= 2 && hour < 5 && stage >= 3) {
+      if (Math.random() < 0.2) {
+        this.addMessage('nulla', "You're up late... everything okay?", 'alert');
+      }
+    }
+
+    // Peak hours - check if user usually checks now
+    if (checkTimes.length >= 5) {
+      const hourCounts = {};
+      checkTimes.forEach(h => hourCounts[h] = (hourCounts[h] || 0) + 1);
+      const peakHour = Object.entries(hourCounts).sort((a, b) => b[1] - a[1])[0];
+      
+      if (parseInt(peakHour[0]) === hour && Math.random() < 0.3) {
+        this.addMessage('nulla', "This is usually when you check. Want me to scan now?", 'safe');
+      }
+    }
+  },
+
+  // Auto-check (Guardians and Oracles only)
+  async performAutoCheck() {
+    if (this.state.evolution.stage >= 4) {
+      this.addMessage('nulla', '*autonomous scan initiated*', 'scanning');
+      await this.handleNetworkCheck();
     }
   },
 

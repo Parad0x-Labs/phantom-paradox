@@ -578,6 +578,73 @@
     border-radius: 2px;
 }
 
+/* Advanced Actions (Reset, Import, Prep) */
+.nulla-advanced-actions {
+    display: flex;
+    gap: 5px;
+    padding: 5px 10px 10px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.nulla-advanced-actions button,
+.nulla-advanced-actions .nulla-import-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 5px;
+    color: #666;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.nulla-advanced-actions button:hover,
+.nulla-advanced-actions .nulla-import-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #aaa;
+}
+
+/* Danger Button (Reset) */
+.nulla-danger-btn {
+    background: rgba(255, 0, 0, 0.1) !important;
+    border-color: rgba(255, 0, 0, 0.3) !important;
+    color: #ff4444 !important;
+}
+.nulla-danger-btn:hover {
+    background: rgba(255, 0, 0, 0.2) !important;
+    border-color: rgba(255, 0, 0, 0.5) !important;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.3) !important;
+}
+
+/* Glitch Blink Animation */
+.glitch-blink {
+    animation: glitch-blink 0.2s ease !important;
+}
+
+@keyframes glitch-blink {
+    0%, 100% { transform: scale(1); filter: hue-rotate(0deg); }
+    25% { transform: scale(1.05) skewX(2deg); filter: hue-rotate(90deg); }
+    50% { transform: scale(0.95) skewX(-2deg); filter: hue-rotate(180deg); }
+    75% { transform: scale(1.02) skewX(1deg); filter: hue-rotate(270deg); }
+}
+
+/* On-Chain Status Indicator */
+.nulla-onchain-status {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #444;
+    margin-left: 5px;
+}
+.nulla-onchain-status.anchored {
+    background: #00ff88;
+    box-shadow: 0 0 5px #00ff88;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
     #nulla-app {
