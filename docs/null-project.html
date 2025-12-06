@@ -98,23 +98,65 @@
         footer { text-align: center; padding: 3rem 2rem; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 4rem; }
         footer a { color: var(--accent); text-decoration: none; }
         
-        /* Nulla Interactive Demo */
-        .nulla-container { display: flex; flex-direction: column; align-items: center; padding: 2rem; background: linear-gradient(180deg, var(--bg-void) 0%, var(--bg-card) 100%); border-radius: 16px; margin-bottom: 2rem; cursor: pointer; user-select: none; transition: all 0.3s; }
-        .nulla-container:hover { transform: scale(1.02); }
-        .nulla-avatar { font-size: 6rem; transition: all 0.3s; filter: drop-shadow(0 0 20px var(--accent)); }
-        .nulla-avatar.alert { filter: drop-shadow(0 0 20px var(--accent-orange)); animation: shake 0.5s; }
-        .nulla-avatar.glitch { filter: drop-shadow(0 0 30px var(--accent-red)); animation: glitch 0.3s infinite; }
-        .nulla-speech { margin-top: 1rem; padding: 1rem 1.5rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; font-size: 0.9rem; max-width: 400px; text-align: center; position: relative; }
+        /* Nulla Character System */
+        .nulla-container { display: flex; flex-direction: column; align-items: center; padding: 2rem; background: linear-gradient(180deg, var(--bg-void) 0%, var(--bg-card) 100%); border-radius: 16px; margin-bottom: 2rem; user-select: none; transition: all 0.3s; }
+        
+        /* Nulla Avatar - The Character */
+        .nulla-character { position: relative; width: 120px; height: 120px; }
+        .nulla-body { width: 100%; height: 100%; border: 4px solid var(--accent); border-radius: 50%; position: relative; background: radial-gradient(circle at 30% 30%, var(--bg-elevated), var(--bg-void)); box-shadow: 0 0 30px var(--accent), inset 0 0 20px rgba(0,255,136,0.1); transition: all 0.3s; }
+        .nulla-body::before { content: ''; position: absolute; top: 50%; left: 10%; right: 10%; height: 4px; background: var(--accent); transform: translateY(-50%) rotate(-45deg); transition: all 0.3s; }
+        
+        /* Nulla Eyes */
+        .nulla-eyes { position: absolute; top: 35%; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; }
+        .nulla-eye { width: 12px; height: 12px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); transition: all 0.3s; animation: blink 4s infinite; }
+        @keyframes blink { 0%, 96%, 100% { transform: scaleY(1); } 98% { transform: scaleY(0.1); } }
+        
+        /* Nulla Mouth */
+        .nulla-mouth { position: absolute; bottom: 28%; left: 50%; transform: translateX(-50%); width: 24px; height: 8px; border-bottom: 3px solid var(--accent); border-radius: 0 0 12px 12px; transition: all 0.3s; }
+        
+        /* MOOD STATES */
+        /* Safe/Happy */
+        .nulla-character.safe .nulla-body { border-color: var(--accent); box-shadow: 0 0 30px var(--accent), inset 0 0 20px rgba(0,255,136,0.1); animation: float 3s ease-in-out infinite; }
+        .nulla-character.safe .nulla-body::before { background: var(--accent); }
+        .nulla-character.safe .nulla-eye { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+        .nulla-character.safe .nulla-mouth { border-color: var(--accent); height: 12px; border-radius: 0 0 12px 12px; }
+        
+        /* Alert/Worried */
+        .nulla-character.alert .nulla-body { border-color: var(--accent-orange); box-shadow: 0 0 30px var(--accent-orange); animation: shake 0.5s; }
+        .nulla-character.alert .nulla-body::before { background: var(--accent-orange); }
+        .nulla-character.alert .nulla-eye { background: var(--accent-orange); box-shadow: 0 0 10px var(--accent-orange); width: 14px; height: 10px; border-radius: 50% 50% 40% 40%; }
+        .nulla-character.alert .nulla-mouth { border-color: var(--accent-orange); width: 16px; height: 4px; border-radius: 0; }
+        
+        /* Glitch/Danger */
+        .nulla-character.glitch .nulla-body { border-color: var(--accent-red); box-shadow: 0 0 40px var(--accent-red); animation: glitch 0.2s infinite; }
+        .nulla-character.glitch .nulla-body::before { background: var(--accent-red); }
+        .nulla-character.glitch .nulla-eye { background: var(--accent-red); box-shadow: 0 0 15px var(--accent-red); width: 16px; height: 4px; border-radius: 0; }
+        .nulla-character.glitch .nulla-mouth { border-color: var(--accent-red); width: 20px; height: 10px; border-bottom: none; border-top: 3px solid var(--accent-red); border-radius: 12px 12px 0 0; }
+        
+        /* Scanning/Working */
+        .nulla-character.scanning .nulla-body { border-color: var(--accent-blue); box-shadow: 0 0 30px var(--accent-blue); animation: pulse 1s infinite; }
+        .nulla-character.scanning .nulla-body::before { background: var(--accent-blue); animation: spin 2s linear infinite; }
+        .nulla-character.scanning .nulla-eye { background: var(--accent-blue); animation: none; }
+        @keyframes spin { from { transform: translateY(-50%) rotate(0deg); } to { transform: translateY(-50%) rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        
+        /* Animations */
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px) rotate(-2deg); } 75% { transform: translateX(4px) rotate(2deg); } }
+        @keyframes glitch { 0% { transform: translate(0); filter: hue-rotate(0deg); } 25% { transform: translate(-3px, 2px); filter: hue-rotate(90deg); } 50% { transform: translate(2px, -3px); filter: hue-rotate(180deg); } 75% { transform: translate(-2px, -2px); filter: hue-rotate(270deg); } 100% { transform: translate(0); } }
+        
+        .nulla-speech { margin-top: 1.5rem; padding: 1rem 1.5rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; font-size: 0.9rem; max-width: 400px; text-align: center; position: relative; }
         .nulla-speech::before { content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid var(--border); }
         .nulla-status { margin-top: 0.5rem; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; }
         .nulla-status.safe { color: var(--accent); }
         .nulla-status.alert { color: var(--accent-orange); }
         .nulla-status.danger { color: var(--accent-red); }
-        .nulla-hint { margin-top: 1rem; font-size: 0.7rem; color: var(--text-dim); }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        @keyframes glitch { 0% { transform: translate(0); filter: drop-shadow(0 0 30px var(--accent-red)) hue-rotate(0deg); } 25% { transform: translate(-2px, 2px); filter: drop-shadow(0 0 30px #ff0000) hue-rotate(90deg); } 50% { transform: translate(2px, -2px); filter: drop-shadow(0 0 30px #00ff00) hue-rotate(180deg); } 75% { transform: translate(-2px, -2px); filter: drop-shadow(0 0 30px #0000ff) hue-rotate(270deg); } 100% { transform: translate(0); filter: drop-shadow(0 0 30px var(--accent-red)) hue-rotate(360deg); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .nulla-avatar.safe { animation: float 3s ease-in-out infinite; }
+        .nulla-status.scanning { color: var(--accent-blue); }
+        .nulla-controls { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+        .nulla-controls button { padding: 0.5rem 1rem; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text); border-radius: 6px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; transition: all 0.2s; }
+        .nulla-controls button:hover { border-color: var(--accent); color: var(--accent); }
+        .nulla-controls button.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+        .nulla-controls button.primary:hover { background: #00cc6a; }
     </style>
 </head>
 <body>
@@ -356,11 +398,24 @@ Cold Content (low demand):
             
             <!-- Interactive Nulla Demo - REAL CHECKS -->
             <div class="nulla-container" id="nulla-demo">
-                <div class="nulla-avatar safe" id="nulla-face">∅</div>
+                <!-- Nulla Character -->
+                <div class="nulla-character safe" id="nulla-char">
+                    <div class="nulla-body">
+                        <div class="nulla-eyes">
+                            <div class="nulla-eye"></div>
+                            <div class="nulla-eye"></div>
+                        </div>
+                        <div class="nulla-mouth"></div>
+                    </div>
+                </div>
                 <div class="nulla-speech" id="nulla-speech">Click "Run Check" and I'll do REAL network scans. No simulations.</div>
                 <div class="nulla-status safe" id="nulla-status">READY</div>
-                <button onclick="runNullaCheck()" id="nulla-btn" style="margin-top: 1rem; padding: 0.75rem 2rem; background: var(--accent); color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'JetBrains Mono', monospace;">▶ RUN CHECK</button>
-                <div id="nulla-log" style="margin-top: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); max-height: 150px; overflow-y: auto; text-align: left; width: 100%; max-width: 500px;"></div>
+                <div class="nulla-controls">
+                    <button onclick="runNullaCheck()" id="nulla-btn" class="primary">▶ RUN CHECK</button>
+                    <button onclick="showNullaStats()">📊 STATS</button>
+                    <button onclick="resetNulla()">🗑️ RESET</button>
+                </div>
+                <div id="nulla-log" style="margin-top: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); max-height: 150px; overflow-y: auto; text-align: left; width: 100%; max-width: 500px; background: var(--bg-void); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border);"></div>
             </div>
             
             <script>
@@ -368,6 +423,58 @@ Cold Content (low demand):
                 const DEVNET_RPC = 'https://api.devnet.solana.com';
                 const NULL_TOKEN = '8EeDdvCRmFAzVD4takkBrNNwkeUTUQh4MscRK5Fzpump';
                 const DOMAINS_PROGRAM = '6BRBfHd5Dru7Y1tF6xYFnFN1T7vApPMcowFN7CqsGsDY';
+                
+                // NULLA LEARNING SYSTEM - Stores real data, learns patterns
+                const NULLA_STORAGE_KEY = 'nulla_learning_v1';
+                
+                function getNullaMemory() {
+                    try {
+                        const data = localStorage.getItem(NULLA_STORAGE_KEY);
+                        return data ? JSON.parse(data) : { checks: [], patterns: { avgLatency: 0, totalChecks: 0, issueRate: 0, lastCheck: null, streak: 0 } };
+                    } catch { return { checks: [], patterns: { avgLatency: 0, totalChecks: 0, issueRate: 0, lastCheck: null, streak: 0 } }; }
+                }
+                
+                function saveNullaMemory(memory) {
+                    localStorage.setItem(NULLA_STORAGE_KEY, JSON.stringify(memory));
+                }
+                
+                function learnFromCheck(result) {
+                    const memory = getNullaMemory();
+                    // Store check result
+                    memory.checks.push({
+                        ts: Date.now(),
+                        latency: result.avgLatency,
+                        issues: result.issues,
+                        status: result.status
+                    });
+                    // Keep last 100 checks
+                    if (memory.checks.length > 100) memory.checks = memory.checks.slice(-100);
+                    // Update patterns
+                    const p = memory.patterns;
+                    p.totalChecks++;
+                    p.avgLatency = Math.round(memory.checks.reduce((a, c) => a + c.latency, 0) / memory.checks.length);
+                    p.issueRate = Math.round(memory.checks.filter(c => c.issues > 0).length / memory.checks.length * 100);
+                    p.lastCheck = Date.now();
+                    // Streak: consecutive clean checks
+                    let streak = 0;
+                    for (let i = memory.checks.length - 1; i >= 0; i--) {
+                        if (memory.checks[i].issues === 0) streak++; else break;
+                    }
+                    p.streak = streak;
+                    saveNullaMemory(memory);
+                    return memory;
+                }
+                
+                function getPersonalizedGreeting() {
+                    const memory = getNullaMemory();
+                    const p = memory.patterns;
+                    if (p.totalChecks === 0) return "Hey! I'm Nulla. Run a check and I'll start learning your network patterns.";
+                    if (p.totalChecks < 3) return `Check #${p.totalChecks + 1}! I'm still learning. Run more checks so I can spot patterns.`;
+                    if (p.streak >= 5) return `${p.streak} clean checks in a row! Your network is solid. Avg latency: ${p.avgLatency}ms`;
+                    if (p.issueRate > 30) return `I've noticed ${p.issueRate}% of your checks have issues. Might want to check your connection.`;
+                    if (p.avgLatency > 800) return `Your avg latency is ${p.avgLatency}ms. That's slow. Network congested?`;
+                    return `I've done ${p.totalChecks} checks for you. Avg: ${p.avgLatency}ms, ${p.issueRate}% issue rate.`;
+                }
                 
                 function log(msg) {
                     const el = document.getElementById('nulla-log');
@@ -377,14 +484,13 @@ Cold Content (low demand):
                 }
                 
                 function setNullaState(state, speech, status) {
-                    const face = document.getElementById('nulla-face');
+                    const char = document.getElementById('nulla-char');
                     const speechEl = document.getElementById('nulla-speech');
                     const statusEl = document.getElementById('nulla-status');
-                    face.className = 'nulla-avatar ' + state;
-                    face.textContent = state === 'safe' ? '∅' : state === 'alert' ? '⚠' : '✖';
+                    char.className = 'nulla-character ' + state;
                     speechEl.textContent = speech;
                     statusEl.textContent = status;
-                    statusEl.className = 'nulla-status ' + state;
+                    statusEl.className = 'nulla-status ' + (state === 'glitch' ? 'danger' : state);
                 }
                 
                 async function rpcCall(url, method, params) {
@@ -411,7 +517,7 @@ Cold Content (low demand):
                     try {
                         // Check 1: Mainnet RPC Health
                         log('🔍 Checking Mainnet RPC...');
-                        setNullaState('alert', 'Scanning Mainnet RPC health...', 'SCANNING');
+                        setNullaState('scanning', 'Scanning Mainnet RPC health...', 'SCANNING');
                         const mainnet = await rpcCall(MAINNET_RPC, 'getHealth', []);
                         totalLatency += mainnet.latency;
                         if (mainnet.data.result === 'ok') {
@@ -436,7 +542,7 @@ Cold Content (low demand):
                         
                         // Check 3: Devnet Program
                         log('🔍 Checking Domains program on devnet...');
-                        setNullaState('alert', 'Verifying Solana programs...', 'SCANNING');
+                        setNullaState('scanning', 'Verifying Solana programs...', 'SCANNING');
                         const program = await rpcCall(DEVNET_RPC, 'getAccountInfo', [DOMAINS_PROGRAM, {encoding: 'base64'}]);
                         totalLatency += program.latency;
                         if (program.data.result?.value?.executable) {
@@ -459,8 +565,18 @@ Cold Content (low demand):
                         log(`AVG LATENCY: ${avgLatency}ms`);
                         log(`ISSUES: ${issues}`);
                         
+                        // LEARNING: Store this check result
+                        const result = { avgLatency, issues, status: issues === 0 ? 'healthy' : 'issues' };
+                        const memory = learnFromCheck(result);
+                        log(`📚 LEARNED: Check #${memory.patterns.totalChecks}`);
+                        log(`📊 Your avg: ${memory.patterns.avgLatency}ms`);
+                        log(`📈 Issue rate: ${memory.patterns.issueRate}%`);
+                        if (memory.patterns.streak > 1) log(`🔥 Streak: ${memory.patterns.streak} clean`);
+                        
                         if (issues === 0 && avgLatency < 500) {
-                            setNullaState('safe', `All clear! ${avgLatency}ms avg latency. Network healthy.`, 'ALL SYSTEMS GO');
+                            const streak = memory.patterns.streak;
+                            const msg = streak >= 3 ? `${streak} clean checks! You're on fire. ${avgLatency}ms.` : `All clear! ${avgLatency}ms avg latency.`;
+                            setNullaState('safe', msg, 'ALL SYSTEMS GO');
                             log(`STATUS: ✓ HEALTHY`);
                         } else if (issues <= 1 || avgLatency < 1000) {
                             setNullaState('alert', `Minor issues detected. ${issues} warning(s). ${avgLatency}ms latency.`, 'ELEVATED');
@@ -478,6 +594,29 @@ Cold Content (low demand):
                     btn.disabled = false;
                     btn.textContent = '▶ RUN CHECK';
                 }
+                
+                function showNullaStats() {
+                    const memory = getNullaMemory();
+                    const p = memory.patterns;
+                    alert(`NULLA LEARNING STATS\n\nTotal Checks: ${p.totalChecks}\nAvg Latency: ${p.avgLatency}ms\nIssue Rate: ${p.issueRate}%\nClean Streak: ${p.streak}\nLast Check: ${p.lastCheck ? new Date(p.lastCheck).toLocaleString() : 'Never'}\n\nData stored in localStorage.`);
+                }
+                
+                function resetNulla() {
+                    if (confirm('Reset all Nulla learning data?')) {
+                        localStorage.removeItem(NULLA_STORAGE_KEY);
+                        document.getElementById('nulla-speech').textContent = "Memory wiped! I'm starting fresh.";
+                        document.getElementById('nulla-log').innerHTML = '[RESET] Learning data cleared<br>';
+                    }
+                }
+                
+                // Init with personalized greeting
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.getElementById('nulla-speech').textContent = getPersonalizedGreeting();
+                    const memory = getNullaMemory();
+                    if (memory.patterns.totalChecks > 0) {
+                        document.getElementById('nulla-status').textContent = `LEARNED: ${memory.patterns.totalChecks} checks`;
+                    }
+                });
             </script>
             
             <div class="card">

@@ -1,0 +1,250 @@
+/* ================================================
+   NULLA CHARACTER SYSTEM
+   Parad0x Labs - Consistent across all pages
+   ================================================ */
+
+/* Nulla Container */
+.nulla-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background: linear-gradient(180deg, #030508 0%, #0a0f14 100%);
+    border-radius: 16px;
+    user-select: none;
+}
+
+/* Nulla Character Base */
+.nulla-character {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.nulla-body {
+    width: 100%;
+    height: 100%;
+    border: 4px solid #00ff88;
+    border-radius: 50%;
+    position: relative;
+    background: radial-gradient(circle at 30% 30%, #111820, #030508);
+    box-shadow: 0 0 30px #00ff88, inset 0 0 20px rgba(0,255,136,0.1);
+    transition: all 0.3s;
+}
+
+/* The NULL slash */
+.nulla-body::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 4px;
+    background: #00ff88;
+    transform: translateY(-50%) rotate(-45deg);
+    transition: all 0.3s;
+}
+
+/* Eyes */
+.nulla-eyes {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+}
+
+.nulla-eye {
+    width: 12px;
+    height: 12px;
+    background: #00ff88;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00ff88;
+    transition: all 0.3s;
+    animation: nulla-blink 4s infinite;
+}
+
+/* Mouth */
+.nulla-mouth {
+    position: absolute;
+    bottom: 28%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 8px;
+    border-bottom: 3px solid #00ff88;
+    border-radius: 0 0 12px 12px;
+    transition: all 0.3s;
+}
+
+/* ========== MOOD STATES ========== */
+
+/* Safe/Happy - Green, floating */
+.nulla-character.safe .nulla-body {
+    border-color: #00ff88;
+    box-shadow: 0 0 30px #00ff88, inset 0 0 20px rgba(0,255,136,0.1);
+    animation: nulla-float 3s ease-in-out infinite;
+}
+.nulla-character.safe .nulla-body::before { background: #00ff88; }
+.nulla-character.safe .nulla-eye { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
+.nulla-character.safe .nulla-mouth { border-color: #00ff88; height: 12px; }
+
+/* Alert/Worried - Orange, shaking */
+.nulla-character.alert .nulla-body {
+    border-color: #ff9500;
+    box-shadow: 0 0 30px #ff9500;
+    animation: nulla-shake 0.5s;
+}
+.nulla-character.alert .nulla-body::before { background: #ff9500; }
+.nulla-character.alert .nulla-eye { 
+    background: #ff9500; 
+    box-shadow: 0 0 10px #ff9500;
+    width: 14px; 
+    height: 10px; 
+    border-radius: 50% 50% 40% 40%;
+}
+.nulla-character.alert .nulla-mouth { 
+    border-color: #ff9500; 
+    width: 16px; 
+    height: 4px; 
+    border-radius: 0;
+}
+
+/* Glitch/Danger - Red, glitching */
+.nulla-character.glitch .nulla-body {
+    border-color: #ff4757;
+    box-shadow: 0 0 40px #ff4757;
+    animation: nulla-glitch 0.2s infinite;
+}
+.nulla-character.glitch .nulla-body::before { background: #ff4757; }
+.nulla-character.glitch .nulla-eye { 
+    background: #ff4757; 
+    box-shadow: 0 0 15px #ff4757;
+    width: 16px; 
+    height: 4px; 
+    border-radius: 0;
+}
+.nulla-character.glitch .nulla-mouth { 
+    border-color: #ff4757; 
+    width: 20px; 
+    height: 10px; 
+    border-bottom: none; 
+    border-top: 3px solid #ff4757; 
+    border-radius: 12px 12px 0 0;
+}
+
+/* Scanning/Working - Blue, spinning */
+.nulla-character.scanning .nulla-body {
+    border-color: #00d4ff;
+    box-shadow: 0 0 30px #00d4ff;
+    animation: nulla-pulse 1s infinite;
+}
+.nulla-character.scanning .nulla-body::before { 
+    background: #00d4ff; 
+    animation: nulla-spin 2s linear infinite;
+}
+.nulla-character.scanning .nulla-eye { 
+    background: #00d4ff; 
+    box-shadow: 0 0 10px #00d4ff;
+    animation: none;
+}
+.nulla-character.scanning .nulla-mouth { border-color: #00d4ff; }
+
+/* Thinking - Purple, pulsing */
+.nulla-character.thinking .nulla-body {
+    border-color: #a855f7;
+    box-shadow: 0 0 30px #a855f7;
+    animation: nulla-pulse 2s infinite;
+}
+.nulla-character.thinking .nulla-body::before { background: #a855f7; }
+.nulla-character.thinking .nulla-eye { 
+    background: #a855f7; 
+    animation: nulla-look 2s infinite;
+}
+.nulla-character.thinking .nulla-mouth { border-color: #a855f7; width: 8px; }
+
+/* ========== ANIMATIONS ========== */
+
+@keyframes nulla-blink {
+    0%, 96%, 100% { transform: scaleY(1); }
+    98% { transform: scaleY(0.1); }
+}
+
+@keyframes nulla-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes nulla-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px) rotate(-2deg); }
+    75% { transform: translateX(4px) rotate(2deg); }
+}
+
+@keyframes nulla-glitch {
+    0% { transform: translate(0); filter: hue-rotate(0deg); }
+    25% { transform: translate(-3px, 2px); filter: hue-rotate(90deg); }
+    50% { transform: translate(2px, -3px); filter: hue-rotate(180deg); }
+    75% { transform: translate(-2px, -2px); filter: hue-rotate(270deg); }
+    100% { transform: translate(0); }
+}
+
+@keyframes nulla-spin {
+    from { transform: translateY(-50%) rotate(0deg); }
+    to { transform: translateY(-50%) rotate(360deg); }
+}
+
+@keyframes nulla-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes nulla-look {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
+}
+
+/* ========== SIZE VARIANTS ========== */
+
+.nulla-character.small { width: 60px; height: 60px; }
+.nulla-character.small .nulla-body { border-width: 2px; }
+.nulla-character.small .nulla-body::before { height: 2px; }
+.nulla-character.small .nulla-eye { width: 6px; height: 6px; }
+.nulla-character.small .nulla-eyes { gap: 10px; }
+.nulla-character.small .nulla-mouth { width: 12px; height: 4px; border-width: 2px; }
+
+.nulla-character.large { width: 180px; height: 180px; }
+.nulla-character.large .nulla-body { border-width: 6px; }
+.nulla-character.large .nulla-body::before { height: 6px; }
+.nulla-character.large .nulla-eye { width: 18px; height: 18px; }
+.nulla-character.large .nulla-eyes { gap: 30px; }
+.nulla-character.large .nulla-mouth { width: 36px; height: 12px; border-width: 4px; }
+
+/* ========== SPEECH BUBBLE ========== */
+
+.nulla-speech {
+    margin-top: 1.5rem;
+    padding: 1rem 1.5rem;
+    background: #111820;
+    border: 1px solid #1a2530;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    max-width: 400px;
+    text-align: center;
+    position: relative;
+    color: #e8f0f8;
+}
+
+.nulla-speech::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #1a2530;
+}
+
